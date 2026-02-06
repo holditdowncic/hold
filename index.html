@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hold It Down CIC | Amplifying Unheard Voices</title>
+  <meta name="description" content="Hold It Down CIC - A bold movement rooted in lived experience, creating inclusive spaces for young people and families in Croydon, UK.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Cursor glow effect -->
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <!-- Preloader -->
+  <div class="preloader" id="preloader">
+    <div class="preloader-inner">
+      <div class="preloader-text">
+        <span>H</span><span>O</span><span>L</span><span>D</span>
+        <span>&nbsp;</span><span>I</span><span>T</span>
+        <span>&nbsp;</span><span>D</span><span>O</span><span>W</span><span>N</span>
+      </div>
+      <div class="preloader-bar"><div class="preloader-bar-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        <span class="logo-hold">HOLD IT</span>
+        <span class="logo-down">DOWN</span>
+      </a>
+      <div class="nav-links" id="navLinks">
+        <a href="#about" class="nav-link">About</a>
+        <a href="#mission" class="nav-link">Mission</a>
+        <a href="#programs" class="nav-link">Programs</a>
+        <a href="#impact" class="nav-link">Impact</a>
+        <a href="#contact" class="nav-link">Contact</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero" id="hero">
+    <div class="hero-bg">
+      <div class="hero-gradient"></div>
+      <div class="hero-particles" id="heroParticles"></div>
+      <div class="hero-grid"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge reveal">
+        <span class="badge-dot"></span>
+        Community Interest Company &mdash; Croydon, UK
+      </div>
+      <h1 class="hero-title">
+        <span class="title-line reveal">
+          <span class="title-word">Amplifying</span>
+        </span>
+        <span class="title-line reveal">
+          <span class="title-word accent">Unheard</span>
+          <span class="title-word">Voices</span>
+        </span>
+      </h1>
+      <p class="hero-subtitle reveal">
+        A bold movement rooted in lived experience and driven by the urgency for change.
+        We centre truth, nurture belonging, and cultivate a culture where connection,
+        care, and courage are lived actions.
+      </p>
+      <div class="hero-actions reveal">
+        <a href="#programs" class="btn btn-primary">
+          <span>Our Programs</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M7 17L17 7M17 7H7M17 7V17"/>
+          </svg>
+        </a>
+        <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-indicator">
+        <div class="scroll-line"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Banner -->
+  <section class="stats-banner">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-item reveal">
+          <span class="stat-number" data-count="2022">0</span>
+          <span class="stat-label">Founded</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item reveal">
+          <span class="stat-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </span>
+          <span class="stat-label">Youth & Families</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item reveal">
+          <span class="stat-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </span>
+          <span class="stat-label">Community Led</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item reveal">
+          <span class="stat-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+          </span>
+          <span class="stat-label">Croydon, UK</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section class="about section" id="about">
+    <div class="container">
+      <div class="section-grid">
+        <div class="section-left">
+          <span class="section-tag reveal">Who We Are</span>
+          <h2 class="section-title reveal">
+            Built on <span class="accent">lived experience</span>,
+            driven by <span class="accent">purpose</span>
+          </h2>
+        </div>
+        <div class="section-right">
+          <div class="about-text">
+            <p class="large-text reveal">
+              Hold It Down CIC is a Community Interest Company based in Thornton Heath, Croydon.
+              We create inclusive spaces for young people and families from underrepresented
+              backgrounds to express themselves, heal, and lead.
+            </p>
+            <p class="reveal">
+              We invest in what matters most: <strong>people</strong>. Nurturing local talent and strengthening
+              grassroots networks, we lay the groundwork for transformation that is meaningful,
+              resilient, and enduring. Our approach is grounded, realistic, and responsive to
+              community needs.
+            </p>
+            <p class="reveal">
+              Every story matters. We build platforms that centre real experiences and lived
+              truth, prioritising intergenerational connection and youth voice. Through creativity,
+              emotional honesty, and community-led approaches, we ensure people feel seen,
+              valued, and confident in shaping their futures.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mission Section -->
+  <section class="mission section" id="mission">
+    <div class="container">
+      <div class="mission-header">
+        <span class="section-tag reveal">Our Mission</span>
+        <h2 class="section-title centered reveal">
+          Connection, care, and courage &mdash;<br>
+          not just values, but <span class="accent">lived actions</span>
+        </h2>
+      </div>
+      <div class="values-grid">
+        <div class="value-card reveal">
+          <div class="value-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              <line x1="12" y1="2" x2="12" y2="4"/>
+            </svg>
+          </div>
+          <div class="value-number">01</div>
+          <h3 class="value-title">Empowerment</h3>
+          <p class="value-desc">
+            Improving the lives of young people by challenging them to become their best selves,
+            fostering personal growth and resilience through safe, culturally affirming environments.
+          </p>
+        </div>
+        <div class="value-card reveal">
+          <div class="value-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+              <line x1="9" y1="9" x2="9.01" y2="9"/>
+              <line x1="15" y1="9" x2="15.01" y2="9"/>
+            </svg>
+          </div>
+          <div class="value-number">02</div>
+          <h3 class="value-title">Opportunities</h3>
+          <p class="value-desc">
+            Creating meaningful activities that develop skills and confidence.
+            We open doors through workshops, events, and programmes designed
+            with and for the community.
+          </p>
+        </div>
+        <div class="value-card reveal">
+          <div class="value-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <div class="value-number">03</div>
+          <h3 class="value-title">Community</h3>
+          <p class="value-desc">
+            Encouraging young people to be a positive force in their communities,
+            promoting active participation, social responsibility, and intergenerational
+            connection.
+          </p>
+        </div>
+        <div class="value-card reveal">
+          <div class="value-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <div class="value-number">04</div>
+          <h3 class="value-title">Environment</h3>
+          <p class="value-desc">
+            Supporting young people in shaping the environment they live in,
+            fostering a sense of ownership and pride in their communities
+            and local spaces.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Programs Section -->
+  <section class="programs section" id="programs">
+    <div class="container">
+      <div class="section-grid">
+        <div class="section-left">
+          <span class="section-tag reveal">What We Do</span>
+          <h2 class="section-title reveal">
+            Programmes shaped <span class="accent">by</span> and
+            <span class="accent">for</span> the community
+          </h2>
+        </div>
+        <div class="section-right">
+          <p class="large-text reveal">
+            Our initiatives are shaped through co-design with participants,
+            responding to what local families and young people tell us they need.
+          </p>
+        </div>
+      </div>
+
+      <div class="programs-grid">
+        <!-- Roots & Wings -->
+        <div class="program-card featured reveal">
+          <div class="program-tag">National Lottery Funded</div>
+          <div class="program-content">
+            <h3 class="program-title">Roots & Wings</h3>
+            <p class="program-desc">
+              A family-focused programme creating honest spaces for expression and belonging.
+              Co-designed with families and young people, Roots & Wings nurtures intergenerational
+              connection and amplifies youth voice through creative workshops, dialogue sessions,
+              and community events.
+            </p>
+            <div class="program-tags">
+              <span class="tag">Family Focused</span>
+              <span class="tag">Co-Designed</span>
+              <span class="tag">Youth Voice</span>
+            </div>
+          </div>
+          <div class="program-visual">
+            <div class="visual-circle"></div>
+            <div class="visual-circle delay"></div>
+          </div>
+        </div>
+
+        <!-- Cultural Education -->
+        <div class="program-card reveal">
+          <div class="program-content">
+            <h3 class="program-title">Cultural Education</h3>
+            <p class="program-desc">
+              Culturally safe spaces where young people explore identity, heritage,
+              and creative expression. We celebrate diversity and challenge inequality
+              through education that centres lived experience.
+            </p>
+            <div class="program-tags">
+              <span class="tag">Identity</span>
+              <span class="tag">Heritage</span>
+              <span class="tag">Creative Expression</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Youth Workshops -->
+        <div class="program-card reveal">
+          <div class="program-content">
+            <h3 class="program-title">Youth Development</h3>
+            <p class="program-desc">
+              Skills-building workshops and mentoring that equip young people
+              with confidence, resilience, and the tools to shape their futures.
+              We nurture local talent and celebrate potential.
+            </p>
+            <div class="program-tags">
+              <span class="tag">Workshops</span>
+              <span class="tag">Mentoring</span>
+              <span class="tag">Skills</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Community Support -->
+        <div class="program-card reveal">
+          <div class="program-content">
+            <h3 class="program-title">Community Support</h3>
+            <p class="program-desc">
+              Strengthening grassroots networks and providing support for families
+              affected by inequality and exclusion. Real, grounded work that meets
+              people where they are.
+            </p>
+            <div class="program-tags">
+              <span class="tag">Grassroots</span>
+              <span class="tag">Families</span>
+              <span class="tag">Inclusion</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Impact / Testimonial Section -->
+  <section class="impact section" id="impact">
+    <div class="container">
+      <div class="impact-header">
+        <span class="section-tag reveal">Our Impact</span>
+        <h2 class="section-title centered reveal">
+          Every story matters.<br>
+          Every voice <span class="accent">counts</span>.
+        </h2>
+      </div>
+      <div class="impact-grid">
+        <div class="impact-card reveal">
+          <div class="impact-quote">&ldquo;</div>
+          <p>
+            Hold It Down gave my family a space where we could just be ourselves.
+            My son found his voice through the workshops, and I found a community
+            that truly understands us.
+          </p>
+          <div class="impact-author">
+            <div class="author-info">
+              <span class="author-name">Community Parent</span>
+              <span class="author-role">Roots & Wings Participant</span>
+            </div>
+          </div>
+        </div>
+        <div class="impact-card reveal">
+          <div class="impact-quote">&ldquo;</div>
+          <p>
+            For the first time, I felt like someone actually cared about what I had
+            to say. The mentors here don't just talk at you &mdash; they listen, they understand,
+            and they push you to believe in yourself.
+          </p>
+          <div class="impact-author">
+            <div class="author-info">
+              <span class="author-name">Young Person</span>
+              <span class="author-role">Youth Programme Member</span>
+            </div>
+          </div>
+        </div>
+        <div class="impact-card reveal">
+          <div class="impact-quote">&ldquo;</div>
+          <p>
+            This isn't charity &mdash; it's community. Hold It Down is built by people who've
+            lived it. That's what makes it real. That's what makes it work.
+          </p>
+          <div class="impact-author">
+            <div class="author-info">
+              <span class="author-name">Local Volunteer</span>
+              <span class="author-role">Community Member</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta section">
+    <div class="container">
+      <div class="cta-card reveal">
+        <div class="cta-bg">
+          <div class="cta-orb cta-orb-1"></div>
+          <div class="cta-orb cta-orb-2"></div>
+        </div>
+        <div class="cta-content">
+          <h2 class="cta-title">Ready to be part of the movement?</h2>
+          <p class="cta-text">
+            Whether you're a young person looking for a safe space, a family seeking
+            community, or someone who wants to support grassroots change &mdash;
+            we want to hear from you.
+          </p>
+          <div class="cta-actions">
+            <a href="#contact" class="btn btn-primary btn-large">
+              <span>Join Us</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 17L17 7M17 7H7M17 7V17"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="contact section" id="contact">
+    <div class="container">
+      <div class="section-grid">
+        <div class="section-left">
+          <span class="section-tag reveal">Get In Touch</span>
+          <h2 class="section-title reveal">
+            Let's <span class="accent">connect</span>
+          </h2>
+          <p class="reveal">
+            We'd love to hear from you. Whether you want to join a programme,
+            volunteer, partner with us, or just learn more &mdash; reach out.
+          </p>
+        </div>
+        <div class="section-right">
+          <div class="contact-cards">
+            <a href="mailto:Holditdownuk@hotmail.com" class="contact-card reveal">
+              <div class="contact-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+              </div>
+              <div class="contact-info">
+                <span class="contact-label">Email</span>
+                <span class="contact-value">Holditdownuk@hotmail.com</span>
+              </div>
+              <svg class="contact-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 17L17 7M17 7H7M17 7V17"/>
+              </svg>
+            </a>
+            <a href="https://www.instagram.com/holditdowncic" target="_blank" rel="noopener" class="contact-card reveal">
+              <div class="contact-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                </svg>
+              </div>
+              <div class="contact-info">
+                <span class="contact-label">Instagram</span>
+                <span class="contact-value">@holditdowncic</span>
+              </div>
+              <svg class="contact-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 17L17 7M17 7H7M17 7V17"/>
+              </svg>
+            </a>
+            <div class="contact-card reveal">
+              <div class="contact-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+              </div>
+              <div class="contact-info">
+                <span class="contact-label">Location</span>
+                <span class="contact-value">Thornton Heath, Croydon CR7 8QY</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <a href="#" class="nav-logo">
+            <span class="logo-hold">HOLD IT</span>
+            <span class="logo-down">DOWN</span>
+          </a>
+          <p class="footer-tagline">
+            Community Interest Company<br>
+            Registered in England &amp; Wales<br>
+            Company No. 14377702
+          </p>
+        </div>
+        <div class="footer-links">
+          <a href="#about">About</a>
+          <a href="#mission">Mission</a>
+          <a href="#programs">Programs</a>
+          <a href="#impact">Impact</a>
+          <a href="#contact">Contact</a>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2025 Hold It Down CIC. All rights reserved.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
