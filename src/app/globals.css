@@ -1,0 +1,198 @@
+@import "tailwindcss";
+
+/* ============================================
+   HOLD IT DOWN CIC - Global Styles
+   ============================================ */
+
+@theme inline {
+  --color-bg: #0a0a0b;
+  --color-bg-elevated: #111113;
+  --color-bg-card: #161618;
+  --color-bg-card-hover: #1c1c1f;
+  --color-surface: #1e1e21;
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-border-hover: rgba(255, 255, 255, 0.12);
+  --color-text-primary: #f5f5f7;
+  --color-text-secondary: rgba(255, 255, 255, 0.6);
+  --color-text-tertiary: rgba(255, 255, 255, 0.4);
+  --color-accent: #e8a838;
+  --color-accent-light: #f0c060;
+  --color-accent-warm: #d4763a;
+  --color-accent-glow: rgba(232, 168, 56, 0.15);
+  --font-heading: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
+/* --- Base --- */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+/* --- Gradient Text Utility --- */
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-warm) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* --- Preloader --- */
+.preloader {
+  position: fixed;
+  inset: 0;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s;
+}
+
+.preloader.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.preloader-text span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: preloaderLetter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.preloader-text span:nth-child(1) { animation-delay: 0.05s; }
+.preloader-text span:nth-child(2) { animation-delay: 0.1s; }
+.preloader-text span:nth-child(3) { animation-delay: 0.15s; }
+.preloader-text span:nth-child(4) { animation-delay: 0.2s; }
+.preloader-text span:nth-child(5) { animation-delay: 0.25s; }
+.preloader-text span:nth-child(6) { animation-delay: 0.3s; }
+.preloader-text span:nth-child(7) { animation-delay: 0.35s; }
+.preloader-text span:nth-child(8) { animation-delay: 0.4s; }
+.preloader-text span:nth-child(9) { animation-delay: 0.45s; }
+.preloader-text span:nth-child(10) { animation-delay: 0.5s; }
+.preloader-text span:nth-child(11) { animation-delay: 0.55s; }
+.preloader-text span:nth-child(12) { animation-delay: 0.6s; }
+
+@keyframes preloaderLetter {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.preloader-bar-fill {
+  width: 0;
+  animation: preloaderBar 1.5s cubic-bezier(0.65, 0, 0.35, 1) 0.3s forwards;
+}
+
+@keyframes preloaderBar {
+  to { width: 100%; }
+}
+
+/* --- Particles --- */
+.particle {
+  position: absolute;
+  background: var(--color-accent);
+  border-radius: 50%;
+  opacity: 0;
+  animation: particleFloat 8s infinite;
+}
+
+@keyframes particleFloat {
+  0% { opacity: 0; transform: translateY(0) scale(0); }
+  10% { opacity: 0.6; transform: scale(1); }
+  90% { opacity: 0; }
+  100% { opacity: 0; transform: translateY(-400px) scale(0); }
+}
+
+/* --- Badge Pulse --- */
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(232, 168, 56, 0.4); }
+  50% { opacity: 0.8; box-shadow: 0 0 0 8px rgba(232, 168, 56, 0); }
+}
+
+.badge-dot {
+  animation: pulse 2s infinite;
+}
+
+/* --- Scroll Bounce --- */
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(10px); opacity: 0.3; }
+}
+
+/* --- Orbit Circles --- */
+.orbit-circle {
+  animation: circleRotate 20s linear infinite;
+}
+
+.orbit-circle-reverse {
+  animation: circleRotate 15s linear infinite reverse;
+}
+
+@keyframes circleRotate {
+  to { transform: rotate(360deg); }
+}
+
+/* --- Floating Orbs --- */
+@keyframes orbFloat {
+  to { transform: translate(40px, 30px) scale(1.1); }
+}
+
+.cta-orb-1 {
+  animation: orbFloat 8s infinite alternate cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.cta-orb-2 {
+  animation: orbFloat 10s infinite alternate-reverse cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* --- Hero Grid Background --- */
+.hero-grid-bg {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+}
+
+/* --- Cursor Glow --- */
+.cursor-glow {
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232, 168, 56, 0.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.4s ease;
+}
+
+/* --- Smooth scrollbar --- */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.2);
+}
