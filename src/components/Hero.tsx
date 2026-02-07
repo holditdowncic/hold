@@ -132,8 +132,8 @@ export default function Hero() {
             <div className="relative mx-auto hidden w-[320px] md:block lg:w-[380px]">
               <div className="relative aspect-[3/4] overflow-hidden rounded-2xl border border-border">
                 <Image
-                  src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=760&h=1000&fit=crop&crop=faces"
-                  alt="Young people from diverse backgrounds smiling together in community"
+                  src="https://images.unsplash.com/photo-1517164850305-99a3e65bb47e?w=760&h=1000&fit=crop&crop=faces"
+                  alt="Diverse young people together in an urban community setting"
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 0px, 380px"
