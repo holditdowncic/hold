@@ -39,8 +39,8 @@ const events = [
       "Guest speakers from the community",
     ],
     impact: [],
-    image: "/media/ Talk Di/WhatsApp Image 2026-02-07 at 10.35.13 (1).jpeg",
-    imageAlt: "Talk Di TingZ team together in matching blue hoodies",
+    image: "/media/image-3.jpeg",
+    imageAlt: "Young people holding children's books at community event",
     badge: "Youth-Led",
   },
 ];
