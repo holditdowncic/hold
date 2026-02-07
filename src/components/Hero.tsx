@@ -11,7 +11,8 @@ export default function Hero() {
   useEffect(() => {
     const container = particlesRef.current;
     if (!container) return;
-    for (let i = 0; i < 30; i++) {
+    const count = window.innerWidth < 768 ? 10 : 20;
+    for (let i = 0; i < count; i++) {
       const p = document.createElement("div");
       p.className = "particle";
       const size = 2 + Math.random() * 3;
