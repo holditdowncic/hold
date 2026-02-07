@@ -1,3 +1,9 @@
+export interface GalleryItem {
+  src: string;
+  alt: string;
+  type?: "image" | "video";
+}
+
 export interface EventData {
   slug: string;
   title: string;
@@ -9,7 +15,7 @@ export interface EventData {
   image: string;
   imageAlt: string;
   badge: string;
-  gallery: { src: string; alt: string }[];
+  gallery: GalleryItem[];
 }
 
 export const events: EventData[] = [
@@ -53,22 +59,38 @@ export const events: EventData[] = [
   },
   {
     slug: "talk-di-tingz-2025",
-    title: "Talk Di TingZ — Youth Podcast Sessions",
-    date: "Ongoing 2025",
-    location: "Various community spaces, Croydon",
-    desc: "A youth-led safe space to discuss identity, relationships, and life issues. Young people lead the conversation, building emotional literacy and driving cultural change through truth-telling and respect. Sessions take place across different community venues in Croydon, bringing together diverse voices.",
+    title: "Talk Di TingZ — Community Walk",
+    date: "2025",
+    location: "Croydon",
+    desc: "Talk Di TingZ took to the streets with a community walk bringing together young people, families, and supporters. Walking side by side, participants shared stories, built connections, and showed solidarity — turning conversation into action and making their presence felt across the community.",
     highlights: [
-      "Youth-led podcast recording sessions",
-      "Open discussions on identity & relationships",
-      "Building emotional literacy through dialogue",
-      "Guest speakers from the community",
+      "Community walk through Croydon",
+      "Young people leading the way",
+      "Building connections through walking & talking",
+      "Solidarity and community visibility",
     ],
-    impact: [],
+    impact: [
+      "Community togetherness & visibility",
+      "Youth leadership & confidence",
+      "Intergenerational bonding",
+    ],
     image: "/media/talkdi/talkdi-1.jpeg",
-    imageAlt: "Talk Di TingZ youth podcast team out in the community",
-    badge: "Youth-Led",
+    imageAlt: "Talk Di TingZ community walk participants",
+    badge: "Community Walk",
     gallery: [
-      { src: "/media/talkdi/talkdi-1.jpeg", alt: "Talk Di TingZ team" },
+      { src: "/media/talkdi/talkdi-1.jpeg", alt: "Talk Di TingZ community walk" },
+      { src: "/media/talkdi/talkdi-vid-1.mp4", alt: "Community walk footage", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-2.mp4", alt: "Community walk footage", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-3.mp4", alt: "Community walk footage", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-4.mp4", alt: "Community walk footage", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-5.mp4", alt: "Community walk footage", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-6.mp4", alt: "Community walk footage", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-7.mp4", alt: "Community walk footage", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-8.mp4", alt: "Community walk footage", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-9.mp4", alt: "Community walk footage", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-10.mp4", alt: "Community walk footage", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-11.mp4", alt: "Community walk footage", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-12.mp4", alt: "Community walk footage", type: "video" },
     ],
   },
   {

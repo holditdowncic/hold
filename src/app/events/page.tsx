@@ -241,16 +241,26 @@ export default function EventsPage() {
                           {event.gallery.map((img, idx) => (
                             <div
                               key={idx}
-                              className="group/img relative aspect-square cursor-pointer overflow-hidden rounded-lg border border-border transition-all hover:border-accent/30"
-                              onClick={() => setLightboxImage(idx)}
+                              className={`group/img relative overflow-hidden rounded-lg border border-border transition-all hover:border-accent/30 ${img.type === "video" ? "aspect-[9/16]" : "aspect-square cursor-pointer"}`}
+                              onClick={() => img.type !== "video" && setLightboxImage(idx)}
                             >
-                              <Image
-                                src={img.src}
-                                alt={img.alt}
-                                fill
-                                className="object-cover transition-transform duration-300 group-hover/img:scale-105"
-                                sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-                              />
+                              {img.type === "video" ? (
+                                <video
+                                  src={img.src}
+                                  controls
+                                  playsInline
+                                  preload="metadata"
+                                  className="h-full w-full object-cover"
+                                />
+                              ) : (
+                                <Image
+                                  src={img.src}
+                                  alt={img.alt}
+                                  fill
+                                  className="object-cover transition-transform duration-300 group-hover/img:scale-105"
+                                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                                />
+                              )}
                             </div>
                           ))}
                         </div>
@@ -320,13 +330,23 @@ export default function EventsPage() {
               className="relative max-h-[85vh] max-w-[90vw] overflow-hidden rounded-2xl border border-border"
               onClick={(e) => e.stopPropagation()}
             >
-              <Image
-                src={activeEvent.gallery[lightboxImage].src}
-                alt={activeEvent.gallery[lightboxImage].alt}
-                width={1200}
-                height={900}
-                className="object-contain"
-              />
+              {activeEvent.gallery[lightboxImage].type === "video" ? (
+                <video
+                  src={activeEvent.gallery[lightboxImage].src}
+                  controls
+                  autoPlay
+                  playsInline
+                  className="max-h-[80vh] max-w-[85vw] object-contain"
+                />
+              ) : (
+                <Image
+                  src={activeEvent.gallery[lightboxImage].src}
+                  alt={activeEvent.gallery[lightboxImage].alt}
+                  width={1200}
+                  height={900}
+                  className="object-contain"
+                />
+              )}
               <button
                 onClick={() => setLightboxImage(null)}
                 className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-bg/80 text-text-primary backdrop-blur-sm transition-colors hover:bg-accent hover:text-white"
