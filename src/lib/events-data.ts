@@ -1,3 +1,9 @@
+export interface GalleryItem {
+  src: string;
+  alt: string;
+  type?: "image" | "video";
+}
+
 export interface EventData {
   slug: string;
   title: string;
@@ -9,7 +15,7 @@ export interface EventData {
   image: string;
   imageAlt: string;
   badge: string;
-  gallery: { src: string; alt: string }[];
+  gallery: GalleryItem[];
 }
 
 export const events: EventData[] = [
@@ -69,6 +75,18 @@ export const events: EventData[] = [
     badge: "Youth-Led",
     gallery: [
       { src: "/media/talkdi/talkdi-1.jpeg", alt: "Talk Di TingZ team" },
+      { src: "/media/talkdi/talkdi-vid-1.mp4", alt: "Talk Di TingZ session 1", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-2.mp4", alt: "Talk Di TingZ session 2", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-3.mp4", alt: "Talk Di TingZ session 3", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-4.mp4", alt: "Talk Di TingZ session 4", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-5.mp4", alt: "Talk Di TingZ session 5", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-6.mp4", alt: "Talk Di TingZ session 6", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-7.mp4", alt: "Talk Di TingZ session 7", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-8.mp4", alt: "Talk Di TingZ session 8", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-9.mp4", alt: "Talk Di TingZ session 9", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-10.mp4", alt: "Talk Di TingZ session 10", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-11.mp4", alt: "Talk Di TingZ session 11", type: "video" },
+      { src: "/media/talkdi/talkdi-vid-12.mp4", alt: "Talk Di TingZ session 12", type: "video" },
     ],
   },
   {

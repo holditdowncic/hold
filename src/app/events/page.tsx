@@ -209,7 +209,7 @@ export default function EventsPage() {
                       <button className="inline-flex items-center gap-2 text-sm font-semibold text-accent transition-colors hover:text-accent-warm">
                         {selectedEvent === event.slug
                           ? "Hide gallery"
-                          : `View gallery (${event.gallery.length} photos)`}
+                          : `View gallery (${event.gallery.filter(g => g.type !== "video").length} photos${event.gallery.some(g => g.type === "video") ? ` & ${event.gallery.filter(g => g.type === "video").length} videos` : ""})`}
                         <svg
                           width="16"
                           height="16"
@@ -242,17 +242,29 @@ export default function EventsPage() {
                           {event.gallery.map((img, idx) => (
                             <div
                               key={idx}
-                              className="group/img relative aspect-square cursor-pointer overflow-hidden rounded-lg border border-border transition-all hover:border-accent/30"
-                              onClick={() => setLightboxImage(idx)}
+                              className={`group/img relative overflow-hidden rounded-lg border border-border transition-all hover:border-accent/30 ${img.type === "video" ? "aspect-video col-span-2" : "aspect-square cursor-pointer"}`}
+                              onClick={() => img.type !== "video" && setLightboxImage(idx)}
                             >
-                              <Image
-                                src={img.src}
-                                alt={img.alt}
-                                fill
-                                quality={95}
-                                className="object-cover transition-transform duration-300 group-hover/img:scale-105"
-                                sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-                              />
+                              {img.type === "video" ? (
+                                <video
+                                  src={img.src}
+                                  controls
+                                  playsInline
+                                  preload="metadata"
+                                  className="h-full w-full object-contain bg-black"
+                                >
+                                  Your browser does not support the video tag.
+                                </video>
+                              ) : (
+                                <Image
+                                  src={img.src}
+                                  alt={img.alt}
+                                  fill
+                                  quality={95}
+                                  className="object-cover transition-transform duration-300 group-hover/img:scale-105"
+                                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                                />
+                              )}
                             </div>
                           ))}
                         </div>
@@ -305,9 +317,9 @@ export default function EventsPage() {
         </p>
       </footer>
 
-      {/* Lightbox */}
+      {/* Lightbox - images only */}
       <AnimatePresence>
-        {lightboxImage !== null && activeEvent && (
+        {lightboxImage !== null && activeEvent && activeEvent.gallery[lightboxImage]?.type !== "video" && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -341,11 +353,10 @@ export default function EventsPage() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setLightboxImage(
-                      lightboxImage === 0
-                        ? activeEvent.gallery.length - 1
-                        : lightboxImage - 1
-                    );
+                    const imageItems = activeEvent.gallery.map((g, i) => ({ ...g, idx: i })).filter(g => g.type !== "video");
+                    const currentPos = imageItems.findIndex(g => g.idx === lightboxImage);
+                    const prev = currentPos === 0 ? imageItems[imageItems.length - 1] : imageItems[currentPos - 1];
+                    setLightboxImage(prev.idx);
                   }}
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-bg/80 text-text-primary backdrop-blur-sm transition-colors hover:bg-accent hover:text-white"
                 >
@@ -354,16 +365,15 @@ export default function EventsPage() {
                   </svg>
                 </button>
                 <span className="flex items-center px-3 text-sm text-text-secondary">
-                  {lightboxImage + 1} / {activeEvent.gallery.length}
+                  {activeEvent.gallery.filter(g => g.type !== "video").findIndex((_, i, arr) => activeEvent.gallery.indexOf(arr[i]) === lightboxImage) + 1} / {activeEvent.gallery.filter(g => g.type !== "video").length}
                 </span>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setLightboxImage(
-                      lightboxImage === activeEvent.gallery.length - 1
-                        ? 0
-                        : lightboxImage + 1
-                    );
+                    const imageItems = activeEvent.gallery.map((g, i) => ({ ...g, idx: i })).filter(g => g.type !== "video");
+                    const currentPos = imageItems.findIndex(g => g.idx === lightboxImage);
+                    const next = currentPos === imageItems.length - 1 ? imageItems[0] : imageItems[currentPos + 1];
+                    setLightboxImage(next.idx);
                   }}
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-bg/80 text-text-primary backdrop-blur-sm transition-colors hover:bg-accent hover:text-white"
                 >

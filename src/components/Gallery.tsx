@@ -136,25 +136,21 @@ export default function Gallery() {
                 </motion.div>
 
                 {/* Video Section */}
-                <Reveal>
-                    <div className="mt-10 sm:mt-14 md:mt-16">
-                        <div className="relative aspect-video rounded-2xl border border-border bg-bg-card">
-                            <video
-                                className="relative z-10 h-full w-full rounded-2xl object-contain"
-                                controls
-                                playsInline
-                                preload="auto"
-                                poster="/media/image-10.jpeg"
-                            >
-                                <source src="/media/video-1.mp4" type="video/mp4" />
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                        <p className="mt-4 text-center text-sm text-text-secondary">
-                            Watch highlights from our Roots & Wings Family Fun Day 2025
-                        </p>
-                    </div>
-                </Reveal>
+                <div className="mt-10 sm:mt-14 md:mt-16">
+                    <video
+                        src="/media/video-1.mp4"
+                        controls
+                        playsInline
+                        preload="metadata"
+                        poster="/media/image-10.jpeg"
+                        style={{ width: "100%", borderRadius: "1rem", background: "#000" }}
+                    >
+                        Your browser does not support the video tag.
+                    </video>
+                    <p className="mt-4 text-center text-sm text-text-secondary">
+                        Watch highlights from our Roots & Wings Family Fun Day 2025
+                    </p>
+                </div>
             </div>
 
             {/* Lightbox Modal */}
