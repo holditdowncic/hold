@@ -128,8 +128,23 @@ export default function Hero() {
             </Reveal>
           </div>
 
-          {/* Hero Image */}
+          {/* Hero Image - landscape on mobile, portrait on sm+ */}
           <Reveal delay={0.4}>
+            {/* Mobile: landscape below text */}
+            <div className="relative mx-auto w-full max-w-[400px] sm:hidden">
+              <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-border">
+                <Image
+                  src="https://images.unsplash.com/photo-1517164850305-99a3e65bb47e?w=800&h=450&fit=crop&crop=faces"
+                  alt="Diverse young people together in an urban community setting"
+                  fill
+                  className="object-cover"
+                  sizes="100vw"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-bg/50 via-transparent to-transparent" />
+              </div>
+            </div>
+            {/* Tablet/Desktop: portrait beside text */}
             <div className="relative mx-auto hidden w-[240px] sm:block md:w-[320px] lg:w-[380px]">
               <div className="relative aspect-[3/4] overflow-hidden rounded-2xl border border-border">
                 <Image
@@ -137,7 +152,7 @@ export default function Hero() {
                   alt="Diverse young people together in an urban community setting"
                   fill
                   className="object-cover"
-                  sizes="(max-width: 640px) 0px, (max-width: 768px) 240px, 380px"
+                  sizes="(max-width: 768px) 240px, 380px"
                   priority
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-bg/60 via-transparent to-transparent" />
