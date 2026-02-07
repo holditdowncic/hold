@@ -48,7 +48,7 @@ const galleryImages = [
     },
     {
         src: "/media/talkdi/talkdi-1.jpeg",
-        alt: "Talk Di TingZ youth podcast team",
+        alt: "Talk Di TingZ youth community walk session",
         caption: "Talk Di TingZ",
     },
     {

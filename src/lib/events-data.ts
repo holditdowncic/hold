@@ -59,19 +59,19 @@ export const events: EventData[] = [
   },
   {
     slug: "talk-di-tingz-2025",
-    title: "Talk Di TingZ — Youth Podcast Sessions",
+    title: "Talk Di TingZ — Community Walk Sessions",
     date: "Ongoing 2025",
     location: "Various community spaces, Croydon",
-    desc: "A youth-led safe space to discuss identity, relationships, and life issues. Young people lead the conversation, building emotional literacy and driving cultural change through truth-telling and respect. Sessions take place across different community venues in Croydon, bringing together diverse voices.",
+    desc: "A youth-led community walk session creating safe spaces to discuss identity, relationships, and life issues. Young people lead the conversation while walking together, building emotional literacy and driving cultural change through truth-telling and respect. Sessions take place across different community venues and outdoor spaces in Croydon, bringing together diverse voices.",
     highlights: [
-      "Youth-led podcast recording sessions",
+      "Youth-led community walk sessions",
       "Open discussions on identity & relationships",
       "Building emotional literacy through dialogue",
       "Guest speakers from the community",
     ],
     impact: [],
     image: "/media/talkdi/talkdi-1.jpeg",
-    imageAlt: "Talk Di TingZ youth podcast team out in the community",
+    imageAlt: "Talk Di TingZ youth community walk session",
     badge: "Youth-Led",
     gallery: [
       { src: "/media/talkdi/talkdi-1.jpeg", alt: "Talk Di TingZ team" },

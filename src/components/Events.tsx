@@ -28,7 +28,7 @@ export default function Events() {
           </Reveal>
           <Reveal>
             <p className="mx-auto mt-5 max-w-[600px] text-base leading-relaxed text-text-secondary md:text-lg">
-              From family fun days to youth-led podcast sessions, our events
+              From family fun days to youth-led community walks, our events
               bring people together to connect, heal, and celebrate.
             </p>
           </Reveal>
