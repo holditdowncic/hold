@@ -7,24 +7,54 @@ import { Reveal, staggerContainer, fadeUp } from "@/lib/motion";
 
 const galleryImages = [
     {
+        src: "/media/roots/roots-1.jpeg",
+        alt: "Roots & Wings volunteers group photo",
+        caption: "Our Team",
+    },
+    {
+        src: "/media/roots/roots-2.jpeg",
+        alt: "Families and children at the fun day activities",
+        caption: "Family Fun Day",
+    },
+    {
+        src: "/media/roots/roots-3.jpeg",
+        alt: "Young person proudly wearing their medal",
+        caption: "Celebrating Achievement",
+    },
+    {
+        src: "/media/roots/roots-7.jpeg",
+        alt: "Face painting station at Roots & Wings event",
+        caption: "Creative Activities",
+    },
+    {
         src: "/media/image-5.jpeg",
         alt: "Family enjoying the Roots & Wings Family Fun Day",
         caption: "Families Together",
     },
     {
-        src: "/media/image-6.jpeg",
-        alt: "Young person with face painting at the event",
-        caption: "Youth Activities",
+        src: "/media/roots/roots-10.jpeg",
+        alt: "Dancing and celebrating at the community event",
+        caption: "Dance & Performance",
     },
     {
         src: "/media/image-7.jpeg",
         alt: "Child proudly showing their medal",
-        caption: "Celebrating Achievements",
+        caption: "Award Winners",
     },
     {
-        src: "/media/image-9.jpeg",
-        alt: "Young girl holding trophy at awards ceremony",
-        caption: "Award Winners",
+        src: "/media/roots/roots-5.jpeg",
+        alt: "Fathers and mentors at outdoor discussion",
+        caption: "Men's Discussion",
+    },
+    {
+        src: "/media/talkdi/talkdi-1.jpeg",
+        alt: "Talk Di TingZ youth podcast team",
+        caption: "Talk Di TingZ",
+    },
+    {
+        src: "/media/roots/roots-12.jpeg",
+        alt: "Young people playing football in the park",
+        caption: "Sports & Football",
     },
     {
         src: "/media/image-3.jpeg",
@@ -32,9 +62,9 @@ const galleryImages = [
         caption: "Community Partners",
     },
     {
-        src: "/media/image-8.jpeg",
-        alt: "Food donations from Tesco at the event",
-        caption: "Community Support",
+        src: "/media/roots/roots-22.jpeg",
+        alt: "Creative crafts and activities by young people",
+        caption: "Creative Workshops",
     },
 ];
 
@@ -64,38 +94,44 @@ export default function Gallery() {
                     </Reveal>
                 </div>
 
-                {/* Gallery Grid */}
+                {/* Gallery Grid - masonry-style with varying sizes */}
                 <motion.div
-                    className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:gap-6"
+                    className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 sm:gap-4"
                     initial="hidden"
                     whileInView="visible"
                     viewport={{ once: true }}
                     variants={staggerContainer}
                 >
-                    {galleryImages.map((image, index) => (
-                        <motion.div
-                            key={index}
-                            variants={fadeUp}
-                            className="group relative aspect-square cursor-pointer overflow-hidden rounded-xl border border-border bg-bg-card transition-all duration-300 hover:border-accent/30 hover:shadow-xl"
-                            onClick={() => setSelectedImage(index)}
-                        >
-                            <Image
-                                src={image.src}
-                                alt={image.alt}
-                                fill
-                                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 400px"
-                            />
-                            {/* Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-bg/80 via-bg/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                            {/* Caption */}
-                            <div className="absolute bottom-0 left-0 right-0 translate-y-full p-3 transition-transform duration-300 group-hover:translate-y-0 sm:p-4">
-                                <p className="text-xs font-semibold text-white sm:text-sm">
-                                    {image.caption}
-                                </p>
-                            </div>
-                        </motion.div>
-                    ))}
+                    {galleryImages.map((image, index) => {
+                        // Make certain images span 2 columns for visual variety
+                        const isWide = index === 0 || index === 5 || index === 9;
+                        return (
+                            <motion.div
+                                key={index}
+                                variants={fadeUp}
+                                className={`group relative cursor-pointer overflow-hidden rounded-xl border border-border bg-bg-card transition-all duration-300 hover:border-accent/30 hover:shadow-xl ${
+                                    isWide ? "col-span-2 aspect-[16/10]" : "aspect-square"
+                                }`}
+                                onClick={() => setSelectedImage(index)}
+                            >
+                                <Image
+                                    src={image.src}
+                                    alt={image.alt}
+                                    fill
+                                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                    sizes={isWide ? "(max-width: 640px) 100vw, (max-width: 768px) 66vw, 50vw" : "(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"}
+                                />
+                                {/* Overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-bg/80 via-bg/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                {/* Caption */}
+                                <div className="absolute bottom-0 left-0 right-0 translate-y-full p-3 transition-transform duration-300 group-hover:translate-y-0 sm:p-4">
+                                    <p className="text-xs font-semibold text-white sm:text-sm">
+                                        {image.caption}
+                                    </p>
+                                </div>
+                            </motion.div>
+                        );
+                    })}
                 </motion.div>
 
                 {/* Video Section */}
@@ -150,6 +186,12 @@ export default function Gallery() {
                                     <path d="M18 6L6 18M6 6l12 12" />
                                 </svg>
                             </button>
+                            {/* Caption */}
+                            <div className="absolute bottom-16 left-0 right-0 text-center">
+                                <p className="inline-block rounded-full bg-bg/80 px-4 py-1.5 text-sm font-medium text-text-primary backdrop-blur-sm">
+                                    {galleryImages[selectedImage].caption}
+                                </p>
+                            </div>
                             {/* Navigation */}
                             <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2">
                                 <button
@@ -163,6 +205,9 @@ export default function Gallery() {
                                         <path d="M15 18l-6-6 6-6" />
                                     </svg>
                                 </button>
+                                <span className="flex items-center px-3 text-sm text-text-secondary">
+                                    {selectedImage + 1} / {galleryImages.length}
+                                </span>
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();

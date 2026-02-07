@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import { useTheme } from "@/lib/theme";
 
-const links = [
+const links: { label: string; href: string; isPage?: boolean }[] = [
   { label: "About", href: "#about" },
   { label: "Mission", href: "#mission" },
   { label: "Programmes", href: "#programs" },
-  { label: "Events", href: "#events" },
+  { label: "Events", href: "/events", isPage: true },
   { label: "Impact", href: "#impact" },
   { label: "Gallery", href: "#gallery" },
   { label: "Contact", href: "#contact" },
@@ -125,17 +126,28 @@ export default function Navbar() {
 
         {/* Desktop Links + Theme Toggle */}
         <div className="hidden items-center gap-9 md:flex">
-          {links.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={(e) => handleClick(e, link.href)}
-              className="group relative py-1 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
-            >
-              {link.label}
-              <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 bg-accent transition-all duration-400 group-hover:w-full" />
-            </a>
-          ))}
+          {links.map((link) =>
+            link.isPage ? (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="group relative py-1 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
+              >
+                {link.label}
+                <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 bg-accent transition-all duration-400 group-hover:w-full" />
+              </Link>
+            ) : (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={(e) => handleClick(e, link.href)}
+                className="group relative py-1 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
+              >
+                {link.label}
+                <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 bg-accent transition-all duration-400 group-hover:w-full" />
+              </a>
+            )
+          )}
           <ThemeToggle />
         </div>
 
@@ -201,19 +213,36 @@ export default function Navbar() {
                 </button>
               </div>
               <div className="flex flex-col gap-2 px-6 pt-4">
-                {links.map((link, i) => (
-                  <motion.a
-                    key={link.href}
-                    href={link.href}
-                    onClick={(e) => handleClick(e, link.href)}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 + i * 0.05 }}
-                    className="py-3 text-lg font-medium text-text-secondary transition-colors hover:text-text-primary"
-                  >
-                    {link.label}
-                  </motion.a>
-                ))}
+                {links.map((link, i) =>
+                  link.isPage ? (
+                    <motion.div
+                      key={link.href}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1 + i * 0.05 }}
+                    >
+                      <Link
+                        href={link.href}
+                        onClick={() => setOpen(false)}
+                        className="block py-3 text-lg font-medium text-text-secondary transition-colors hover:text-text-primary"
+                      >
+                        {link.label}
+                      </Link>
+                    </motion.div>
+                  ) : (
+                    <motion.a
+                      key={link.href}
+                      href={link.href}
+                      onClick={(e) => handleClick(e, link.href)}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1 + i * 0.05 }}
+                      className="py-3 text-lg font-medium text-text-secondary transition-colors hover:text-text-primary"
+                    >
+                      {link.label}
+                    </motion.a>
+                  )
+                )}
               </div>
             </motion.div>
           </>

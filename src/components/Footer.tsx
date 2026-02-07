@@ -1,8 +1,10 @@
-const footerLinks = [
+import Link from "next/link";
+
+const footerLinks: { label: string; href: string; isPage?: boolean }[] = [
   { label: "About", href: "#about" },
   { label: "Mission", href: "#mission" },
   { label: "Programmes", href: "#programs" },
-  { label: "Events", href: "#events" },
+  { label: "Events", href: "/events", isPage: true },
   { label: "Impact", href: "#impact" },
   { label: "Gallery", href: "#gallery" },
   { label: "Contact", href: "#contact" },
@@ -32,15 +34,25 @@ export default function Footer() {
 
         {/* Links */}
         <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 sm:gap-x-8">
-          {footerLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="inline-flex min-h-[44px] items-center px-1 text-sm text-text-secondary transition-colors hover:text-accent"
-            >
-              {link.label}
-            </a>
-          ))}
+          {footerLinks.map((link) =>
+            link.isPage ? (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="inline-flex min-h-[44px] items-center px-1 text-sm text-text-secondary transition-colors hover:text-accent"
+              >
+                {link.label}
+              </Link>
+            ) : (
+              <a
+                key={link.href}
+                href={link.href}
+                className="inline-flex min-h-[44px] items-center px-1 text-sm text-text-secondary transition-colors hover:text-accent"
+              >
+                {link.label}
+              </a>
+            )
+          )}
         </div>
 
         {/* Bottom */}

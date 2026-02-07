@@ -2,48 +2,12 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Reveal, fadeUp, staggerContainer, TiltCard } from "@/lib/motion";
+import Link from "next/link";
+import { Reveal, fadeUp, staggerContainer } from "@/lib/motion";
+import { events } from "@/lib/events-data";
 
-const events = [
-  {
-    title: "Roots & Wings Family Fun Day 2025",
-    date: "14 June 2025",
-    location: "Heavers Farm Primary School, Croydon",
-    desc: "Approximately 300 people attended, including around 100 fathers and male carers, 100 children and young people aged 5–24, and a wider group of mothers, grandparents, volunteers and community members.",
-    highlights: [
-      "Father-and-child races & traditional family games",
-      "Football & athletics challenges",
-      "Dance and spoken-word performances",
-      "Facilitated men's discussion on vulnerability and love",
-      "The Tree of Hope — families reflecting on legacy and the future",
-    ],
-    impact: [
-      "Emotional wellbeing & sense of belonging among children",
-      "Positive male role modelling & visibility of men as carers",
-      "Strengthened family bonds & community cohesion",
-      "Increased youth voice & leadership",
-    ],
-    image: "/media/image-1.jpeg",
-    imageAlt: "Couple at the Roots & Wings Family Fun Day photo booth",
-    badge: "300+ Attendees",
-  },
-  {
-    title: "Talk Di TingZ — Youth Podcast Sessions",
-    date: "Ongoing 2025",
-    location: "Various community spaces, Croydon",
-    desc: "A youth-led safe space to discuss identity, relationships, and life issues. Young people lead the conversation, building emotional literacy and driving cultural change through truth-telling and respect.",
-    highlights: [
-      "Youth-led podcast recording sessions",
-      "Open discussions on identity & relationships",
-      "Building emotional literacy through dialogue",
-      "Guest speakers from the community",
-    ],
-    impact: [],
-    image: "/media/image-3.jpeg",
-    imageAlt: "Young people holding children's books at community event",
-    badge: "Youth-Led",
-  },
-];
+// Show only the first 2 events as a preview
+const previewEvents = events.slice(0, 2);
 
 export default function Events() {
   return (
@@ -70,7 +34,7 @@ export default function Events() {
           </Reveal>
         </div>
 
-        {/* Events */}
+        {/* Events Preview */}
         <motion.div
           className="grid gap-8"
           initial="hidden"
@@ -78,7 +42,7 @@ export default function Events() {
           viewport={{ once: true }}
           variants={staggerContainer}
         >
-          {events.map((event, i) => (
+          {previewEvents.map((event, i) => (
             <motion.div key={event.title} variants={fadeUp}>
               <div className="group overflow-hidden rounded-2xl border border-border bg-bg-card">
                 <div className="grid md:grid-cols-2">
@@ -133,7 +97,7 @@ export default function Events() {
                         Highlights
                       </p>
                       <ul className="grid gap-1.5 sm:grid-cols-2">
-                        {event.highlights.map((h) => (
+                        {event.highlights.slice(0, 4).map((h) => (
                           <li
                             key={h}
                             className="flex items-start gap-2 text-sm text-text-secondary"
@@ -169,6 +133,32 @@ export default function Events() {
             </motion.div>
           ))}
         </motion.div>
+
+        {/* View All Events CTA */}
+        <Reveal>
+          <div className="mt-10 text-center sm:mt-14">
+            <Link
+              href="/events"
+              className="group inline-flex items-center justify-center gap-2.5 rounded-full border border-border-hover px-8 py-3.5 text-sm font-semibold text-text-primary transition-all hover:-translate-y-0.5 hover:border-accent/30 hover:bg-accent/5"
+            >
+              <span>View All Events</span>
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="transition-transform group-hover:translate-x-0.5"
+              >
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </Link>
+            <p className="mt-3 text-sm text-text-tertiary">
+              See all {events.length} events and photo galleries
+            </p>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
