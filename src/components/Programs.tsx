@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import { Reveal, fadeUp, staggerContainer, TiltCard } from "@/lib/motion";
 
 const programmes = [
@@ -90,50 +91,66 @@ export default function Programs() {
           viewport={{ once: true }}
           variants={staggerContainer}
         >
-          {/* Featured: Roots & Wings */}
-          <TiltCard className="group relative col-span-full overflow-hidden rounded-2xl border border-accent/10 bg-gradient-to-br from-bg-card to-accent/[0.03]">
-            <div className="grid items-center md:grid-cols-2">
-              {/* Image */}
-              <div className="relative aspect-[16/10] sm:aspect-[2/1] md:aspect-auto md:h-full md:min-h-[350px]">
-                <Image
-                  src="/media/roots/roots-2.jpeg"
-                  alt="Families and children at the Roots & Wings Family Fun Day"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-bg-card/80 hidden md:block" />
-                <div className="absolute inset-0 bg-gradient-to-t from-bg-card/80 to-transparent md:hidden" />
-              </div>
-              {/* Content */}
-              <div className="relative p-6 sm:p-8 md:p-10 lg:p-12">
-                <span className="mb-4 inline-block rounded-full border border-accent/15 bg-accent-glow px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-wider text-accent">
-                  Flagship Programme
-                </span>
-                <h3 className="mb-4 font-[family-name:var(--font-heading)] text-2xl font-semibold sm:text-3xl">
-                  Roots & Wings
-                </h3>
-                <p className="mb-4 leading-relaxed text-text-secondary">
-                  A celebration of fatherhood, family, and intergenerational
-                  connection. Roots & Wings brings fathers, children, and
-                  families together through sports, workshops, and shared
-                  experiences that strengthen bonds and create lasting memories.
-                </p>
-                <p className="mb-6 text-sm leading-relaxed text-text-secondary">
-                  It&apos;s about planting roots of love and giving wings of
-                  confidence to future generations. The programme now forms the
-                  foundation for longer-term intergenerational and male
-                  mentorship work across Croydon.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <Tag>Fatherhood</Tag>
-                  <Tag>Intergenerational</Tag>
-                  <Tag>Family Unity</Tag>
-                  <Tag>Wellbeing</Tag>
+          {/* Featured: Roots & Wings 2025 */}
+          <Link href="/events" className="block col-span-full">
+            <TiltCard className="group relative overflow-hidden rounded-2xl border border-accent/10 bg-gradient-to-br from-bg-card to-accent/[0.03] transition-all duration-300 hover:border-accent/30 hover:shadow-lg">
+              <div className="grid items-center md:grid-cols-2">
+                {/* Image */}
+                <div className="relative aspect-[16/10] sm:aspect-[2/1] md:aspect-auto md:h-full md:min-h-[350px]">
+                  <Image
+                    src="/media/roots/roots-2.jpeg"
+                    alt="Families and children at the Roots & Wings Family Fun Day 2025"
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent to-bg-card/80 hidden md:block" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-bg-card/80 to-transparent md:hidden" />
+                </div>
+                {/* Content */}
+                <div className="relative p-6 sm:p-8 md:p-10 lg:p-12">
+                  <span className="mb-4 inline-block rounded-full border border-accent/15 bg-accent-glow px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-wider text-accent">
+                    Flagship Programme
+                  </span>
+                  <h3 className="mb-4 font-[family-name:var(--font-heading)] text-2xl font-semibold sm:text-3xl">
+                    Roots & Wings 2025
+                  </h3>
+                  <p className="mb-4 leading-relaxed text-text-secondary">
+                    A celebration of fatherhood, family, and intergenerational
+                    connection. Roots & Wings brings fathers, children, and
+                    families together through sports, workshops, and shared
+                    experiences that strengthen bonds and create lasting memories.
+                  </p>
+                  <p className="mb-6 text-sm leading-relaxed text-text-secondary">
+                    It&apos;s about planting roots of love and giving wings of
+                    confidence to future generations. The programme now forms the
+                    foundation for longer-term intergenerational and male
+                    mentorship work across Croydon.
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    <Tag>Fatherhood</Tag>
+                    <Tag>Intergenerational</Tag>
+                    <Tag>Family Unity</Tag>
+                    <Tag>Wellbeing</Tag>
+                  </div>
+                  <span className="inline-flex items-center gap-2 text-sm font-semibold text-accent transition-colors group-hover:text-accent-warm">
+                    View Event Details
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className="transition-transform group-hover:translate-x-1"
+                    >
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </span>
                 </div>
               </div>
-            </div>
-          </TiltCard>
+            </TiltCard>
+          </Link>
 
           {/* Other Programmes - 2x2 grid */}
           <div className="grid gap-5 sm:gap-6 sm:grid-cols-2">
