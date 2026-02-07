@@ -143,7 +143,7 @@ export default function Gallery() {
                                 className="h-full w-full object-contain"
                                 controls
                                 playsInline
-                                preload="metadata"
+                                preload="auto"
                                 poster="/media/image-10.jpeg"
                             >
                                 <source src="/media/video-1.mp4" type="video/mp4" />

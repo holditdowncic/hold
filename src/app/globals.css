@@ -133,10 +133,13 @@ nav {
 }
 
 /* Ensure images are always responsive */
-img,
-video {
+img {
   max-width: 100%;
   height: auto;
+}
+
+video {
+  max-width: 100%;
 }
 
 ::selection {
