@@ -26,10 +26,10 @@ const testimonials = [
 
 export default function Impact() {
   return (
-    <section id="impact" className="py-28 md:py-36">
-      <div className="mx-auto max-w-[1200px] px-6">
+    <section id="impact" className="py-16 sm:py-20 md:py-36">
+      <div className="mx-auto max-w-[1200px] px-5 sm:px-6">
         {/* Header */}
-        <div className="mb-16 text-center">
+        <div className="mb-10 text-center sm:mb-12 md:mb-16">
           <Reveal>
             <span className="mb-5 inline-block rounded-full border border-accent/15 bg-accent-glow px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-accent">
               Our Impact
@@ -55,9 +55,9 @@ export default function Impact() {
           {testimonials.map((t, i) => (
             <TiltCard
               key={i}
-              className="flex flex-col overflow-hidden rounded-2xl border border-border bg-bg-card p-10 transition-all duration-500 hover:border-border-hover"
+              className="flex flex-col overflow-hidden rounded-2xl border border-border bg-bg-card p-6 transition-all duration-500 sm:p-8 md:p-10 hover:border-border-hover"
             >
-              <span className="text-gradient mb-4 font-[family-name:var(--font-heading)] text-6xl leading-none">
+              <span className="text-gradient mb-3 font-[family-name:var(--font-heading)] text-4xl leading-none sm:mb-4 sm:text-5xl md:text-6xl">
                 &ldquo;
               </span>
               <p className="flex-1 text-[0.95rem] italic leading-relaxed text-text-secondary">

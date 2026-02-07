@@ -183,6 +183,20 @@ body {
   transition: opacity 0.4s ease;
 }
 
+/* --- Mobile Grid --- */
+@media (max-width: 640px) {
+  .hero-grid-bg {
+    background-size: 40px 40px;
+  }
+}
+
+/* --- Tap Highlight --- */
+@media (pointer: coarse) {
+  a, button {
+    -webkit-tap-highlight-color: rgba(200, 162, 248, 0.1);
+  }
+}
+
 /* --- Smooth scrollbar --- */
 ::-webkit-scrollbar {
   width: 8px;

@@ -8,8 +8,8 @@ const footerLinks = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-border px-6 pt-14 pb-10">
-      <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-8">
+    <footer className="border-t border-border px-5 pt-10 pb-8 sm:px-6 md:pt-14 md:pb-10">
+      <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-6 sm:gap-8">
         {/* Brand */}
         <div className="text-center">
           <a
@@ -29,12 +29,12 @@ export default function Footer() {
         </div>
 
         {/* Links */}
-        <div className="flex flex-wrap justify-center gap-8">
+        <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 sm:gap-x-8">
           {footerLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className="text-sm text-text-secondary transition-colors hover:text-accent"
+              className="inline-flex min-h-[44px] items-center px-1 text-sm text-text-secondary transition-colors hover:text-accent"
             >
               {link.label}
             </a>
@@ -42,7 +42,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom */}
-        <div className="w-full border-t border-border pt-8 text-center">
+        <div className="w-full border-t border-border pt-6 text-center sm:pt-8">
           <p className="text-xs text-text-tertiary">
             &copy; {new Date().getFullYear()} Hold It Down CIC. All rights
             reserved.

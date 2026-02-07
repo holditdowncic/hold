@@ -21,6 +21,12 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
   function handleClick(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
     e.preventDefault();
     setOpen(false);
@@ -71,7 +77,7 @@ export default function Navbar() {
         {/* Mobile Toggle */}
         <button
           onClick={() => setOpen(!open)}
-          className="flex flex-col gap-[5px] p-1 md:hidden"
+          className="flex flex-col items-center justify-center gap-[5px] p-3 -mr-2 min-h-[44px] min-w-[44px] md:hidden"
           aria-label="Toggle navigation"
         >
           <span
@@ -95,14 +101,25 @@ export default function Navbar() {
       {/* Mobile Menu */}
       <AnimatePresence>
         {open && (
-          <motion.div
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed top-0 right-0 h-screen w-[280px] border-l border-border bg-bg-elevated md:hidden"
-          >
-            <div className="flex flex-col gap-6 px-10 pt-24">
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 z-[998] bg-black/50 backdrop-blur-sm md:hidden"
+              onClick={() => setOpen(false)}
+            />
+            {/* Menu Panel */}
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="fixed top-0 right-0 z-[999] h-screen w-[min(280px,85vw)] border-l border-border bg-bg-elevated md:hidden"
+            >
+            <div className="flex flex-col gap-2 px-6 pt-24">
               {links.map((link, i) => (
                 <motion.a
                   key={link.href}
@@ -111,13 +128,14 @@ export default function Navbar() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.1 + i * 0.05 }}
-                  className="text-lg font-medium text-text-secondary transition-colors hover:text-text-primary"
+                  className="py-3 text-lg font-medium text-text-secondary transition-colors hover:text-text-primary"
                 >
                   {link.label}
                 </motion.a>
               ))}
             </div>
-          </motion.div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </nav>

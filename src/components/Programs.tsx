@@ -31,10 +31,10 @@ function Tag({ children }: { children: React.ReactNode }) {
 
 export default function Programs() {
   return (
-    <section id="programs" className="py-28 md:py-36">
-      <div className="mx-auto max-w-[1200px] px-6">
+    <section id="programs" className="py-16 sm:py-20 md:py-36">
+      <div className="mx-auto max-w-[1200px] px-5 sm:px-6">
         {/* Header */}
-        <div className="grid gap-10 md:grid-cols-2 md:gap-20">
+        <div className="grid gap-6 md:grid-cols-2 md:gap-20">
           <div>
             <Reveal>
               <span className="mb-5 inline-block rounded-full border border-accent/15 bg-accent-glow px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-accent">
@@ -50,7 +50,7 @@ export default function Programs() {
           </div>
           <div className="flex items-end">
             <Reveal>
-              <p className="text-lg leading-relaxed text-text-secondary">
+              <p className="text-base leading-relaxed text-text-secondary md:text-lg">
                 Our initiatives are shaped through co-design with participants,
                 responding to what local families and young people tell us they
                 need.
@@ -61,15 +61,15 @@ export default function Programs() {
 
         {/* Programs Grid */}
         <motion.div
-          className="mt-20 grid gap-6 md:grid-cols-2"
+          className="mt-10 grid gap-5 sm:mt-14 sm:gap-6 md:mt-20 md:grid-cols-2"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={staggerContainer}
         >
           {/* Featured: Roots & Wings */}
-          <TiltCard className="group relative col-span-full overflow-hidden rounded-2xl border border-accent/10 bg-gradient-to-br from-bg-card to-accent/[0.03] p-10 md:p-12">
-            <div className="grid items-center gap-10 md:grid-cols-[1fr_auto]">
+          <TiltCard className="group relative col-span-full overflow-hidden rounded-2xl border border-accent/10 bg-gradient-to-br from-bg-card to-accent/[0.03] p-6 sm:p-8 md:p-12">
+            <div className="grid items-center gap-6 md:grid-cols-[1fr_auto] md:gap-10">
               <div>
                 <span className="mb-4 inline-block rounded-full border border-accent/15 bg-accent-glow px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-wider text-accent">
                   National Lottery Funded
@@ -106,7 +106,7 @@ export default function Programs() {
           {programs.map((prog) => (
             <TiltCard
               key={prog.title}
-              className="group overflow-hidden rounded-2xl border border-border bg-bg-card p-10 transition-all duration-500 hover:border-border-hover"
+              className="group overflow-hidden rounded-2xl border border-border bg-bg-card p-6 transition-all duration-500 sm:p-8 md:p-10 hover:border-border-hover"
             >
               <h3 className="mb-4 font-[family-name:var(--font-heading)] text-xl font-semibold">
                 {prog.title}

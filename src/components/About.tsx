@@ -4,9 +4,9 @@ import { Reveal } from "@/lib/motion";
 
 export default function About() {
   return (
-    <section id="about" className="py-28 md:py-36">
-      <div className="mx-auto max-w-[1200px] px-6">
-        <div className="grid gap-12 md:grid-cols-2 md:gap-20">
+    <section id="about" className="py-16 sm:py-20 md:py-36">
+      <div className="mx-auto max-w-[1200px] px-5 sm:px-6">
+        <div className="grid gap-8 md:grid-cols-2 md:gap-20">
           {/* Left */}
           <div>
             <Reveal>
@@ -25,7 +25,7 @@ export default function About() {
           {/* Right */}
           <div className="space-y-5">
             <Reveal>
-              <p className="text-lg leading-relaxed text-text-secondary">
+              <p className="text-base leading-relaxed text-text-secondary md:text-lg">
                 Hold It Down CIC is a Community Interest Company based in Thornton
                 Heath, Croydon. We create inclusive spaces for young people and
                 families from underrepresented backgrounds to express themselves,

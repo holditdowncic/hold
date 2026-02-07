@@ -29,7 +29,7 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 pt-32 pb-20"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden px-5 pt-24 pb-16 sm:px-6 md:pt-32 md:pb-20"
     >
       {/* Background */}
       <div className="absolute inset-0 z-0">
@@ -47,15 +47,15 @@ export default function Hero() {
       {/* Content */}
       <div className="relative z-10 mx-auto max-w-[900px] text-center">
         <Reveal>
-          <div className="mb-10 inline-flex items-center gap-2.5 rounded-full border border-border bg-bg-card px-5 py-2 text-xs font-medium uppercase tracking-wider text-text-secondary">
-            <span className="badge-dot h-2 w-2 rounded-full bg-accent" />
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-bg-card px-3.5 py-1.5 text-[0.65rem] font-medium uppercase tracking-wider text-text-secondary sm:mb-10 sm:gap-2.5 sm:px-5 sm:py-2 sm:text-xs">
+            <span className="badge-dot h-1.5 w-1.5 rounded-full bg-accent sm:h-2 sm:w-2" />
             Community Interest Company &mdash; Croydon, UK
           </div>
         </Reveal>
 
         <div className="mb-8">
           <motion.h1
-            className="font-[family-name:var(--font-heading)] text-[clamp(3rem,8vw,6.5rem)] font-bold leading-[1.05] tracking-tight"
+            className="font-[family-name:var(--font-heading)] text-[clamp(2.25rem,8vw,6.5rem)] font-bold leading-[1.05] tracking-tight"
             initial="hidden"
             animate="visible"
             variants={{
@@ -79,7 +79,7 @@ export default function Hero() {
         </div>
 
         <Reveal delay={0.3}>
-          <p className="mx-auto mb-12 max-w-[640px] text-[clamp(1rem,2vw,1.2rem)] leading-relaxed text-text-secondary">
+          <p className="mx-auto mb-8 max-w-[640px] text-[clamp(0.9rem,2.5vw,1.2rem)] leading-relaxed text-text-secondary sm:mb-12">
             A bold movement rooted in lived experience and driven by the urgency
             for change. We centre truth, nurture belonging, and cultivate a
             culture where connection, care, and courage are lived actions.
@@ -87,14 +87,14 @@ export default function Hero() {
         </Reveal>
 
         <Reveal delay={0.5}>
-          <div className="flex flex-wrap items-center justify-center gap-4">
+          <div className="flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row sm:gap-4">
             <a
               href="#programs"
               onClick={(e) => {
                 e.preventDefault();
                 document.querySelector("#programs")?.scrollIntoView({ behavior: "smooth", block: "start" });
               }}
-              className="group inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-accent to-accent-warm px-8 py-3.5 text-sm font-semibold text-bg transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(200,162,248,0.25)]"
+              className="group inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-accent to-accent-warm px-6 py-3.5 text-sm font-semibold text-bg transition-all sm:w-auto sm:px-8 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(200,162,248,0.25)]"
             >
               <span>Our Programs</span>
               <svg
@@ -115,7 +115,7 @@ export default function Hero() {
                 e.preventDefault();
                 document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth", block: "start" });
               }}
-              className="inline-flex items-center gap-2 rounded-full border border-border-hover px-8 py-3.5 text-sm font-semibold text-text-primary transition-all hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border-hover px-6 py-3.5 text-sm font-semibold text-text-primary transition-all sm:w-auto sm:px-8 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/5"
             >
               Get In Touch
             </a>
@@ -124,7 +124,7 @@ export default function Hero() {
       </div>
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
+      <div className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 sm:block">
         <div className="flex h-10 w-6 items-start justify-center rounded-xl border-[1.5px] border-text-tertiary pt-2">
           <div
             className="h-2 w-0.5 rounded-full bg-accent"

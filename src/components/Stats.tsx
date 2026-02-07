@@ -42,10 +42,10 @@ function Divider() {
 
 export default function Stats() {
   return (
-    <section className="border-y border-border bg-bg-elevated py-14">
-      <div className="mx-auto max-w-[1200px] px-6">
+    <section className="border-y border-border bg-bg-elevated py-10 md:py-14">
+      <div className="mx-auto max-w-[1200px] px-5 sm:px-6">
         <Reveal>
-          <div className="flex flex-wrap items-center justify-center gap-10 sm:gap-12">
+          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 md:gap-12">
             <CounterStat />
             <Divider />
             <IconStat label="Youth & Families">
