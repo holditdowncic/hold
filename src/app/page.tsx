@@ -10,12 +10,14 @@ import Impact from "@/components/Impact";
 import CTA from "@/components/CTA";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
+import CookieConsent from "@/components/CookieConsent";
 
 export default function Home() {
   return (
     <>
       <Preloader />
       <CursorGlow />
+      <CookieConsent />
       <Navbar />
       <main>
         <Hero />
