@@ -72,22 +72,22 @@ export default function Hero() {
                   className="block overflow-hidden"
                   variants={fadeUp}
                 >
-                  Amplifying
+                  I Can Because
                 </motion.span>
                 <motion.span
                   className="block overflow-hidden"
                   variants={fadeUp}
                 >
-                  <span className="text-gradient">Unheard</span> Voices
+                  <span className="text-gradient">You Can</span>
                 </motion.span>
               </motion.h1>
             </div>
 
             <Reveal delay={0.3}>
               <p className="mx-auto mb-8 max-w-[540px] text-[clamp(0.9rem,2.5vw,1.15rem)] leading-relaxed text-text-secondary sm:mx-0 sm:mb-12">
-                A bold movement rooted in lived experience and driven by the urgency
-                for change. We centre truth, nurture belonging, and cultivate a
-                culture where connection, care, and courage are lived actions.
+                And together we can. A Croydon-based community interest company
+                creating culturally rooted spaces that build emotional wellbeing,
+                confidence and connection across families and communities.
               </p>
             </Reveal>
 

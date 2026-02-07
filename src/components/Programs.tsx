@@ -4,31 +4,47 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { Reveal, fadeUp, staggerContainer, TiltCard } from "@/lib/motion";
 
-const programs = [
+const programmes = [
   {
-    title: "Cultural Education",
-    desc: "Culturally safe spaces where young people explore identity, heritage, and creative expression. We celebrate diversity and challenge inequality through education that centres lived experience.",
-    tags: ["Identity", "Heritage", "Creative Expression"],
-    image:
-      "https://images.unsplash.com/photo-1460518451285-97b6aa326961?w=600&h=400&fit=crop",
-    imageAlt: "Young people expressing themselves through creative arts and culture",
-  },
-  {
-    title: "Youth Development",
-    desc: "Skills-building workshops and mentoring that equip young people with confidence, resilience, and the tools to shape their futures. We nurture local talent and celebrate potential.",
-    tags: ["Workshops", "Mentoring", "Skills"],
+    title: "Echoes of Us",
+    desc: "A powerful journey for fathers, sons, and mentors. Explores masculinity, emotions, and the bonds that unite generations through workshops, open conversations, and creative activities.",
+    tags: ["Fathers & Sons", "Mentorship", "Masculinity"],
     image:
       "https://images.unsplash.com/photo-1529390079861-591de354faf5?w=600&h=400&fit=crop",
-    imageAlt: "Young people building skills and confidence together",
+    imageAlt: "Fathers and sons connecting through mentorship activities",
   },
   {
-    title: "Community Support",
-    desc: "Strengthening grassroots networks and providing support for families affected by inequality and exclusion. Real, grounded work that meets people where they are.",
-    tags: ["Grassroots", "Families", "Inclusion"],
+    title: "Voices Together",
+    desc: "Using storytelling, creativity, and performance to give young people a platform to be heard. Develops leadership, communication, and digital media skills while celebrating identity.",
+    tags: ["Storytelling", "Leadership", "Digital Media"],
+    image:
+      "https://images.unsplash.com/photo-1460518451285-97b6aa326961?w=600&h=400&fit=crop",
+    imageAlt: "Young people expressing themselves through creative storytelling",
+  },
+  {
+    title: "Talk Di TingZ",
+    desc: "Our youth-led podcast offering a safe space for young people to discuss real issues — identity, relationships, and emotional wellbeing. Building a culture of openness where young people lead the conversation.",
+    tags: ["Youth Podcast", "Safe Space", "Identity"],
+    image:
+      "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=600&h=400&fit=crop",
+    imageAlt: "Young people recording a podcast discussion",
+  },
+  {
+    title: "Our Voices, Our Stage",
+    desc: "A platform for advocacy, performance, and youth leadership. From spoken word to performance showcases, equipping young people with the tools to inspire audiences and influence change.",
+    tags: ["Spoken Word", "Performance", "Advocacy"],
     image:
       "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&h=400&fit=crop",
-    imageAlt: "Families and community members coming together for support",
+    imageAlt: "Young people performing on stage with confidence",
   },
+];
+
+const otherInitiatives = [
+  { title: "Mentoring", detail: "One-to-one and group support (10–17 years)" },
+  { title: "Entrepreneurship", detail: "Work experience & career pathways (14–17 years)" },
+  { title: "Workshops & Retreats", detail: "Life skills, wellbeing & personal growth" },
+  { title: "Sports & Football", detail: "Teamwork, discipline & confidence" },
+  { title: "Family Support", detail: "Loving Yourself & The Gents Network" },
 ];
 
 function Tag({ children }: { children: React.ReactNode }) {
@@ -48,22 +64,23 @@ export default function Programs() {
           <div>
             <Reveal>
               <span className="mb-5 inline-block rounded-full border border-accent/15 bg-accent-glow px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-accent">
-                What We Do
+                Our Programmes
               </span>
             </Reveal>
             <Reveal>
               <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3rem)] font-bold leading-tight tracking-tight">
-                Programmes shaped <span className="text-gradient">by</span> and{" "}
-                <span className="text-gradient">for</span> the community
+                Designed to{" "}
+                <span className="text-gradient">inspire, connect</span> and{" "}
+                <span className="text-gradient">empower</span>
               </h2>
             </Reveal>
           </div>
           <div className="flex items-end">
             <Reveal>
               <p className="text-base leading-relaxed text-text-secondary md:text-lg">
-                Our initiatives are shaped through co-design with participants,
-                responding to what local families and young people tell us they
-                need.
+                Each project responds directly to the needs of our community,
+                giving young people and families the tools to grow in confidence,
+                creativity, and resilience.
               </p>
             </Reveal>
           </div>
@@ -84,7 +101,7 @@ export default function Programs() {
               <div className="relative aspect-[16/10] sm:aspect-[2/1] md:aspect-auto md:h-full md:min-h-[350px]">
                 <Image
                   src="https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=800&h=600&fit=crop"
-                  alt="Families and young people participating in the Roots and Wings programme"
+                  alt="Families and young people at the Roots and Wings programme"
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
@@ -95,30 +112,36 @@ export default function Programs() {
               {/* Content */}
               <div className="relative p-6 sm:p-8 md:p-10 lg:p-12">
                 <span className="mb-4 inline-block rounded-full border border-accent/15 bg-accent-glow px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-wider text-accent">
-                  National Lottery Funded
+                  Flagship Programme
                 </span>
                 <h3 className="mb-4 font-[family-name:var(--font-heading)] text-2xl font-semibold sm:text-3xl">
                   Roots & Wings
                 </h3>
-                <p className="mb-6 leading-relaxed text-text-secondary">
-                  A family-focused programme creating honest spaces for expression
-                  and belonging. Co-designed with families and young people, Roots
-                  & Wings nurtures intergenerational connection and amplifies youth
-                  voice through creative workshops, dialogue sessions, and
-                  community events.
+                <p className="mb-4 leading-relaxed text-text-secondary">
+                  A celebration of fatherhood, family, and intergenerational
+                  connection. Roots & Wings brings fathers, children, and
+                  families together through sports, workshops, and shared
+                  experiences that strengthen bonds and create lasting memories.
+                </p>
+                <p className="mb-6 text-sm leading-relaxed text-text-secondary">
+                  It&apos;s about planting roots of love and giving wings of
+                  confidence to future generations. The programme now forms the
+                  foundation for longer-term intergenerational and male
+                  mentorship work across Croydon.
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  <Tag>Family Focused</Tag>
-                  <Tag>Co-Designed</Tag>
-                  <Tag>Youth Voice</Tag>
+                  <Tag>Fatherhood</Tag>
+                  <Tag>Intergenerational</Tag>
+                  <Tag>Family Unity</Tag>
+                  <Tag>Wellbeing</Tag>
                 </div>
               </div>
             </div>
           </TiltCard>
 
-          {/* Other Programs - 3 column grid */}
-          <div className="grid gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {programs.map((prog) => (
+          {/* Other Programmes - 2x2 grid */}
+          <div className="grid gap-5 sm:gap-6 sm:grid-cols-2">
+            {programmes.map((prog) => (
               <TiltCard
                 key={prog.title}
                 className="card-shadow group overflow-hidden rounded-2xl border border-border bg-bg-card transition-all duration-500 hover:border-border-hover"
@@ -130,7 +153,7 @@ export default function Programs() {
                     alt={prog.imageAlt}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    sizes="(max-width: 640px) 100vw, 50vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-bg-card via-transparent to-transparent" />
                 </div>
@@ -151,6 +174,33 @@ export default function Programs() {
               </TiltCard>
             ))}
           </div>
+
+          {/* Other Initiatives */}
+          <Reveal>
+            <div className="rounded-2xl border border-border bg-bg-card p-6 sm:p-8">
+              <h3 className="mb-5 font-[family-name:var(--font-heading)] text-xl font-semibold">
+                Other Initiatives
+              </h3>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {otherInitiatives.map((item) => (
+                  <div
+                    key={item.title}
+                    className="flex items-start gap-3 rounded-lg border border-border bg-bg-elevated px-4 py-3"
+                  >
+                    <div className="mt-0.5 h-2 w-2 flex-shrink-0 rounded-full bg-accent" />
+                    <div>
+                      <p className="text-sm font-semibold text-text-primary">
+                        {item.title}
+                      </p>
+                      <p className="text-xs text-text-secondary">
+                        {item.detail}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Reveal>
         </motion.div>
       </div>
     </section>

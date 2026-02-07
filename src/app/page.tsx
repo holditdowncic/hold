@@ -6,6 +6,7 @@ import Stats from "@/components/Stats";
 import About from "@/components/About";
 import Mission from "@/components/Mission";
 import Programs from "@/components/Programs";
+import Events from "@/components/Events";
 import Impact from "@/components/Impact";
 import CTA from "@/components/CTA";
 import Contact from "@/components/Contact";
@@ -25,6 +26,7 @@ export default function Home() {
         <About />
         <Mission />
         <Programs />
+        <Events />
         <Impact />
         <CTA />
         <Contact />

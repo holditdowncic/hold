@@ -39,8 +39,8 @@ export default function Stats() {
         <div className="grid grid-cols-2 gap-6 sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-10 md:gap-14">
           <CounterStat target={2022} label="Founded" duration={2000} />
           <CounterStat target={500} label="Youth & Families" suffix="+" duration={1800} />
-          <CounterStat target={50} label="Community Events" suffix="+" duration={1500} />
-          <CounterStat target={10} label="Programmes" suffix="+" duration={1200} />
+          <CounterStat target={300} label="Fun Day Attendees" suffix="+" duration={1500} />
+          <CounterStat target={5} label="Flagship Programmes" duration={1200} />
         </div>
       </div>
     </section>

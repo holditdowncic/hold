@@ -1,7 +1,8 @@
 const footerLinks = [
   { label: "About", href: "#about" },
   { label: "Mission", href: "#mission" },
-  { label: "Programs", href: "#programs" },
+  { label: "Programmes", href: "#programs" },
+  { label: "Events", href: "#events" },
   { label: "Impact", href: "#impact" },
   { label: "Contact", href: "#contact" },
 ];

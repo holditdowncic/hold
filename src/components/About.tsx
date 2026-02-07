@@ -3,6 +3,13 @@
 import Image from "next/image";
 import { Reveal } from "@/lib/motion";
 
+const focusAreas = [
+  { icon: "🧠", text: "Emotional literacy & wellbeing" },
+  { icon: "💪", text: "Positive masculinity & male role modelling" },
+  { icon: "🤝", text: "Intergenerational connection & cohesion" },
+  { icon: "🏠", text: "Safe, inclusive spaces for healing" },
+];
+
 export default function About() {
   return (
     <section id="about" className="py-12 sm:py-16 md:py-20">
@@ -14,7 +21,7 @@ export default function About() {
               <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border">
                 <Image
                   src="https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=800&h=600&fit=crop"
-                  alt="Diverse group of people joining hands together in community"
+                  alt="Hold It Down CIC community members coming together"
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
@@ -27,7 +34,7 @@ export default function About() {
                   Est. 2022
                 </p>
                 <p className="text-[0.65rem] text-text-secondary sm:text-xs">
-                  Thornton Heath, Croydon
+                  Croydon, South London
                 </p>
               </div>
             </div>
@@ -42,37 +49,51 @@ export default function About() {
             </Reveal>
             <Reveal>
               <h2 className="mb-6 font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3rem)] font-bold leading-tight tracking-tight">
-                Built on <span className="text-gradient">lived experience</span>,
-                driven by <span className="text-gradient">purpose</span>
+                Culturally rooted,{" "}
+                <span className="text-gradient">community driven</span>
               </h2>
             </Reveal>
             <div className="space-y-5">
               <Reveal>
                 <p className="text-base leading-relaxed text-text-secondary md:text-lg">
-                  Hold It Down CIC is a Community Interest Company based in Thornton
-                  Heath, Croydon. We create inclusive spaces for young people and
-                  families from underrepresented backgrounds to express themselves,
-                  heal, and lead.
+                  Hold It Down Community Interest Company (CIC) is a Croydon-based
+                  organisation that creates culturally rooted, intergenerational
+                  spaces to build emotional wellbeing, confidence and connection
+                  across families and communities.
                 </p>
               </Reveal>
               <Reveal>
                 <p className="leading-relaxed text-text-secondary">
-                  We invest in what matters most:{" "}
-                  <strong className="text-text-primary">people</strong>. Nurturing
-                  local talent and strengthening grassroots networks, we lay the
-                  groundwork for transformation that is meaningful, resilient, and
-                  enduring. Our approach is grounded, realistic, and responsive to
-                  community needs.
+                  Our work combines sport, creative expression, dialogue and
+                  mentorship to strengthen relationships, promote positive identity
+                  and support long-term resilience. We work with children, young
+                  people, parents, fathers, carers and elders.
                 </p>
               </Reveal>
               <Reveal>
                 <p className="leading-relaxed text-text-secondary">
-                  Every story matters. We build platforms that centre real
-                  experiences and lived truth, prioritising intergenerational
-                  connection and youth voice. Through creativity, emotional honesty,
-                  and community-led approaches, we ensure people feel seen, valued,
-                  and confident in shaping their futures.
+                  Our work is rooted in trust, co-production, and accessibility.
+                  We activate familiar community spaces to make engagement feel
+                  safe, inclusive, and relevant &mdash; designing projects with and
+                  for the people we serve, particularly young people from Black and
+                  minoritised backgrounds.
                 </p>
+              </Reveal>
+              {/* Focus Areas */}
+              <Reveal>
+                <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {focusAreas.map((area) => (
+                    <div
+                      key={area.text}
+                      className="flex items-start gap-3 rounded-lg border border-border bg-bg-card px-4 py-3"
+                    >
+                      <span className="text-lg leading-none">{area.icon}</span>
+                      <span className="text-sm leading-snug text-text-secondary">
+                        {area.text}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </Reveal>
             </div>
           </div>

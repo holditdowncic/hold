@@ -6,33 +6,8 @@ import { Reveal, fadeUp, staggerContainer, TiltCard } from "@/lib/motion";
 const values = [
   {
     num: "01",
-    title: "Empowerment",
-    desc: "Improving the lives of young people by challenging them to become their best selves, fostering personal growth and resilience through safe, culturally affirming environments.",
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-        <line x1="12" y1="2" x2="12" y2="4" />
-      </svg>
-    ),
-  },
-  {
-    num: "02",
-    title: "Opportunities",
-    desc: "Creating meaningful activities that develop skills and confidence. We open doors through workshops, events, and programmes designed with and for the community.",
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <circle cx="12" cy="12" r="10" />
-        <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-        <line x1="9" y1="9" x2="9.01" y2="9" />
-        <line x1="15" y1="9" x2="15.01" y2="9" />
-      </svg>
-    ),
-  },
-  {
-    num: "03",
-    title: "Community",
-    desc: "Encouraging young people to be a positive force in their communities, promoting active participation, social responsibility, and intergenerational connection.",
+    title: "Who We Serve",
+    desc: "Young people aged 12–25, particularly those who have experienced the justice system, exclusion from school, or systemic disadvantage. We also work closely with families — mothers, fathers and carers — recognising that long-term transformation requires intergenerational healing.",
     icon: (
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -43,13 +18,34 @@ const values = [
     ),
   },
   {
-    num: "04",
-    title: "Environment",
-    desc: "Supporting young people in shaping the environment they live in, fostering a sense of ownership and pride in their communities and local spaces.",
+    num: "02",
+    title: "Strategic Aim",
+    desc: "To reduce disconnection and exclusion by co-producing emotionally intelligent, culturally relevant support with young people, equipping them with the tools, networks, and healing spaces they need to re-engage with their families, communities, and futures.",
     icon: (
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-        <polyline points="9 22 9 12 15 12 15 22" />
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+    ),
+  },
+  {
+    num: "03",
+    title: "Our Vision",
+    desc: "A world where young people, no matter their past, are empowered to lead their healing and shape their communities. We believe when young people recognise their potential and build resilience, they can transform their lives.",
+    icon: (
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+        <circle cx="12" cy="12" r="3" />
+      </svg>
+    ),
+  },
+  {
+    num: "04",
+    title: "Why It Matters",
+    desc: "Founded in direct response to the unmet needs of young people in Croydon navigating exclusion, broken systems, and deep emotional wounds. Our programmes heal the root causes of disconnection by affirming identity, restoring dignity, and creating spaces of belonging.",
+    icon: (
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
       </svg>
     ),
   },
@@ -68,11 +64,19 @@ export default function Mission() {
           </Reveal>
           <Reveal>
             <h2 className="mx-auto max-w-[700px] font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3rem)] font-bold leading-tight tracking-tight">
-              Connection, care, and courage &mdash;
+              I can because you can
               <br />
-              not just values, but{" "}
-              <span className="text-gradient">lived actions</span>
+              and together{" "}
+              <span className="text-gradient">we can</span>
             </h2>
+          </Reveal>
+          <Reveal>
+            <p className="mx-auto mt-5 max-w-[600px] text-base leading-relaxed text-text-secondary md:text-lg">
+              We meet young people where they are &mdash; not to control
+              behaviour, but to heal the root causes of disconnection by
+              affirming identity, restoring dignity, and creating spaces of
+              belonging.
+            </p>
           </Reveal>
         </div>
 
