@@ -5,20 +5,21 @@
    ============================================ */
 
 @theme inline {
-  --color-bg: #0a0a0b;
-  --color-bg-elevated: #111113;
-  --color-bg-card: #161618;
-  --color-bg-card-hover: #1c1c1f;
-  --color-surface: #1e1e21;
+  /* Royal Purple & Gold Palette */
+  --color-bg: #0b0a10;
+  --color-bg-elevated: #100f18;
+  --color-bg-card: #15131e;
+  --color-bg-card-hover: #1c1928;
+  --color-surface: #1e1b28;
   --color-border: rgba(255, 255, 255, 0.06);
   --color-border-hover: rgba(255, 255, 255, 0.12);
-  --color-text-primary: #f5f5f7;
-  --color-text-secondary: rgba(255, 255, 255, 0.6);
-  --color-text-tertiary: rgba(255, 255, 255, 0.4);
-  --color-accent: #e8a838;
-  --color-accent-light: #f0c060;
-  --color-accent-warm: #d4763a;
-  --color-accent-glow: rgba(232, 168, 56, 0.15);
+  --color-text-primary: #f5f3fa;
+  --color-text-secondary: rgba(245, 243, 250, 0.6);
+  --color-text-tertiary: rgba(245, 243, 250, 0.38);
+  --color-accent: #c8a2f8;
+  --color-accent-light: #dbbfff;
+  --color-accent-warm: #e8b84a;
+  --color-accent-glow: rgba(200, 162, 248, 0.12);
   --font-heading: 'Space Grotesk', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
 }
@@ -44,7 +45,7 @@ body {
 
 /* --- Gradient Text Utility --- */
 .text-gradient {
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-warm) 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-warm) 50%, var(--color-accent) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -119,8 +120,8 @@ body {
 
 /* --- Badge Pulse --- */
 @keyframes pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(232, 168, 56, 0.4); }
-  50% { opacity: 0.8; box-shadow: 0 0 0 8px rgba(232, 168, 56, 0); }
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(200, 162, 248, 0.4); }
+  50% { opacity: 0.8; box-shadow: 0 0 0 8px rgba(200, 162, 248, 0); }
 }
 
 .badge-dot {
@@ -175,7 +176,7 @@ body {
   width: 600px;
   height: 600px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(232, 168, 56, 0.04) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(200, 162, 248, 0.04) 0%, transparent 70%);
   pointer-events: none;
   z-index: 9999;
   transform: translate(-50%, -50%);

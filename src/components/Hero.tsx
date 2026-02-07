@@ -37,7 +37,7 @@ export default function Hero() {
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse at 30% 50%, rgba(232,168,56,0.08) 0%, transparent 60%), radial-gradient(ellipse at 70% 20%, rgba(212,118,58,0.06) 0%, transparent 50%)",
+              "radial-gradient(ellipse at 30% 50%, rgba(120,80,200,0.1) 0%, transparent 60%), radial-gradient(ellipse at 70% 20%, rgba(232,184,74,0.06) 0%, transparent 50%)",
           }}
         />
         <div ref={particlesRef} className="absolute inset-0" />
@@ -94,7 +94,7 @@ export default function Hero() {
                 e.preventDefault();
                 document.querySelector("#programs")?.scrollIntoView({ behavior: "smooth", block: "start" });
               }}
-              className="group inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-accent to-accent-warm px-8 py-3.5 text-sm font-semibold text-bg transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(232,168,56,0.25)]"
+              className="group inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-accent to-accent-warm px-8 py-3.5 text-sm font-semibold text-bg transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(200,162,248,0.25)]"
             >
               <span>Our Programs</span>
               <svg
