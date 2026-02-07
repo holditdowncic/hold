@@ -289,17 +289,6 @@ img, video {
 }
 
 /* --- Scroll Performance --- */
-/* Lazy-render off-screen sections */
-section {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 600px;
-}
-
-/* GPU-accelerate Framer Motion animated elements */
-[style*="transform"] {
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-}
 
 /* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {

@@ -111,7 +111,7 @@ export function useCounter(target: number, duration = 2000) {
           observer.disconnect();
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.2 }
     );
     observer.observe(el);
     return () => observer.disconnect();

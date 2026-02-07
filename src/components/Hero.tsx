@@ -31,7 +31,7 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden px-5 pt-24 pb-16 sm:px-6 md:pt-32 md:pb-20"
+      className="relative flex min-h-[85vh] items-center justify-center overflow-hidden px-5 pt-24 pb-12 sm:min-h-screen sm:px-6 sm:pb-16 md:pt-32 md:pb-20"
     >
       {/* Background */}
       <div className="absolute inset-0 z-0">
