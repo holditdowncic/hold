@@ -57,7 +57,7 @@ const values = [
 
 export default function Mission() {
   return (
-    <section id="mission" className="py-16 sm:py-20 md:py-36">
+    <section id="mission" className="py-16 sm:py-20 md:py-24">
       <div className="mx-auto max-w-[1200px] px-5 sm:px-6">
         {/* Header */}
         <div className="mb-10 text-center sm:mb-14 md:mb-20">

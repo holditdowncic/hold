@@ -5,7 +5,7 @@ import { Reveal } from "@/lib/motion";
 
 export default function About() {
   return (
-    <section id="about" className="py-16 sm:py-20 md:py-36">
+    <section id="about" className="py-16 sm:py-20 md:py-24">
       <div className="mx-auto max-w-[1200px] px-5 sm:px-6">
         <div className="grid items-center gap-10 md:grid-cols-2 md:gap-20">
           {/* Left - Image */}
