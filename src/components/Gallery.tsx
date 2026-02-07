@@ -7,23 +7,23 @@ import { Reveal, staggerContainer, fadeUp } from "@/lib/motion";
 
 const galleryImages = [
     {
-        src: "/media/roots/roots-1.jpeg",
-        alt: "Roots & Wings volunteers group photo",
+        src: "/media/roots/roots-14.jpeg",
+        alt: "Hold It Down CIC branded merchandise",
         caption: "Our Team",
     },
     {
-        src: "/media/roots/roots-2.jpeg",
-        alt: "Families and children at the fun day activities",
+        src: "/media/roots/roots-11.jpeg",
+        alt: "Children playing and having fun at community sports day",
         caption: "Family Fun Day",
     },
     {
-        src: "/media/roots/roots-3.jpeg",
-        alt: "Young person proudly wearing their medal",
+        src: "/media/roots/roots-13.jpeg",
+        alt: "Two young people at the basketball court",
         caption: "Celebrating Achievement",
     },
     {
-        src: "/media/roots/roots-7.jpeg",
-        alt: "Face painting station at Roots & Wings event",
+        src: "/media/roots/roots-23.jpeg",
+        alt: "Young people doing creative crafts at outdoor workshop",
         caption: "Creative Activities",
     },
     {
@@ -32,9 +32,9 @@ const galleryImages = [
         caption: "Families Together",
     },
     {
-        src: "/media/roots/roots-10.jpeg",
-        alt: "Dancing and celebrating at the community event",
-        caption: "Dance & Performance",
+        src: "/media/roots/roots-24.jpeg",
+        alt: "Children playing football at the community event",
+        caption: "Sports & Activity",
     },
     {
         src: "/media/image-7.jpeg",
@@ -42,9 +42,9 @@ const galleryImages = [
         caption: "Award Winners",
     },
     {
-        src: "/media/roots/roots-5.jpeg",
-        alt: "Fathers and mentors at outdoor discussion",
-        caption: "Men's Discussion",
+        src: "/media/roots/roots-17.jpeg",
+        alt: "Young people on high ropes adventure course",
+        caption: "Team Building",
     },
     {
         src: "/media/talkdi/talkdi-1.jpeg",

@@ -9,8 +9,8 @@ const programmes = [
     title: "Echoes of Us",
     desc: "A powerful journey for fathers, sons, and mentors. Explores masculinity, emotions, and the bonds that unite generations through workshops, open conversations, and creative activities.",
     tags: ["Fathers & Sons", "Mentorship", "Masculinity"],
-    image: "/media/roots/roots-5.jpeg",
-    imageAlt: "Fathers and mentors at outdoor discussion session",
+    image: "/media/roots/roots-13.jpeg",
+    imageAlt: "Two young people at the basketball court",
   },
   {
     title: "Voices Together",
@@ -30,8 +30,8 @@ const programmes = [
     title: "Our Voices, Our Stage",
     desc: "A platform for advocacy, performance, and youth leadership. From spoken word to performance showcases, equipping young people with the tools to inspire audiences and influence change.",
     tags: ["Spoken Word", "Performance", "Advocacy"],
-    image: "/media/roots/roots-10.jpeg",
-    imageAlt: "Young people performing and celebrating at community event",
+    image: "/media/roots/roots-24.jpeg",
+    imageAlt: "Children playing and being active at community event",
   },
 ];
 
@@ -96,8 +96,8 @@ export default function Programs() {
               {/* Image */}
               <div className="relative aspect-[16/10] sm:aspect-[2/1] md:aspect-auto md:h-full md:min-h-[350px]">
                 <Image
-                  src="/media/roots/roots-2.jpeg"
-                  alt="Families and children at the Roots & Wings Family Fun Day"
+                  src="/media/roots/roots-11.jpeg"
+                  alt="Children playing at the Roots & Wings Family Fun Day"
                   fill
                   quality={95}
                   className="object-cover"
