@@ -134,10 +134,10 @@ export default function Hero() {
             <div className="relative mx-auto w-full max-w-[400px] sm:hidden">
               <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-border">
                 <Image
-                  src="https://images.unsplash.com/photo-1517164850305-99a3e65bb47e?w=800&h=450&fit=crop&crop=faces"
-                  alt="Diverse young people together in an urban community setting"
+                  src="/media/image-10.jpeg"
+                  alt="Hold It Down CIC volunteers at Roots & Wings Family Fun Day"
                   fill
-                  className="object-cover"
+                  className="object-cover object-top"
                   sizes="100vw"
                   priority
                 />
@@ -148,10 +148,10 @@ export default function Hero() {
             <div className="relative mx-auto hidden w-[240px] sm:block md:w-[320px] lg:w-[380px]">
               <div className="relative aspect-[3/4] overflow-hidden rounded-2xl border border-border">
                 <Image
-                  src="https://images.unsplash.com/photo-1517164850305-99a3e65bb47e?w=760&h=1000&fit=crop&crop=faces"
-                  alt="Diverse young people together in an urban community setting"
+                  src="/media/image-10.jpeg"
+                  alt="Hold It Down CIC volunteers at Roots & Wings Family Fun Day"
                   fill
-                  className="object-cover"
+                  className="object-cover object-top"
                   sizes="(max-width: 768px) 240px, 380px"
                   priority
                 />

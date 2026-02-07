@@ -15,6 +15,7 @@
   --color-bg-elevated: var(--t-bg-elevated);
   --color-bg-card: var(--t-bg-card);
   --color-bg-card-hover: var(--t-bg-card-hover);
+  --color-bg-alt: var(--t-bg-alt);
   --color-surface: var(--t-surface);
   --color-border: var(--t-border);
   --color-border-hover: var(--t-border-hover);
@@ -51,8 +52,9 @@
   --grid-line: rgba(0, 0, 0, 0.03);
   --cursor-glow: rgba(124, 58, 237, 0.03);
   --particle-opacity: 0.35;
-  --scrollbar-thumb: rgba(0,0,0,0.12);
-  --scrollbar-thumb-hover: rgba(0,0,0,0.22);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.12);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.22);
+  --t-bg-alt: #f4f2f8;
 }
 
 /* ============================================
@@ -79,8 +81,9 @@
   --grid-line: rgba(255, 255, 255, 0.02);
   --cursor-glow: rgba(200, 162, 248, 0.04);
   --particle-opacity: 0.6;
-  --scrollbar-thumb: rgba(255,255,255,0.1);
-  --scrollbar-thumb-hover: rgba(255,255,255,0.2);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
+  --t-bg-alt: #100f16;
 }
 
 /* --- Theme transition (scoped - NOT body * which kills scroll perf) --- */
@@ -94,7 +97,10 @@ body {
 }
 
 /* GPU-accelerate animated elements */
-.particle, .cursor-glow, .cta-orb-1, .cta-orb-2 {
+.particle,
+.cursor-glow,
+.cta-orb-1,
+.cta-orb-2 {
   will-change: transform;
   backface-visibility: hidden;
 }
@@ -117,13 +123,18 @@ body {
 }
 
 /* Prevent any horizontal overflow globally */
-#__next, main, section, footer, nav {
+#__next,
+main,
+section,
+footer,
+nav {
   max-width: 100vw;
   overflow-x: clip;
 }
 
 /* Ensure images are always responsive */
-img, video {
+img,
+video {
   max-width: 100%;
   height: auto;
 }
@@ -147,11 +158,11 @@ img, video {
 
 /* --- Light mode card shadow --- */
 [data-theme="light"] .card-shadow {
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.03);
 }
 
 [data-theme="light"] .card-shadow:hover {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.05);
 }
 
 /* --- Preloader --- */
@@ -179,21 +190,59 @@ img, video {
   animation: preloaderLetter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.preloader-text span:nth-child(1) { animation-delay: 0.05s; }
-.preloader-text span:nth-child(2) { animation-delay: 0.1s; }
-.preloader-text span:nth-child(3) { animation-delay: 0.15s; }
-.preloader-text span:nth-child(4) { animation-delay: 0.2s; }
-.preloader-text span:nth-child(5) { animation-delay: 0.25s; }
-.preloader-text span:nth-child(6) { animation-delay: 0.3s; }
-.preloader-text span:nth-child(7) { animation-delay: 0.35s; }
-.preloader-text span:nth-child(8) { animation-delay: 0.4s; }
-.preloader-text span:nth-child(9) { animation-delay: 0.45s; }
-.preloader-text span:nth-child(10) { animation-delay: 0.5s; }
-.preloader-text span:nth-child(11) { animation-delay: 0.55s; }
-.preloader-text span:nth-child(12) { animation-delay: 0.6s; }
+.preloader-text span:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+.preloader-text span:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.preloader-text span:nth-child(3) {
+  animation-delay: 0.15s;
+}
+
+.preloader-text span:nth-child(4) {
+  animation-delay: 0.2s;
+}
+
+.preloader-text span:nth-child(5) {
+  animation-delay: 0.25s;
+}
+
+.preloader-text span:nth-child(6) {
+  animation-delay: 0.3s;
+}
+
+.preloader-text span:nth-child(7) {
+  animation-delay: 0.35s;
+}
+
+.preloader-text span:nth-child(8) {
+  animation-delay: 0.4s;
+}
+
+.preloader-text span:nth-child(9) {
+  animation-delay: 0.45s;
+}
+
+.preloader-text span:nth-child(10) {
+  animation-delay: 0.5s;
+}
+
+.preloader-text span:nth-child(11) {
+  animation-delay: 0.55s;
+}
+
+.preloader-text span:nth-child(12) {
+  animation-delay: 0.6s;
+}
 
 @keyframes preloaderLetter {
-  to { opacity: 1; transform: translateY(0); }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .preloader-bar-fill {
@@ -202,7 +251,9 @@ img, video {
 }
 
 @keyframes preloaderBar {
-  to { width: 100%; }
+  to {
+    width: 100%;
+  }
 }
 
 /* --- Particles --- */
@@ -215,16 +266,39 @@ img, video {
 }
 
 @keyframes particleFloat {
-  0% { opacity: 0; transform: translateY(0) scale(0); }
-  10% { opacity: var(--particle-opacity, 0.6); transform: scale(1); }
-  90% { opacity: 0; }
-  100% { opacity: 0; transform: translateY(-400px) scale(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0);
+  }
+
+  10% {
+    opacity: var(--particle-opacity, 0.6);
+    transform: scale(1);
+  }
+
+  90% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-400px) scale(0);
+  }
 }
 
 /* --- Badge Pulse --- */
 @keyframes pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 color-mix(in srgb, var(--t-accent) 40%, transparent); }
-  50% { opacity: 0.8; box-shadow: 0 0 0 8px color-mix(in srgb, var(--t-accent) 0%, transparent); }
+
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--t-accent) 40%, transparent);
+  }
+
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--t-accent) 0%, transparent);
+  }
 }
 
 .badge-dot {
@@ -233,8 +307,17 @@ img, video {
 
 /* --- Scroll Bounce --- */
 @keyframes scrollBounce {
-  0%, 100% { transform: translateY(0); opacity: 1; }
-  50% { transform: translateY(10px); opacity: 0.3; }
+
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  50% {
+    transform: translateY(10px);
+    opacity: 0.3;
+  }
 }
 
 /* --- Orbit Circles --- */
@@ -247,12 +330,16 @@ img, video {
 }
 
 @keyframes circleRotate {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* --- Floating Orbs --- */
 @keyframes orbFloat {
-  to { transform: translate(40px, 30px) scale(1.1); }
+  to {
+    transform: translate(40px, 30px) scale(1.1);
+  }
 }
 
 .cta-orb-1 {
@@ -292,13 +379,20 @@ img, video {
 
 /* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .particle, .cursor-glow, .cta-orb-1, .cta-orb-2 {
+
+  .particle,
+  .cursor-glow,
+  .cta-orb-1,
+  .cta-orb-2 {
     display: none !important;
   }
 }
@@ -324,7 +418,9 @@ footer {
 
 /* --- Tap Highlight --- */
 @media (pointer: coarse) {
-  a, button {
+
+  a,
+  button {
     -webkit-tap-highlight-color: color-mix(in srgb, var(--t-accent) 10%, transparent);
   }
 }
@@ -333,13 +429,16 @@ footer {
 ::-webkit-scrollbar {
   width: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--t-bg);
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--scrollbar-thumb-hover);
 }

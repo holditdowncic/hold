@@ -11,7 +11,7 @@ const testimonials = [
     name: "Community Parent",
     role: "Roots & Wings Participant",
     avatar:
-      "https://images.unsplash.com/photo-1589156280159-27698a70f29e?w=120&h=120&fit=crop&crop=face",
+      "/media/image-5.jpeg",
   },
   {
     quote:
@@ -19,7 +19,7 @@ const testimonials = [
     name: "Young Person",
     role: "Youth Programme Member",
     avatar:
-      "https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?w=120&h=120&fit=crop&crop=face",
+      "/media/image-7.jpeg",
   },
   {
     quote:
@@ -27,7 +27,7 @@ const testimonials = [
     name: "Local Volunteer",
     role: "Community Member",
     avatar:
-      "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=120&h=120&fit=crop&crop=face",
+      "/media/image-1.jpeg",
   },
 ];
 

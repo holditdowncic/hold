@@ -9,6 +9,7 @@ import Programs from "@/components/Programs";
 import Events from "@/components/Events";
 import Impact from "@/components/Impact";
 import CTA from "@/components/CTA";
+import Gallery from "@/components/Gallery";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
@@ -28,6 +29,7 @@ export default function Home() {
         <Programs />
         <Events />
         <Impact />
+        <Gallery />
         <CTA />
         <Contact />
       </main>

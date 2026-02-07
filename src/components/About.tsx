@@ -20,10 +20,10 @@ export default function About() {
             <div className="relative overflow-visible pr-4 pb-4 sm:pr-5 sm:pb-5">
               <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border">
                 <Image
-                  src="https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=800&h=600&fit=crop"
-                  alt="Hold It Down CIC community members coming together"
+                  src="/media/image-2.jpeg"
+                  alt="Hold It Down CIC banner - I Can Because You Can"
                   fill
-                  className="object-cover"
+                  className="object-cover object-center"
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-bg/40 via-transparent to-transparent" />
