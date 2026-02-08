@@ -5,7 +5,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useTheme } from "@/lib/theme";
 
-const links: { label: string; href: string; isPage?: boolean }[] = [
+const desktopLinks: { label: string; href: string; isPage?: boolean }[] = [
+  { label: "About", href: "#about" },
+  { label: "Programmes", href: "#programs" },
+  { label: "Events", href: "/events", isPage: true },
+  { label: "Impact", href: "#impact" },
+  { label: "Contact", href: "#contact" },
+];
+
+const mobileLinks: { label: string; href: string; isPage?: boolean }[] = [
   { label: "About", href: "#about" },
   { label: "Mission", href: "#mission" },
   { label: "Programmes", href: "#programs" },
@@ -126,9 +134,9 @@ export default function Navbar() {
           <span className="text-accent">DOWN</span>
         </a>
 
-        {/* Desktop Links + Theme Toggle */}
-        <div className="hidden items-center gap-9 md:flex">
-          {links.map((link) =>
+        {/* Desktop Links + CTA + Theme Toggle */}
+        <div className="hidden items-center gap-7 md:flex">
+          {desktopLinks.map((link) =>
             link.isPage ? (
               <Link
                 key={link.href}
@@ -150,6 +158,12 @@ export default function Navbar() {
               </a>
             )
           )}
+          <Link
+            href="/support"
+            className="rounded-full bg-gradient-to-r from-accent to-accent-warm px-5 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg"
+          >
+            Support Us
+          </Link>
           <ThemeToggle />
         </div>
 
@@ -215,7 +229,7 @@ export default function Navbar() {
                 </button>
               </div>
               <div className="flex flex-col gap-2 px-6 pt-4">
-                {links.map((link, i) =>
+                {mobileLinks.map((link, i) =>
                   link.isPage ? (
                     <motion.div
                       key={link.href}
