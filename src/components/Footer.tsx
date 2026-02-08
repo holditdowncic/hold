@@ -2,10 +2,11 @@ import Link from "next/link";
 
 const footerLinks: { label: string; href: string; isPage?: boolean }[] = [
   { label: "About", href: "#about" },
-  { label: "Mission", href: "#mission" },
   { label: "Programmes", href: "#programs" },
   { label: "Events", href: "/events", isPage: true },
   { label: "Impact", href: "#impact" },
+  { label: "Our Team", href: "#team" },
+  { label: "Support Us", href: "#support" },
   { label: "Gallery", href: "#gallery" },
   { label: "Contact", href: "#contact" },
 ];

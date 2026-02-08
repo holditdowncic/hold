@@ -6,8 +6,11 @@ import Stats from "@/components/Stats";
 import About from "@/components/About";
 import Mission from "@/components/Mission";
 import Programs from "@/components/Programs";
+import Pathways from "@/components/Pathways";
 import Events from "@/components/Events";
 import Impact from "@/components/Impact";
+import Team from "@/components/Team";
+import SupportUs from "@/components/SupportUs";
 import CTA from "@/components/CTA";
 import Gallery from "@/components/Gallery";
 import Contact from "@/components/Contact";
@@ -27,8 +30,11 @@ export default function Home() {
         <About />
         <Mission />
         <Programs />
+        <Pathways />
         <Events />
         <Impact />
+        <Team />
+        <SupportUs />
         <Gallery />
         <CTA />
         <Contact />

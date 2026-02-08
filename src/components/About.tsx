@@ -6,8 +6,8 @@ import { Reveal } from "@/lib/motion";
 const focusAreas = [
   { icon: "🧠", text: "Emotional literacy & wellbeing" },
   { icon: "💪", text: "Positive masculinity & male role modelling" },
-  { icon: "🤝", text: "Intergenerational connection & cohesion" },
-  { icon: "🏠", text: "Safe, inclusive spaces for healing" },
+  { icon: "🤝", text: "Intergenerational connection — young people & older adults together" },
+  { icon: "🏠", text: "Safe, inclusive spaces for healing & expression" },
 ];
 
 export default function About() {
@@ -59,8 +59,9 @@ export default function About() {
                 <p className="text-base leading-relaxed text-text-secondary md:text-lg">
                   Hold It Down Community Interest Company (CIC) is a Croydon-based
                   organisation that creates culturally rooted, intergenerational
-                  spaces to build emotional wellbeing, confidence and connection
-                  across families and communities.
+                  spaces to build emotional wellbeing, confidence and connection.
+                  We work with young people aged 12&ndash;25, older adults, and
+                  the wider community across South London.
                 </p>
               </Reveal>
               <Reveal>

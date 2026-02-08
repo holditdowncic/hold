@@ -49,6 +49,14 @@ export default function Impact() {
               Every voice <span className="text-gradient">counts</span>.
             </h2>
           </Reveal>
+          <Reveal>
+            <p className="mx-auto mt-5 max-w-[650px] text-base leading-relaxed text-text-secondary">
+              Incorporated in 2022, with Roots &amp; Wings running since 2023
+              and now entering our third year. We&apos;ve reached over 500 young
+              people and families across South London through programmes rooted
+              in trust, creativity, and community.
+            </p>
+          </Reveal>
         </div>
 
         {/* Testimonials Grid */}

@@ -37,10 +37,11 @@ export default function Stats() {
       <div className="mx-auto max-w-[1200px] px-5 sm:px-6">
         {/* 2x2 grid on mobile, single row on sm+ */}
         <div className="grid grid-cols-2 gap-6 sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-10 md:gap-14">
-          <CounterStat target={2022} label="Founded" duration={2000} />
-          <CounterStat target={500} label="Youth & Families" suffix="+" duration={1800} />
+          <CounterStat target={2022} label="Incorporated" duration={2000} />
+          <CounterStat target={3} label="Years of Roots & Wings" duration={1200} />
+          <CounterStat target={500} label="Young People & Families Reached" suffix="+" duration={1800} />
           <CounterStat target={300} label="Fun Day Attendees" suffix="+" duration={1500} />
-          <CounterStat target={5} label="Flagship Programmes" duration={1200} />
+          <CounterStat target={5} label="Active Programmes" duration={1200} />
         </div>
       </div>
     </section>
