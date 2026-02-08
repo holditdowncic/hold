@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import { Reveal, fadeUp, staggerContainer } from "@/lib/motion";
 
@@ -91,6 +92,92 @@ function ContactCard({
   );
 }
 
+function ContactForm() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setStatus("sending");
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) throw new Error("Failed to send");
+
+      setStatus("sent");
+      setFormData({ name: "", email: "", message: "" });
+    } catch {
+      setStatus("error");
+    }
+  }
+
+  const inputClasses =
+    "w-full rounded-lg border border-border bg-bg-card px-4 py-3 text-sm text-text-primary placeholder:text-text-tertiary transition-colors duration-200 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent";
+
+  return (
+    <Reveal>
+      <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <input
+            type="text"
+            name="name"
+            placeholder="Your name"
+            required
+            value={formData.name}
+            onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+            className={inputClasses}
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Your email"
+            required
+            value={formData.email}
+            onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+            className={inputClasses}
+          />
+        </div>
+        <textarea
+          name="message"
+          placeholder="Your message"
+          required
+          rows={5}
+          value={formData.message}
+          onChange={(e) => setFormData((prev) => ({ ...prev, message: e.target.value }))}
+          className={`${inputClasses} resize-none`}
+        />
+        <button
+          type="submit"
+          disabled={status === "sending"}
+          className="mt-1 w-full rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:brightness-110 disabled:opacity-60 sm:w-auto"
+        >
+          {status === "sending" ? "Sending..." : "Send Message"}
+        </button>
+
+        {status === "sent" && (
+          <p className="text-sm font-medium text-green-600 dark:text-green-400">
+            Message sent successfully! We&apos;ll get back to you soon.
+          </p>
+        )}
+        {status === "error" && (
+          <p className="text-sm font-medium text-red-600 dark:text-red-400">
+            Something went wrong. Please try again or email us directly.
+          </p>
+        )}
+      </form>
+    </Reveal>
+  );
+}
+
 export default function Contact() {
   return (
     <section id="contact" className="py-12 sm:py-16 md:py-20">
@@ -115,6 +202,7 @@ export default function Contact() {
                 reach out.
               </p>
             </Reveal>
+            <ContactForm />
           </div>
 
           {/* Right */}
