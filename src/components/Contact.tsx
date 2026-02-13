@@ -53,7 +53,12 @@ interface ContactProps {
 }
 
 export default function Contact({ content }: ContactProps) {
-  const data = content ?? defaultContact;
+  // Merge with defaults — use Supabase content but fall back to defaults for missing/empty fields
+  const data: ContactContent = {
+    ...defaultContact,
+    ...content,
+    items: content?.items && content.items.length > 0 ? content.items : defaultContact.items,
+  };
 
   // Split heading for gradient
   const headingWords = data.heading.split(" ");
