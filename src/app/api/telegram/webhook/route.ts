@@ -204,23 +204,28 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ ok: true });
         }
 
-        // Handle /deploy
+        // Handle /deploy (revalidate all pages so changes go live immediately)
         if (text === "/deploy") {
-            const deployHookUrl = process.env.VERCEL_DEPLOY_HOOK;
-            if (!deployHookUrl) {
-                await sendTelegram(chatId, "❌ Deploy hook not configured. Add VERCEL_DEPLOY_HOOK to your environment variables.");
-                return NextResponse.json({ ok: true });
-            }
-            await sendTelegram(chatId, "🚀 Triggering deployment...");
+            await sendTelegram(chatId, "🚀 Refreshing website cache...");
             try {
-                const deployRes = await fetch(deployHookUrl, { method: "POST" });
-                if (deployRes.ok) {
-                    await sendTelegram(chatId, "✅ <b>Deployment triggered!</b>\n\nYour site will be live in 1-2 minutes at https://www.holditdown.uk");
+                const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL
+                    ? `https://${process.env.VERCEL_URL}`
+                    : "http://localhost:3000";
+                const res = await fetch(`${baseUrl}/api/revalidate`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${process.env.CMS_API_SECRET}`,
+                    },
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    await sendTelegram(chatId, "✅ <b>Website refreshed!</b>\n\nAll pages have been revalidated. Changes are now live at https://www.holditdown.uk");
                 } else {
-                    await sendTelegram(chatId, `❌ Deploy failed with status ${deployRes.status}`);
+                    await sendTelegram(chatId, `❌ Refresh failed: ${data.error || "Unknown error"}`);
                 }
             } catch (err) {
-                await sendTelegram(chatId, `❌ Deploy error: ${err instanceof Error ? err.message : "Unknown error"}`);
+                await sendTelegram(chatId, `❌ Error: ${err instanceof Error ? err.message : "Unknown error"}`);
             }
             return NextResponse.json({ ok: true });
         }

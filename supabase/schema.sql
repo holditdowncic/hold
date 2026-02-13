@@ -118,3 +118,16 @@ CREATE POLICY "Service update website-images" ON storage.objects
 
 CREATE POLICY "Service delete website-images" ON storage.objects
   FOR DELETE USING (bucket_id = 'website-images');
+
+-- Content history for undo/revert (used by /undo command)
+CREATE TABLE IF NOT EXISTS content_history (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  table_name TEXT NOT NULL,
+  record_id TEXT NOT NULL,
+  previous_data JSONB NOT NULL,
+  action_description TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE content_history ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public read content_history" ON content_history FOR SELECT USING (true);
