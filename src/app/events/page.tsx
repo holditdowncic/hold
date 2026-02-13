@@ -220,7 +220,7 @@ export default function EventsPage() {
           Want to get involved in our next event?
         </p>
         <Link
-          href="/#contact"
+          href="/contact"
           className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-accent to-accent-warm px-8 py-3.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg"
         >
           <span>Get In Touch</span>
