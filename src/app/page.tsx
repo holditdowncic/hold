@@ -14,7 +14,7 @@ import CTA from "@/components/CTA";
 import Gallery from "@/components/Gallery";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
-import CookieConsent from "@/components/CookieConsent";
+
 import { getAllContent } from "@/lib/content";
 
 // Revalidate every 60 seconds (ISR)
@@ -27,7 +27,7 @@ export default async function Home() {
     <>
       <Preloader />
       <CursorGlow />
-      <CookieConsent />
+
       <Navbar />
       <main>
         <Hero content={content.hero} />

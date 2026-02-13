@@ -49,7 +49,7 @@ export default function Stats({ stats }: StatsProps) {
   return (
     <section className="border-y border-border bg-bg-elevated py-8 sm:py-10 md:py-14">
       <div className="mx-auto max-w-[1200px] px-5 sm:px-6">
-        <div className="grid grid-cols-2 gap-6 sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-10 md:gap-14">
+        <div className="grid grid-cols-2 gap-4 sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-10 md:gap-14">
           {statsData.map((stat) => (
             <CounterStat
               key={stat.id}

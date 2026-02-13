@@ -169,6 +169,16 @@ export interface Stat {
     sort_order: number;
 }
 
+// --- Cookie Banner ---
+
+export interface CookieBannerContent {
+    message: string;
+    accept_text: string;
+    decline_text: string;
+    policy_link?: string;
+    enabled: boolean;
+}
+
 // --- CMS Action types (from OpenRouter AI) ---
 
 export type CMSAction =
@@ -188,4 +198,5 @@ export type CMSAction =
     | { action: "add_initiative"; title: string; detail: string }
     | { action: "remove_initiative"; title: string }
     | { action: "get_status" }
+    | { action: "undo" }
     | { action: "unknown"; message: string };

@@ -62,7 +62,7 @@ export default function Contact({ content }: ContactProps) {
 
   return (
     <section id="contact" className="py-12 sm:py-16 md:py-20">
-      <div className="mx-auto max-w-[1200px] px-5 sm:px-6">
+      <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
         <div className="grid gap-8 md:grid-cols-2 md:gap-20">
           {/* Left */}
           <div>
@@ -106,8 +106,8 @@ export default function Contact({ content }: ContactProps) {
                       }
                       : {})}
                     className={`group flex items-center gap-4 rounded-xl border border-border bg-bg-card p-4 transition-all duration-400 sm:gap-5 sm:p-6 ${isLink
-                        ? "cursor-pointer hover:translate-x-1 hover:border-border-hover hover:bg-bg-card-hover"
-                        : ""
+                      ? "cursor-pointer hover:translate-x-1 hover:border-border-hover hover:bg-bg-card-hover"
+                      : ""
                       }`}
                   >
                     <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-accent-glow text-accent sm:h-12 sm:w-12">
@@ -117,7 +117,7 @@ export default function Contact({ content }: ContactProps) {
                       <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-text-tertiary sm:text-[0.7rem]">
                         {item.label}
                       </span>
-                      <span className="truncate text-sm font-medium text-text-primary sm:text-base">{item.value}</span>
+                      <span className="truncate text-sm font-medium text-text-primary sm:text-base" style={{ overflowWrap: "break-word" }}>{item.value}</span>
                     </div>
                     {isLink && (
                       <svg

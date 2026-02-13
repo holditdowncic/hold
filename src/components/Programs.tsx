@@ -6,10 +6,10 @@ import { Reveal, fadeUp, staggerContainer, TiltCard } from "@/lib/motion";
 import type { Program, Initiative, ProgramsSectionContent } from "@/lib/types";
 
 const defaultPrograms: Program[] = [
-  { id: "1", title: "Echoes of Us", description: "A powerful journey for fathers, sons, and mentors. Explores masculinity, emotions, and the bonds that unite generations through workshops, open conversations, and creative activities.", tags: ["Fathers & Sons", "Mentorship", "Masculinity"], image_url: "/media/roots/roots-5.jpeg", image_alt: "Fathers and mentors at outdoor discussion session", is_flagship: false, sort_order: 1 },
+  { id: "1", title: "Echoes of Us", description: "A powerful journey for fathers, sons, and mentors. Explores masculinity, emotions, and the bonds that unite generations through workshops, open conversations, and creative activities.", tags: ["Fathers & Sons", "Mentorship", "Masculinity"], image_url: "/media/roots/roots-13.jpeg", image_alt: "Fathers and mentors at outdoor discussion session", is_flagship: false, sort_order: 1 },
   { id: "2", title: "Voices Together", description: "Using storytelling, creativity, and performance to give young people a platform to be heard. Develops leadership, communication, and digital media skills while celebrating identity.", tags: ["Storytelling", "Leadership", "Digital Media"], image_url: "/media/roots/roots-15.jpeg", image_alt: "Community members gathering for storytelling and performances", is_flagship: false, sort_order: 2 },
   { id: "3", title: "Talk Di TingZ", description: "Our youth-led podcast offering a safe space for young people to discuss real issues \u2014 identity, relationships, and emotional wellbeing. Building a culture of openness where young people lead the conversation.", tags: ["Youth Podcast", "Safe Space", "Identity"], image_url: "/media/talkdi/talkdi-1.jpeg", image_alt: "Talk Di TingZ youth podcast team", is_flagship: false, sort_order: 3 },
-  { id: "4", title: "Our Voices, Our Stage", description: "A platform for advocacy, performance, and youth leadership. From spoken word to performance showcases, equipping young people with the tools to inspire audiences and influence change.", tags: ["Spoken Word", "Performance", "Advocacy"], image_url: "/media/roots/roots-10.jpeg", image_alt: "Young people performing and celebrating at community event", is_flagship: false, sort_order: 4 },
+  { id: "4", title: "Our Voices, Our Stage", description: "A platform for advocacy, performance, and youth leadership. From spoken word to performance showcases, equipping young people with the tools to inspire audiences and influence change.", tags: ["Spoken Word", "Performance", "Advocacy"], image_url: "/media/roots/roots-17.jpeg", image_alt: "Young people performing and celebrating at community event", is_flagship: false, sort_order: 4 },
 ];
 
 const defaultInitiatives: Initiative[] = [
@@ -48,7 +48,7 @@ export default function Programs({ programs, initiatives, meta }: ProgramsProps)
   const flagshipTitle = meta?.flagship_title ?? "Roots & Wings";
   const flagshipDesc = meta?.flagship_desc ?? "A celebration of fatherhood, family, and intergenerational connection. Roots & Wings brings fathers, children, and families together through sports, workshops, and shared experiences that strengthen bonds and create lasting memories.";
   const flagshipDesc2 = meta?.flagship_desc2 ?? "It\u2019s about planting roots of love and giving wings of confidence to future generations. The programme now forms the foundation for longer-term intergenerational and male mentorship work across Croydon.";
-  const flagshipImage = meta?.flagship_image ?? "/media/roots/roots-2.jpeg";
+  const flagshipImage = meta?.flagship_image ?? "/media/roots/roots-23.jpeg";
   const flagshipImageAlt = meta?.flagship_image_alt ?? "Families and children at the Roots & Wings Family Fun Day";
   const flagshipTags = meta?.flagship_tags ?? ["Fatherhood", "Intergenerational", "Family Unity", "Wellbeing"];
 

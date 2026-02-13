@@ -45,12 +45,12 @@ export default function Hero({ content }: HeroProps) {
   const ctaPrimaryText = content?.cta_primary_text ?? "Explore Our Programmes";
   const ctaPrimaryLink = content?.cta_primary_link ?? "#programs";
   const ctaSecondaryText = content?.cta_secondary_text ?? "Support Our Work";
-  const ctaSecondaryLink = content?.cta_secondary_link ?? "#support";
+  const ctaSecondaryLink = content?.cta_secondary_link ?? "/contact";
 
   return (
     <section
       id="hero"
-      className="relative flex min-h-[85vh] items-center justify-center overflow-hidden px-5 pt-24 pb-12 sm:min-h-screen sm:px-6 sm:pb-16 md:pt-32 md:pb-20"
+      className="relative flex min-h-[70vh] items-center justify-center overflow-hidden px-4 pt-20 pb-10 sm:min-h-screen sm:px-6 sm:pt-24 sm:pb-16 md:pt-32 md:pb-20"
     >
       {/* Background */}
       <div className="absolute inset-0 z-0">
@@ -71,7 +71,7 @@ export default function Hero({ content }: HeroProps) {
           {/* Text Column */}
           <div className="text-center sm:text-left">
             <Reveal>
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-bg-card px-3.5 py-1.5 text-[0.65rem] font-medium uppercase tracking-wider text-text-secondary sm:mb-10 sm:gap-2.5 sm:px-5 sm:py-2 sm:text-xs">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border bg-bg-card px-3 py-1 text-[0.6rem] font-medium uppercase tracking-wider text-text-secondary sm:mb-10 sm:gap-2.5 sm:px-5 sm:py-2 sm:text-xs">
                 <span className="badge-dot h-1.5 w-1.5 rounded-full bg-accent sm:h-2 sm:w-2" />
                 {badge}
               </div>
@@ -103,7 +103,11 @@ export default function Hero({ content }: HeroProps) {
                   className="block overflow-hidden"
                   variants={fadeUp}
                 >
-                  {line3}
+                  {line3.includes("We Can") ? (
+                    <>{line3.replace("We Can", "").replace(/\.$/, "")}<span className="text-gradient">We Can.</span></>
+                  ) : (
+                    line3
+                  )}
                 </motion.span>
               </motion.h1>
             </div>
@@ -127,7 +131,7 @@ export default function Hero({ content }: HeroProps) {
                     e.preventDefault();
                     document.querySelector(ctaPrimaryLink)?.scrollIntoView({ behavior: "smooth", block: "start" });
                   }}
-                  className="group inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-accent to-accent-warm px-6 py-3.5 text-sm font-semibold text-white transition-all sm:w-auto sm:px-8 hover:-translate-y-0.5 hover:shadow-lg"
+                  className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-warm px-5 py-3 text-[0.8125rem] font-semibold text-white transition-all sm:w-auto sm:gap-2.5 sm:px-8 sm:py-3.5 sm:text-sm hover:-translate-y-0.5 hover:shadow-lg"
                 >
                   <span>{ctaPrimaryText}</span>
                   <svg
@@ -145,10 +149,12 @@ export default function Hero({ content }: HeroProps) {
                 <a
                   href={ctaSecondaryLink}
                   onClick={(e) => {
-                    e.preventDefault();
-                    document.querySelector(ctaSecondaryLink)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    if (ctaSecondaryLink.startsWith("#")) {
+                      e.preventDefault();
+                      document.querySelector(ctaSecondaryLink)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
                   }}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border-hover px-6 py-3.5 text-sm font-semibold text-text-primary transition-all sm:w-auto sm:px-8 hover:-translate-y-0.5 hover:border-accent/30 hover:bg-accent/5"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border-hover px-5 py-3 text-[0.8125rem] font-semibold text-text-primary transition-all sm:w-auto sm:px-8 sm:py-3.5 sm:text-sm hover:-translate-y-0.5 hover:border-accent/30 hover:bg-accent/5"
                 >
                   {ctaSecondaryText}
                 </a>

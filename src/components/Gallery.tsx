@@ -8,13 +8,13 @@ import type { GalleryImage, GalleryContent } from "@/lib/types";
 
 const defaultImages: GalleryImage[] = [
     { id: "1", src: "/media/roots/roots-1.jpeg", alt: "Roots & Wings volunteers group photo", caption: "Our Team", sort_order: 1 },
-    { id: "2", src: "/media/roots/roots-2.jpeg", alt: "Families and children at the fun day activities", caption: "Family Fun Day", sort_order: 2 },
+    { id: "2", src: "/media/roots/roots-11.jpeg", alt: "Families and children at the fun day activities", caption: "Family Fun Day", sort_order: 2 },
     { id: "3", src: "/media/roots/roots-3.jpeg", alt: "Young person proudly wearing their medal", caption: "Celebrating Achievement", sort_order: 3 },
     { id: "4", src: "/media/roots/roots-7.jpeg", alt: "Face painting station at Roots & Wings event", caption: "Creative Activities", sort_order: 4 },
     { id: "5", src: "/media/image-5.jpeg", alt: "Family enjoying the Roots & Wings Family Fun Day", caption: "Families Together", sort_order: 5 },
-    { id: "6", src: "/media/roots/roots-10.jpeg", alt: "Dancing and celebrating at the community event", caption: "Dance & Performance", sort_order: 6 },
+    { id: "6", src: "/media/roots/roots-17.jpeg", alt: "Dancing and celebrating at the community event", caption: "Dance & Performance", sort_order: 6 },
     { id: "7", src: "/media/image-7.jpeg", alt: "Child proudly showing their medal", caption: "Award Winners", sort_order: 7 },
-    { id: "8", src: "/media/roots/roots-5.jpeg", alt: "Fathers and mentors at outdoor discussion", caption: "Men's Discussion", sort_order: 8 },
+    { id: "8", src: "/media/roots/roots-13.jpeg", alt: "Fathers and mentors at outdoor discussion", caption: "Men's Discussion", sort_order: 8 },
     { id: "9", src: "/media/talkdi/talkdi-1.jpeg", alt: "Talk Di TingZ youth podcast team", caption: "Talk Di TingZ", sort_order: 9 },
     { id: "10", src: "/media/roots/roots-12.jpeg", alt: "Young people playing football in the park", caption: "Sports & Football", sort_order: 10 },
     { id: "11", src: "/media/image-3.jpeg", alt: "Community members showcasing children's books", caption: "Community Partners", sort_order: 11 },
@@ -135,7 +135,17 @@ export default function Gallery({ images, meta }: GalleryProps) {
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            className="relative max-h-[85vh] max-w-[90vw] overflow-hidden rounded-2xl border border-border"
+                            drag="x"
+                            dragConstraints={{ left: 0, right: 0 }}
+                            dragElastic={0.2}
+                            onDragEnd={(_, info) => {
+                                if (info.offset.x > 80) {
+                                    setSelectedImage(selectedImage === 0 ? galleryImages.length - 1 : selectedImage - 1);
+                                } else if (info.offset.x < -80) {
+                                    setSelectedImage(selectedImage === galleryImages.length - 1 ? 0 : selectedImage + 1);
+                                }
+                            }}
+                            className="relative max-h-[80vh] max-w-[92vw] overflow-hidden rounded-2xl border border-border sm:max-h-[85vh] sm:max-w-[90vw]"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <Image
@@ -147,24 +157,24 @@ export default function Gallery({ images, meta }: GalleryProps) {
                             />
                             <button
                                 onClick={() => setSelectedImage(null)}
-                                className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-bg/80 text-text-primary backdrop-blur-sm transition-colors hover:bg-accent hover:text-white"
+                                className="absolute top-3 right-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-bg/80 text-text-primary backdrop-blur-sm transition-colors hover:bg-accent hover:text-white sm:top-4 sm:right-4"
                             >
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <path d="M18 6L6 18M6 6l12 12" />
                                 </svg>
                             </button>
-                            <div className="absolute bottom-16 left-0 right-0 text-center">
-                                <p className="inline-block rounded-full bg-bg/80 px-4 py-1.5 text-sm font-medium text-text-primary backdrop-blur-sm">
+                            <div className="absolute bottom-14 left-0 right-0 text-center sm:bottom-16">
+                                <p className="inline-block rounded-full bg-bg/80 px-4 py-1.5 text-xs font-medium text-text-primary backdrop-blur-sm sm:text-sm">
                                     {galleryImages[selectedImage].caption}
                                 </p>
                             </div>
-                            <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2">
+                            <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-3 sm:bottom-4 sm:gap-2">
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setSelectedImage(selectedImage === 0 ? galleryImages.length - 1 : selectedImage - 1);
                                     }}
-                                    className="flex h-10 w-10 items-center justify-center rounded-full bg-bg/80 text-text-primary backdrop-blur-sm transition-colors hover:bg-accent hover:text-white"
+                                    className="flex h-11 w-11 items-center justify-center rounded-full bg-bg/80 text-text-primary backdrop-blur-sm transition-colors hover:bg-accent hover:text-white"
                                 >
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <path d="M15 18l-6-6 6-6" />
@@ -178,7 +188,7 @@ export default function Gallery({ images, meta }: GalleryProps) {
                                         e.stopPropagation();
                                         setSelectedImage(selectedImage === galleryImages.length - 1 ? 0 : selectedImage + 1);
                                     }}
-                                    className="flex h-10 w-10 items-center justify-center rounded-full bg-bg/80 text-text-primary backdrop-blur-sm transition-colors hover:bg-accent hover:text-white"
+                                    className="flex h-11 w-11 items-center justify-center rounded-full bg-bg/80 text-text-primary backdrop-blur-sm transition-colors hover:bg-accent hover:text-white"
                                 >
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <path d="M9 18l6-6-6-6" />

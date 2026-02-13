@@ -12,8 +12,8 @@ export default function CTA({ content }: CTAProps) {
   const description = content?.description ?? "Whether you\u2019re a young person looking for a safe space, a family seeking community, or someone who wants to support grassroots change \u2014 we want to hear from you.";
   const buttons = content?.buttons ?? [
     { text: "Join a Programme", link: "#programs" },
-    { text: "Volunteer With Us", link: "#contact" },
-    { text: "Partner With Us", link: "#contact" },
+    { text: "Volunteer With Us", link: "/contact" },
+    { text: "Partner With Us", link: "/contact" },
     { text: "Support Our Work", link: "#support", primary: true },
   ];
 
@@ -35,19 +35,21 @@ export default function CTA({ content }: CTAProps) {
               <p className="mx-auto mb-8 max-w-[600px] text-base leading-relaxed text-text-secondary sm:mb-10 md:text-lg">
                 {description}
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+              <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
                 {buttons.map((btn) => (
                   <a
                     key={btn.text}
                     href={btn.link}
                     onClick={(e) => {
-                      e.preventDefault();
-                      document.querySelector(btn.link)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      if (btn.link.startsWith("#")) {
+                        e.preventDefault();
+                        document.querySelector(btn.link)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      }
                     }}
                     className={
                       btn.primary
-                        ? "group inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-accent to-accent-warm px-7 py-3.5 text-sm font-semibold text-white transition-all sm:px-10 sm:py-4 sm:text-base hover:-translate-y-0.5 hover:shadow-lg"
-                        : "group inline-flex items-center gap-2 rounded-full bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-white/20 hover:shadow-lg"
+                        ? "group inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-accent to-accent-warm px-7 py-3.5 text-sm font-semibold text-white transition-all sm:w-auto sm:px-10 sm:py-4 sm:text-base hover:-translate-y-0.5 hover:shadow-lg"
+                        : "group inline-flex w-full items-center justify-center gap-2 rounded-full border border-border-hover px-6 py-3 text-sm font-semibold text-text-primary transition-all sm:w-auto hover:-translate-y-0.5 hover:border-accent/30 hover:bg-accent/5"
                     }
                   >
                     <span>{btn.text}</span>

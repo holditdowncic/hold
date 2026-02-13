@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/lib/theme";
+import CookieBanner from "@/components/CookieBanner";
 import "./globals.css";
 
 export const viewport = {
@@ -61,6 +62,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased" suppressHydrationWarning>
         <ThemeProvider>{children}</ThemeProvider>
+        <CookieBanner />
       </body>
     </html>
   );

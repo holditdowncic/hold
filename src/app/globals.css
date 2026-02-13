@@ -108,6 +108,12 @@ body {
 /* --- Base --- */
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Remove 300ms tap delay on all touch elements */
+a, button, [role="button"], input, select, textarea, label {
+  touch-action: manipulation;
 }
 
 body {
@@ -402,6 +408,12 @@ video {
   .hero-grid-bg {
     background-size: 40px 40px;
   }
+
+  /* Hide scrollbar on mobile */
+  ::-webkit-scrollbar {
+    width: 0;
+    display: none;
+  }
 }
 
 /* Extra small screens (below 360px) */
@@ -422,6 +434,17 @@ footer {
   a,
   button {
     -webkit-tap-highlight-color: color-mix(in srgb, var(--t-accent) 10%, transparent);
+  }
+
+  /* Disable cursor glow on touch devices (no mouse) */
+  .cursor-glow {
+    display: none !important;
+  }
+
+  /* Reduce particle intensity on touch devices */
+  .particle {
+    opacity: 0;
+    animation: none !important;
   }
 }
 

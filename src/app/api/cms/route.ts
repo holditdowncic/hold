@@ -10,6 +10,33 @@ function isAuthorized(request: NextRequest): boolean {
     return authHeader === `Bearer ${secret}`;
 }
 
+// Save a snapshot before any mutation for undo support
+async function saveHistory(tableName: string, recordId: string, previousData: Record<string, unknown>) {
+    if (!supabaseAdmin) return;
+    try {
+        await supabaseAdmin.from("content_history").insert({
+            table_name: tableName,
+            record_id: recordId,
+            previous_data: previousData,
+            action_description: `Updated ${tableName}`,
+        });
+        // Keep only the last 50 history entries to avoid unbounded growth
+        const { data: old } = await supabaseAdmin
+            .from("content_history")
+            .select("id")
+            .order("created_at", { ascending: false })
+            .range(50, 1000);
+        if (old && old.length > 0) {
+            await supabaseAdmin
+                .from("content_history")
+                .delete()
+                .in("id", old.map((r: { id: string }) => r.id));
+        }
+    } catch (e) {
+        console.error("Failed to save history:", e);
+    }
+}
+
 export async function POST(request: NextRequest) {
     if (!isAuthorized(request)) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -29,6 +56,13 @@ export async function POST(request: NextRequest) {
             // ─── Section content (JSONB) ───
             case "update_section": {
                 const { section, content } = body;
+                // Save history before update
+                const { data: prev } = await supabaseAdmin
+                    .from("site_content")
+                    .select("*")
+                    .eq("section", section)
+                    .single();
+                if (prev) await saveHistory("site_content", prev.id, prev);
                 const { data, error } = await supabaseAdmin
                     .from("site_content")
                     .update({ content, updated_at: new Date().toISOString() })
@@ -42,13 +76,14 @@ export async function POST(request: NextRequest) {
 
             case "update_section_field": {
                 const { section, field, value } = body;
-                // Fetch current content, update the field, save back
+                // Fetch current content, save history, update the field, save back
                 const { data: current, error: fetchErr } = await supabaseAdmin
                     .from("site_content")
-                    .select("content")
+                    .select("*")
                     .eq("section", section)
                     .single();
                 if (fetchErr) throw fetchErr;
+                await saveHistory("site_content", current.id, current);
                 const updated = { ...current.content, [field]: value };
                 const { data, error } = await supabaseAdmin
                     .from("site_content")
@@ -274,6 +309,35 @@ export async function POST(request: NextRequest) {
                     .select();
                 if (error) throw error;
                 result = data;
+                break;
+            }
+
+            // ─── Undo / Revert ───
+            case "undo": {
+                // Get the most recent history entry
+                const { data: lastChange, error: histErr } = await supabaseAdmin
+                    .from("content_history")
+                    .select("*")
+                    .order("created_at", { ascending: false })
+                    .limit(1)
+                    .single();
+                if (histErr || !lastChange) {
+                    result = { message: "Nothing to undo — no recent changes found." };
+                    break;
+                }
+                // Restore the previous data
+                const { table_name, record_id, previous_data } = lastChange;
+                const { error: restoreErr } = await supabaseAdmin
+                    .from(table_name)
+                    .update(previous_data)
+                    .eq("id", record_id);
+                if (restoreErr) throw restoreErr;
+                // Delete the history entry so we don't undo the same thing twice
+                await supabaseAdmin
+                    .from("content_history")
+                    .delete()
+                    .eq("id", lastChange.id);
+                result = { message: `Reverted last change to ${table_name} (${previous_data.section || record_id})` };
                 break;
             }
 

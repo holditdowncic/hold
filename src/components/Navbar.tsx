@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useTheme } from "@/lib/theme";
 
 const links: { label: string; href: string; isPage?: boolean }[] = [
@@ -13,7 +14,7 @@ const links: { label: string; href: string; isPage?: boolean }[] = [
   { label: "Events", href: "/events", isPage: true },
   { label: "Impact", href: "#impact" },
   { label: "Gallery", href: "#gallery" },
-  { label: "Contact", href: "#contact" },
+  { label: "Contact", href: "/contact", isPage: true },
 ];
 
 function ThemeToggle() {
@@ -80,6 +81,8 @@ function ThemeToggle() {
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const isHome = pathname === "/";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -94,6 +97,7 @@ export default function Navbar() {
   }, [open]);
 
   function handleClick(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
+    if (!isHome) return; // let Next.js Link handle navigation to /#section
     e.preventDefault();
     setOpen(false);
     const el = document.querySelector(href);
@@ -110,25 +114,29 @@ export default function Navbar() {
         : "py-5"
         }`}
     >
-      <div className="mx-auto flex max-w-[1200px] items-center justify-between px-6">
+      <div className="mx-auto flex max-w-[1200px] items-center justify-between px-4 sm:px-6">
         {/* Logo */}
-        <a
-          href="#"
+        <Link
+          href="/"
           onClick={(e) => {
-            e.preventDefault();
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            if (isHome) {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
           }}
           className="flex items-center gap-2"
         >
-          <Image
-            src="/logos/holdlogo.png"
-            alt="HOLD IT DOWN"
-            width={160}
-            height={44}
-            className="h-10 w-auto object-contain"
-            priority
-          />
-        </a>
+          <div className="relative h-8 w-[120px] sm:h-10 sm:w-[140px]">
+            <Image
+              src="/logos/holdlogo.png"
+              alt="HOLD IT DOWN"
+              fill
+              className="object-contain object-left"
+              sizes="140px"
+              priority
+            />
+          </div>
+        </Link>
 
         {/* Desktop Links + Theme Toggle */}
         <div className="hidden items-center gap-9 md:flex">
@@ -143,15 +151,15 @@ export default function Navbar() {
                 <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 bg-accent transition-all duration-400 group-hover:w-full" />
               </Link>
             ) : (
-              <a
+              <Link
                 key={link.href}
-                href={link.href}
+                href={isHome ? link.href : `/${link.href}`}
                 onClick={(e) => handleClick(e, link.href)}
                 className="group relative py-1 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
               >
                 {link.label}
                 <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 bg-accent transition-all duration-400 group-hover:w-full" />
-              </a>
+              </Link>
             )
           )}
           <ThemeToggle />
@@ -233,17 +241,23 @@ export default function Navbar() {
                       </Link>
                     </motion.div>
                   ) : (
-                    <motion.a
+                    <motion.div
                       key={link.href}
-                      href={link.href}
-                      onClick={(e) => handleClick(e, link.href)}
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.1 + i * 0.05 }}
-                      className="py-3 text-lg font-medium text-text-secondary transition-colors hover:text-text-primary"
                     >
-                      {link.label}
-                    </motion.a>
+                      <Link
+                        href={isHome ? link.href : `/${link.href}`}
+                        onClick={(e) => {
+                          handleClick(e, link.href);
+                          setOpen(false);
+                        }}
+                        className="block py-3 text-lg font-medium text-text-secondary transition-colors hover:text-text-primary"
+                      >
+                        {link.label}
+                      </Link>
+                    </motion.div>
                   )
                 )}
               </div>

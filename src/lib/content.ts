@@ -7,6 +7,7 @@ import type {
     SupportContent,
     GalleryContent,
     ProgramsSectionContent,
+    CookieBannerContent,
     TeamMember,
     GalleryImage,
     Program,
@@ -58,6 +59,10 @@ export async function getGalleryMeta(): Promise<GalleryContent | null> {
 
 export async function getProgramsMeta(): Promise<ProgramsSectionContent | null> {
     return getSectionContent<ProgramsSectionContent>("programs");
+}
+
+export async function getCookieBannerContent(): Promise<CookieBannerContent | null> {
+    return getSectionContent<CookieBannerContent>("cookie_banner");
 }
 
 // ============================================

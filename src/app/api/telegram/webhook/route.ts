@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
         if (text === "/start") {
             await sendTelegram(
                 chatId,
-                `🤖 <b>Hold It Down CMS Bot</b>\n\nSend me natural language commands to manage the website content.\n\n<b>Examples:</b>\n• "Change the hero heading to Welcome Home"\n• "Add team member John Smith as Lead Developer"\n• "Update the about section heading"\n• "Add a new event called Spring Gala on March 15"\n• "Show status"\n\n📸 <b>Image uploads:</b> Send a photo with a caption like "Add this to gallery as Community Day" or "Use this as the hero image"\n\n💡 Just type what you want to change!`
+                `🤖 <b>Hold It Down CMS Bot</b>\n\nSend me natural language commands to manage the website content.\n\n<b>Examples:</b>\n• "Change the hero heading to Welcome Home"\n• "Add team member John Smith as Lead Developer"\n• "Update the about section heading"\n• "Add a new event called Spring Gala on March 15"\n• "Change the cookie banner message to We only use essential cookies"\n• "Disable the cookie banner"\n• "Undo" — reverts the last change\n• "Show status"\n\n📸 <b>Image uploads:</b> Send a photo with a caption like "Add this to gallery as Community Day" or "Use this as the hero image"\n\n💡 Just type what you want to change!`
             );
             return NextResponse.json({ ok: true });
         }
@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
         if (text === "/help") {
             await sendTelegram(
                 chatId,
-                `📖 <b>Available Commands</b>\n\n<b>Sections:</b> hero, about, cta, contact, support, gallery, programs\n\n<b>Data:</b> team members, gallery images, programs, events, stats, initiatives\n\n<b>Actions:</b>\n• Update text fields\n• Add/remove items\n• Upload images (send photo + caption)\n• Check status\n\n<b>Tip:</b> Just describe what you want to change in plain English!`
+                `📖 <b>Available Commands</b>\n\n<b>Sections:</b> hero, about, cta, contact, support, gallery, programs, cookie_banner\n\n<b>Data:</b> team members, gallery images, programs, events, stats, initiatives\n\n<b>Actions:</b>\n• Update text fields\n• Add/remove items\n• Upload images (send photo + caption)\n• Enable/disable cookie banner\n• Undo / revert last change\n• Check status\n\n<b>Tip:</b> Just describe what you want to change in plain English!`
             );
             return NextResponse.json({ ok: true });
         }

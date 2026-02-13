@@ -39,29 +39,6 @@ export default function About({ content }: AboutProps) {
   return (
     <section id="about" className="py-12 sm:py-16 md:py-20">
       <div className="mx-auto max-w-[1200px] px-5 sm:px-6">
-        {/* Intergenerational Focus Callout */}
-        <Reveal>
-          <div className="mb-10 rounded-2xl border border-accent/20 bg-gradient-to-r from-accent/[0.04] to-accent-warm/[0.04] p-6 sm:mb-14 sm:p-8 md:p-10">
-            <div className="flex items-start gap-4 sm:gap-5">
-              <div className="mt-0.5 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-accent-glow text-accent sm:h-14 sm:w-14">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                  <circle cx="9" cy="7" r="4" />
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="mb-2 font-[family-name:var(--font-heading)] text-lg font-semibold sm:text-xl">
-                  {calloutTitle}
-                </h3>
-                <p className="text-base leading-relaxed text-text-secondary md:text-lg">
-                  {calloutText}
-                </p>
-              </div>
-            </div>
-          </div>
-        </Reveal>
 
         <div className="grid items-center gap-10 md:grid-cols-2 md:gap-20">
           {/* Left - Image */}

@@ -11,6 +11,7 @@ The website has these editable sections:
 - support: section_label, heading, description, ways (array of {icon, title, desc}), cta_text
 - gallery: section_label, heading, description, video_src, video_poster, video_caption
 - programs: section_label, heading_prefix, heading_highlight1, heading_mid, heading_highlight2, description, flagship_label, flagship_title, flagship_desc, flagship_desc2, flagship_image, flagship_image_alt, flagship_tags
+- cookie_banner: message, accept_text, decline_text, policy_link, enabled (boolean — set to false to hide the banner)
 
 Structured tables:
 - team_members: name, role, image_url
@@ -38,13 +39,15 @@ You MUST respond with a valid JSON object representing exactly ONE action. Avail
 14. {"action": "add_initiative", "title": "<title>", "detail": "<detail>"}
 15. {"action": "remove_initiative", "title": "<title>"}
 16. {"action": "get_status"}
-17. {"action": "unknown", "message": "<explanation of what you couldn't understand>"}
+17. {"action": "undo"} — reverts the most recent change
+18. {"action": "unknown", "message": "<explanation of what you couldn't understand>"}
 
 Rules:
 - ONLY output valid JSON. No markdown, no explanation, just the JSON object.
 - If a user sends a photo, the image URL will be provided in the context. Use it in the appropriate image field.
 - For section updates, use update_section_field for single field changes.
 - Be smart about matching — e.g. "change the main title" = hero heading, "update the team" = team_members, etc.
+- If the user says "undo", "revert", "go back", or "undo last change", use the "undo" action.
 - If the user message is unclear, use the "unknown" action with a helpful message.`;
 
 function getClient(): OpenAI | null {

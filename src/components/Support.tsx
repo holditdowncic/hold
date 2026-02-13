@@ -68,8 +68,8 @@ export default function Support({ content }: SupportProps) {
     const headingPrefix = headingParts.slice(0, -3).join(" ");
 
     return (
-        <section id="support" className="py-12 sm:py-16 md:py-20">
-            <div className="mx-auto max-w-[1200px] px-5 sm:px-6">
+        <section id="support" className="py-10 sm:py-16 md:py-20">
+            <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
                 {/* Header */}
                 <div className="mb-10 text-center sm:mb-14 md:mb-16">
                     <Reveal>
@@ -119,12 +119,8 @@ export default function Support({ content }: SupportProps) {
                 <Reveal>
                     <div className="mt-10 text-center sm:mt-14">
                         <a
-                            href="#contact"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                            }}
-                            className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-accent to-accent-warm px-8 py-3.5 text-sm font-semibold text-white transition-all sm:px-10 sm:py-4 sm:text-base hover:-translate-y-0.5 hover:shadow-lg"
+                            href="/contact"
+                            className="group inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-accent to-accent-warm px-8 py-3.5 text-sm font-semibold text-white transition-all sm:w-auto sm:px-10 sm:py-4 sm:text-base hover:-translate-y-0.5 hover:shadow-lg"
                         >
                             <span>{ctaText}</span>
                             <svg
