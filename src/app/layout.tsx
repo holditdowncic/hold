@@ -100,9 +100,13 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: "/logos/holdlogo.png",
-    apple: "/logos/holdlogo.png",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: "/apple-icon.png",
   },
+  manifest: "/manifest.json",
   category: "Community",
 };
 
