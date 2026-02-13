@@ -258,7 +258,7 @@ export async function POST(request: NextRequest) {
         if (text === "/help") {
             await sendTelegram(
                 chatId,
-                `📖 <b>Available Commands</b>\n\n<b>Quick commands:</b>\n/status — check CMS table counts\n/undo — revert last change\n/deploy — trigger a new deployment\n/help — show this message\n\n<b>Sections:</b> hero, about, cta, contact, support, gallery, programs, cookie_banner\n\n<b>Data:</b> team members, gallery images, programs, events, stats, initiatives\n\n<b>Actions:</b>\n• Update text fields\n• Add/remove items\n• Upload images (send photo + caption)\n• Enable/disable cookie banner\n\n<b>Tip:</b> Just describe what you want to change in plain English!`
+                `📖 <b>Available Commands</b>\n\n<b>Quick commands:</b>\n/status — check CMS table counts\n/cookies — cookie consent analytics\n/undo — revert last change\n/deploy — refresh site with latest changes\n/help — show this message\n\n<b>Sections:</b> hero, about, cta, contact, support, gallery, programs, cookie_banner\n\n<b>Data:</b> team members, gallery images, programs, events, stats, initiatives\n\n<b>Actions:</b>\n• Update text fields\n• Add/remove items\n• Upload images (send photo + caption)\n• Enable/disable cookie banner\n\n<b>Tip:</b> Just describe what you want to change in plain English!`
             );
             return NextResponse.json({ ok: true });
         }
@@ -310,6 +310,58 @@ export async function POST(request: NextRequest) {
             } catch (err) {
                 await sendTelegram(chatId, `❌ Error: ${err instanceof Error ? err.message : "Unknown error"}`);
             }
+            return NextResponse.json({ ok: true });
+        }
+
+        // Handle /cookies — show cookie consent analytics
+        if (text === "/cookies") {
+            if (!supabaseAdmin) {
+                await sendTelegram(chatId, "❌ Database not configured.");
+                return NextResponse.json({ ok: true });
+            }
+            await sendTelegram(chatId, "🍪 Fetching cookie analytics...");
+
+            const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+
+            // Total all-time
+            const { count: totalAccepted } = await supabaseAdmin
+                .from("cookie_consent_log")
+                .select("*", { count: "exact", head: true })
+                .eq("action", "accepted");
+            const { count: totalDeclined } = await supabaseAdmin
+                .from("cookie_consent_log")
+                .select("*", { count: "exact", head: true })
+                .eq("action", "declined");
+
+            // Today
+            const { count: todayAccepted } = await supabaseAdmin
+                .from("cookie_consent_log")
+                .select("*", { count: "exact", head: true })
+                .eq("action", "accepted")
+                .gte("created_at", `${today}T00:00:00Z`);
+            const { count: todayDeclined } = await supabaseAdmin
+                .from("cookie_consent_log")
+                .select("*", { count: "exact", head: true })
+                .eq("action", "declined")
+                .gte("created_at", `${today}T00:00:00Z`);
+
+            const total = (totalAccepted || 0) + (totalDeclined || 0);
+            const todayTotal = (todayAccepted || 0) + (todayDeclined || 0);
+            const acceptRate = total > 0 ? Math.round(((totalAccepted || 0) / total) * 100) : 0;
+
+            await sendTelegram(
+                chatId,
+                `🍪 <b>Cookie Consent Analytics</b>\n\n` +
+                `<b>📅 Today:</b>\n` +
+                `  ✅ Accepted: ${todayAccepted || 0}\n` +
+                `  ❌ Declined: ${todayDeclined || 0}\n` +
+                `  📊 Total: ${todayTotal}\n\n` +
+                `<b>📈 All Time:</b>\n` +
+                `  ✅ Accepted: ${totalAccepted || 0}\n` +
+                `  ❌ Declined: ${totalDeclined || 0}\n` +
+                `  📊 Total: ${total}\n` +
+                `  🎯 Accept Rate: ${acceptRate}%`
+            );
             return NextResponse.json({ ok: true });
         }
 

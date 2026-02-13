@@ -48,11 +48,23 @@ export default function CookieBanner() {
     function handleAccept() {
         localStorage.setItem(STORAGE_KEY, "accepted");
         setVisible(false);
+        // Track consent (fire-and-forget)
+        fetch("/api/cookie-consent", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "accepted" }),
+        }).catch(() => { });
     }
 
     function handleDecline() {
         localStorage.setItem(STORAGE_KEY, "declined");
         setVisible(false);
+        // Track consent (fire-and-forget)
+        fetch("/api/cookie-consent", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "declined" }),
+        }).catch(() => { });
     }
 
     if (!content) return null;

@@ -131,3 +131,16 @@ CREATE TABLE IF NOT EXISTS content_history (
 
 ALTER TABLE content_history ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public read content_history" ON content_history FOR SELECT USING (true);
+
+-- Cookie consent analytics (used by /cookies command)
+CREATE TABLE IF NOT EXISTS cookie_consent_log (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  action TEXT NOT NULL CHECK (action IN ('accepted', 'declined')),
+  user_agent TEXT DEFAULT '',
+  country TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE cookie_consent_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public insert cookie_consent_log" ON cookie_consent_log FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public read cookie_consent_log" ON cookie_consent_log FOR SELECT USING (true);
