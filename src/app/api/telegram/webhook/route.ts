@@ -17,6 +17,37 @@ async function sendTelegram(chatId: number, text: string, parseMode = "HTML") {
     });
 }
 
+// Send a message with inline keyboard buttons
+async function sendTelegramWithButtons(
+    chatId: number,
+    text: string,
+    buttons: { text: string; callback_data: string }[][],
+    parseMode = "HTML"
+) {
+    await fetch(`${TELEGRAM_API}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            chat_id: chatId,
+            text,
+            parse_mode: parseMode,
+            reply_markup: { inline_keyboard: buttons },
+        }),
+    });
+}
+
+// Answer a callback query (acknowledge button press)
+async function answerCallback(callbackId: string, text?: string) {
+    await fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            callback_query_id: callbackId,
+            text: text || "",
+        }),
+    });
+}
+
 // Check if user is an authorized admin
 function isAdmin(userId: number): boolean {
     const adminIds = (process.env.TELEGRAM_ADMIN_IDS || "")
@@ -147,6 +178,58 @@ export async function POST(request: NextRequest) {
     try {
         const update = await request.json();
 
+        // Handle callback queries (inline button presses)
+        if (update.callback_query) {
+            const cb = update.callback_query;
+            const chatId = cb.message?.chat?.id;
+            const userId = cb.from?.id;
+            const data = cb.data;
+
+            if (!chatId || !userId || !isAdmin(userId)) {
+                await answerCallback(cb.id, "Not authorized");
+                return NextResponse.json({ ok: true });
+            }
+
+            await answerCallback(cb.id);
+
+            if (data === "cms_deploy") {
+                await sendTelegram(chatId, "🚀 Refreshing website...");
+                try {
+                    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL
+                        ? `https://${process.env.VERCEL_URL}`
+                        : "http://localhost:3000";
+                    const res = await fetch(`${baseUrl}/api/revalidate`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${process.env.CMS_API_SECRET}`,
+                        },
+                    });
+                    if (res.ok) {
+                        await sendTelegram(chatId, "✅ <b>Website is live!</b>\n\n🌐 <a href=\"https://www.holditdown.uk\">www.holditdown.uk</a>\n\nAll changes are now visible.");
+                    } else {
+                        await sendTelegram(chatId, "❌ Refresh failed. Try /deploy manually.");
+                    }
+                } catch {
+                    await sendTelegram(chatId, "❌ Could not reach the server. Try /deploy manually.");
+                }
+            } else if (data === "cms_revert") {
+                await sendTelegram(chatId, "⏳ Reverting last change...");
+                const result = await executeCMSAction({ action: "undo" });
+                if (result.success) {
+                    await sendTelegramWithButtons(
+                        chatId,
+                        `${result.message}\n\n🔄 Change has been reverted.`,
+                        [[{ text: "🚀 Deploy Now", callback_data: "cms_deploy" }]]
+                    );
+                } else {
+                    await sendTelegram(chatId, `❌ ${result.message}`);
+                }
+            }
+
+            return NextResponse.json({ ok: true });
+        }
+
         const message = update.message;
         if (!message) {
             return NextResponse.json({ ok: true });
@@ -273,7 +356,16 @@ export async function POST(request: NextRequest) {
         const result = await executeCMSAction(parsedAction as unknown as Record<string, unknown>);
 
         if (result.success) {
-            await sendTelegram(chatId, `${result.message}\n\n🌐 The website will update within 60 seconds.`);
+            await sendTelegramWithButtons(
+                chatId,
+                `${result.message}`,
+                [
+                    [
+                        { text: "🚀 Deploy Now", callback_data: "cms_deploy" },
+                        { text: "↩️ Revert Change", callback_data: "cms_revert" },
+                    ],
+                ]
+            );
         } else {
             await sendTelegram(chatId, `❌ <b>Error:</b> ${result.message}\n\nPlease try again or rephrase your command.`);
         }
