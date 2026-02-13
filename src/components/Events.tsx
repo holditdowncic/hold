@@ -6,14 +6,64 @@ import Link from "next/link";
 import { Reveal, fadeUp, staggerContainer } from "@/lib/motion";
 import type { EventData } from "@/lib/types";
 
+// Default events shown when Supabase table is empty
+const defaultEvents: EventData[] = [
+  {
+    id: "default-1",
+    slug: "roots-and-wings-2025",
+    title: "Roots & Wings Family Fun Day 2025",
+    date: "14 June 2025",
+    location: "Heavers Farm Primary School, Croydon",
+    description: "Approximately 300 people attended, including around 100 fathers and male carers, 100 children and young people aged 5–24, and a wider group of mothers, grandparents, volunteers and community members.",
+    highlights: [
+      "Father-and-child races & traditional family games",
+      "Football & athletics challenges",
+      "Dance and spoken-word performances",
+      "Facilitated men's discussion on vulnerability and love",
+    ],
+    impact: [
+      "Emotional wellbeing & sense of belonging among children",
+      "Positive male role modelling & visibility of men as carers",
+      "Strengthened family bonds & community cohesion",
+      "Increased youth voice & leadership",
+    ],
+    image: "/media/roots/roots-1.jpeg",
+    image_alt: "Volunteers and families at the Roots & Wings Family Fun Day",
+    badge: "300+ Attendees",
+    gallery: [],
+    sort_order: 1,
+  },
+  {
+    id: "default-2",
+    slug: "talk-di-tingz-2025",
+    title: "Talk Di TingZ — Youth Podcast Sessions",
+    date: "Ongoing 2025",
+    location: "Various community spaces, Croydon",
+    description: "A youth-led safe space to discuss identity, relationships, and life issues. Young people lead the conversation, building emotional literacy and driving cultural change through truth-telling and respect.",
+    highlights: [
+      "Youth-led podcast recording sessions",
+      "Open discussions on identity & relationships",
+      "Building emotional literacy through dialogue",
+      "Guest speakers from the community",
+    ],
+    impact: [],
+    image: "/media/talkdi/talkdi-1.jpeg",
+    image_alt: "Talk Di TingZ youth podcast team out in the community",
+    badge: "Youth-Led",
+    gallery: [],
+    sort_order: 2,
+  },
+];
+
 // Show only the first 2 events as a preview
 interface EventsProps {
   events: EventData[];
 }
 
 export default function Events({ events }: EventsProps) {
-  const previewEvents = events.slice(0, 2);
-  const totalEvents = events.length;
+  const eventsData = events.length > 0 ? events : defaultEvents;
+  const previewEvents = eventsData.slice(0, 2);
+  const totalEvents = eventsData.length;
 
   return (
     <section id="events" className="py-12 sm:py-16 md:py-20">
