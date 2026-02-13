@@ -175,8 +175,53 @@ export async function POST(request: NextRequest) {
         if (text === "/help") {
             await sendTelegram(
                 chatId,
-                `📖 <b>Available Commands</b>\n\n<b>Sections:</b> hero, about, cta, contact, support, gallery, programs, cookie_banner\n\n<b>Data:</b> team members, gallery images, programs, events, stats, initiatives\n\n<b>Actions:</b>\n• Update text fields\n• Add/remove items\n• Upload images (send photo + caption)\n• Enable/disable cookie banner\n• Undo / revert last change\n• Check status\n\n<b>Tip:</b> Just describe what you want to change in plain English!`
+                `📖 <b>Available Commands</b>\n\n<b>Quick commands:</b>\n/status — check CMS table counts\n/undo — revert last change\n/deploy — trigger a new deployment\n/help — show this message\n\n<b>Sections:</b> hero, about, cta, contact, support, gallery, programs, cookie_banner\n\n<b>Data:</b> team members, gallery images, programs, events, stats, initiatives\n\n<b>Actions:</b>\n• Update text fields\n• Add/remove items\n• Upload images (send photo + caption)\n• Enable/disable cookie banner\n\n<b>Tip:</b> Just describe what you want to change in plain English!`
             );
+            return NextResponse.json({ ok: true });
+        }
+
+        // Handle /undo
+        if (text === "/undo") {
+            await sendTelegram(chatId, "⏳ Reverting last change...");
+            const result = await executeCMSAction({ action: "undo" });
+            if (result.success) {
+                await sendTelegram(chatId, `${result.message}\n\n🌐 The website will update within 60 seconds.`);
+            } else {
+                await sendTelegram(chatId, `❌ ${result.message}`);
+            }
+            return NextResponse.json({ ok: true });
+        }
+
+        // Handle /status
+        if (text === "/status") {
+            await sendTelegram(chatId, "📊 Fetching status...");
+            const result = await executeCMSAction({ action: "get_status" });
+            if (result.success) {
+                await sendTelegram(chatId, result.message);
+            } else {
+                await sendTelegram(chatId, `❌ ${result.message}`);
+            }
+            return NextResponse.json({ ok: true });
+        }
+
+        // Handle /deploy
+        if (text === "/deploy") {
+            const deployHookUrl = process.env.VERCEL_DEPLOY_HOOK;
+            if (!deployHookUrl) {
+                await sendTelegram(chatId, "❌ Deploy hook not configured. Add VERCEL_DEPLOY_HOOK to your environment variables.");
+                return NextResponse.json({ ok: true });
+            }
+            await sendTelegram(chatId, "🚀 Triggering deployment...");
+            try {
+                const deployRes = await fetch(deployHookUrl, { method: "POST" });
+                if (deployRes.ok) {
+                    await sendTelegram(chatId, "✅ <b>Deployment triggered!</b>\n\nYour site will be live in 1-2 minutes at https://www.holditdown.uk");
+                } else {
+                    await sendTelegram(chatId, `❌ Deploy failed with status ${deployRes.status}`);
+                }
+            } catch (err) {
+                await sendTelegram(chatId, `❌ Deploy error: ${err instanceof Error ? err.message : "Unknown error"}`);
+            }
             return NextResponse.json({ ok: true });
         }
 
