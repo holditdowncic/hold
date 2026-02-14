@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "id": "1",
+    "name": "Marcus Jack",
+    "role": "Director, Communications & Programme Lead",
+    "image_url": null,
+    "sort_order": 1
+  },
+  {
+    "id": "2",
+    "name": "Laverne John",
+    "role": "Director, Creative Lead",
+    "image_url": null,
+    "sort_order": 2
+  }
+]

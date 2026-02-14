@@ -79,7 +79,7 @@ export default function EventsPage() {
                     >
                       <Image
                         src={event.image}
-                        alt={event.imageAlt}
+                        alt={event.image_alt}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                         sizes="(max-width: 768px) 100vw, 50vw"
@@ -115,7 +115,7 @@ export default function EventsPage() {
                         {event.title}
                       </h2>
                       <p className="mb-5 leading-relaxed text-text-secondary">
-                        {event.desc}
+                        {event.description}
                       </p>
 
                       {/* Highlights */}

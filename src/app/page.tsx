@@ -17,9 +17,6 @@ import Footer from "@/components/Footer";
 
 import { getAllContent } from "@/lib/content";
 
-// Revalidate every 60 seconds (ISR)
-export const revalidate = 60;
-
 export default async function Home() {
   const content = await getAllContent();
 

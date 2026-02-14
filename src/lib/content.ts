@@ -1,157 +1,109 @@
-import { supabaseAdmin } from "./supabase";
 import type {
-    HeroContent,
-    AboutContent,
-    CTAContent,
-    ContactContent,
-    SupportContent,
-    GalleryContent,
-    ProgramsSectionContent,
-    CookieBannerContent,
-    TeamMember,
-    GalleryImage,
-    Program,
-    Initiative,
-    EventData,
-    Stat,
+  AboutContent,
+  CookieBannerContent,
+  ContactContent,
+  CTAContent,
+  EventData,
+  GalleryContent,
+  GalleryImage,
+  HeroContent,
+  Initiative,
+  Program,
+  ProgramsSectionContent,
+  Stat,
+  SupportContent,
+  TeamMember,
 } from "./types";
 
-// ============================================
-// Section content fetchers (JSONB)
-// ============================================
+import sectionsJson from "@/data/sections.json";
+import teamJson from "@/data/team.json";
+import galleryJson from "@/data/gallery.json";
+import programsJson from "@/data/programs.json";
+import initiativesJson from "@/data/initiatives.json";
+import eventsJson from "@/data/events.json";
+import statsJson from "@/data/stats.json";
 
-async function getSectionContent<T>(section: string): Promise<T | null> {
-    if (!supabaseAdmin) return null;
+type SectionsJson = Record<string, unknown>;
 
-    const { data, error } = await supabaseAdmin
-        .from("site_content")
-        .select("content")
-        .eq("section", section)
-        .single();
-
-    if (error || !data) return null;
-    return data.content as T;
+function getSection<T>(section: string): T | null {
+  const raw = (sectionsJson as SectionsJson)[section];
+  if (!raw || typeof raw !== "object") return null;
+  return raw as T;
 }
 
+function sortByOrder<T extends { sort_order?: number }>(items: T[]): T[] {
+  return [...items].sort(
+    (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)
+  );
+}
+
+// ============================================
+// Section content (repo-backed JSON)
+// ============================================
+
 export async function getHeroContent(): Promise<HeroContent | null> {
-    return getSectionContent<HeroContent>("hero");
+  return getSection<Partial<HeroContent>>("hero") as HeroContent | null;
 }
 
 export async function getAboutContent(): Promise<AboutContent | null> {
-    return getSectionContent<AboutContent>("about");
+  return getSection<Partial<AboutContent>>("about") as AboutContent | null;
 }
 
 export async function getCTAContent(): Promise<CTAContent | null> {
-    return getSectionContent<CTAContent>("cta");
+  return getSection<Partial<CTAContent>>("cta") as CTAContent | null;
 }
 
 export async function getContactContent(): Promise<ContactContent | null> {
-    return getSectionContent<ContactContent>("contact");
+  return getSection<Partial<ContactContent>>("contact") as ContactContent | null;
 }
 
 export async function getSupportContent(): Promise<SupportContent | null> {
-    return getSectionContent<SupportContent>("support");
+  return getSection<Partial<SupportContent>>("support") as SupportContent | null;
 }
 
 export async function getGalleryMeta(): Promise<GalleryContent | null> {
-    return getSectionContent<GalleryContent>("gallery");
+  return getSection<Partial<GalleryContent>>("gallery") as GalleryContent | null;
 }
 
 export async function getProgramsMeta(): Promise<ProgramsSectionContent | null> {
-    return getSectionContent<ProgramsSectionContent>("programs");
+  return getSection<Partial<ProgramsSectionContent>>("programs") as ProgramsSectionContent | null;
 }
 
 export async function getCookieBannerContent(): Promise<CookieBannerContent | null> {
-    return getSectionContent<CookieBannerContent>("cookie_banner");
+  return getSection<Partial<CookieBannerContent>>("cookie_banner") as CookieBannerContent | null;
 }
 
 // ============================================
-// Structured table fetchers
+// Structured content (repo-backed JSON)
 // ============================================
 
 export async function getTeamMembers(): Promise<TeamMember[]> {
-    if (!supabaseAdmin) return [];
-
-    const { data, error } = await supabaseAdmin
-        .from("team_members")
-        .select("*")
-        .order("sort_order", { ascending: true });
-
-    if (error || !data) return [];
-    return data as TeamMember[];
+  return sortByOrder((teamJson as TeamMember[]) ?? []);
 }
 
 export async function getGalleryImages(): Promise<GalleryImage[]> {
-    if (!supabaseAdmin) return [];
-
-    const { data, error } = await supabaseAdmin
-        .from("gallery_images")
-        .select("*")
-        .order("sort_order", { ascending: true });
-
-    if (error || !data) return [];
-    return data as GalleryImage[];
+  return sortByOrder((galleryJson as GalleryImage[]) ?? []);
 }
 
 export async function getPrograms(): Promise<Program[]> {
-    if (!supabaseAdmin) return [];
-
-    const { data, error } = await supabaseAdmin
-        .from("programs")
-        .select("*")
-        .order("sort_order", { ascending: true });
-
-    if (error || !data) return [];
-    return data as Program[];
+  return sortByOrder((programsJson as Program[]) ?? []);
 }
 
 export async function getInitiatives(): Promise<Initiative[]> {
-    if (!supabaseAdmin) return [];
-
-    const { data, error } = await supabaseAdmin
-        .from("initiatives")
-        .select("*")
-        .order("sort_order", { ascending: true });
-
-    if (error || !data) return [];
-    return data as Initiative[];
+  return sortByOrder((initiativesJson as Initiative[]) ?? []);
 }
 
 export async function getEvents(): Promise<EventData[]> {
-    if (!supabaseAdmin) return [];
-
-    const { data, error } = await supabaseAdmin
-        .from("events")
-        .select("*")
-        .order("sort_order", { ascending: true });
-
-    if (error || !data) return [];
-    return data as EventData[];
+  return sortByOrder((eventsJson as EventData[]) ?? []);
 }
 
 export async function getEventBySlug(slug: string): Promise<EventData | null> {
-    if (!supabaseAdmin) return null;
-
-    const { data, error } = await supabaseAdmin
-        .from("events")
-        .select("*")
-        .eq("slug", slug)
-        .single();
-
-    if (error || !data) return null;
-    return data as EventData;
+  const events = await getEvents();
+  return events.find((e) => e.slug === slug) ?? null;
 }
 
 export async function getStats(): Promise<Stat[]> {
-    if (!supabaseAdmin) return [];
-
-    const { data, error } = await supabaseAdmin
-        .from("stats")
-        .select("*")
-        .order("sort_order", { ascending: true });
-
-    if (error || !data) return [];
-    return data as Stat[];
+  return sortByOrder((statsJson as Stat[]) ?? []);
 }
 
 // ============================================
@@ -159,49 +111,49 @@ export async function getStats(): Promise<Stat[]> {
 // ============================================
 
 export async function getAllContent() {
-    const [
-        hero,
-        about,
-        cta,
-        contact,
-        support,
-        galleryMeta,
-        programsMeta,
-        teamMembers,
-        galleryImages,
-        programs,
-        initiatives,
-        events,
-        stats,
-    ] = await Promise.all([
-        getHeroContent(),
-        getAboutContent(),
-        getCTAContent(),
-        getContactContent(),
-        getSupportContent(),
-        getGalleryMeta(),
-        getProgramsMeta(),
-        getTeamMembers(),
-        getGalleryImages(),
-        getPrograms(),
-        getInitiatives(),
-        getEvents(),
-        getStats(),
-    ]);
+  const [
+    hero,
+    about,
+    cta,
+    contact,
+    support,
+    galleryMeta,
+    programsMeta,
+    teamMembers,
+    galleryImages,
+    programs,
+    initiatives,
+    events,
+    stats,
+  ] = await Promise.all([
+    getHeroContent(),
+    getAboutContent(),
+    getCTAContent(),
+    getContactContent(),
+    getSupportContent(),
+    getGalleryMeta(),
+    getProgramsMeta(),
+    getTeamMembers(),
+    getGalleryImages(),
+    getPrograms(),
+    getInitiatives(),
+    getEvents(),
+    getStats(),
+  ]);
 
-    return {
-        hero,
-        about,
-        cta,
-        contact,
-        support,
-        galleryMeta,
-        programsMeta,
-        teamMembers,
-        galleryImages,
-        programs,
-        initiatives,
-        events,
-        stats,
-    };
+  return {
+    hero,
+    about,
+    cta,
+    contact,
+    support,
+    galleryMeta,
+    programsMeta,
+    teamMembers,
+    galleryImages,
+    programs,
+    initiatives,
+    events,
+    stats,
+  };
 }

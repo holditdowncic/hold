@@ -1,1 +1,38 @@
-[]
+[
+  {
+    "id": "1",
+    "label": "Incorporated",
+    "value": 2022,
+    "suffix": "",
+    "prefix": "",
+    "duration": 2000,
+    "sort_order": 1
+  },
+  {
+    "id": "2",
+    "label": "Years of Roots & Wings",
+    "value": 3,
+    "suffix": "rd",
+    "prefix": "",
+    "duration": 1200,
+    "sort_order": 2
+  },
+  {
+    "id": "3",
+    "label": "Flagship Programmes",
+    "value": 5,
+    "suffix": "",
+    "prefix": "",
+    "duration": 1200,
+    "sort_order": 3
+  },
+  {
+    "id": "4",
+    "label": "South London Boroughs",
+    "value": 4,
+    "suffix": "",
+    "prefix": "",
+    "duration": 1000,
+    "sort_order": 4
+  }
+]

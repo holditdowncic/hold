@@ -1,1 +1,7 @@
-[]
+[
+  { "id": "1", "title": "Mentoring", "detail": "One-to-one and group support (10–17 years)", "sort_order": 1 },
+  { "id": "2", "title": "Entrepreneurship", "detail": "Work experience & career pathways (14–17 years)", "sort_order": 2 },
+  { "id": "3", "title": "Workshops & Retreats", "detail": "Life skills, wellbeing & personal growth", "sort_order": 3 },
+  { "id": "4", "title": "Sports & Football", "detail": "Teamwork, discipline & confidence", "sort_order": 4 },
+  { "id": "5", "title": "Family Support", "detail": "Loving Yourself & The Gents Network", "sort_order": 5 }
+]

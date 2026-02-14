@@ -1,9 +1,70 @@
 {
-  "about": {},
-  "cta": {},
-  "support": {},
-  "gallery": {},
-  "programs": {},
+  "about": {
+    "callout_title": "Intergenerational at our core",
+    "callout_text": "Intergenerational work is central to our approach, bringing young people and older adults together to learn, create and strengthen community connections.",
+    "image": "/media/image-2.jpeg",
+    "image_alt": "Hold It Down CIC banner - I Can Because You Can",
+    "badge_year": "Est. 2022",
+    "badge_location": "Croydon, South London",
+    "section_label": "Who We Are",
+    "heading": "Culturally rooted, community driven",
+    "paragraphs": [
+      "Hold It Down Community Interest Company (CIC) is a Croydon-based organisation that creates culturally rooted, intergenerational spaces to build emotional wellbeing, confidence and connection across families and communities.",
+      "Our work combines sport, creative expression, dialogue and mentorship to strengthen relationships, promote positive identity and support long-term resilience. We work with children, young people, parents, fathers, carers and elders.",
+      "Our work is rooted in trust, co-production, and accessibility. We activate familiar community spaces to make engagement feel safe, inclusive, and relevant — designing projects with and for the people we serve, particularly young people from Black and minoritised backgrounds."
+    ],
+    "focus_areas": [
+      { "icon": "🧠", "text": "Emotional literacy & wellbeing" },
+      { "icon": "💪", "text": "Positive masculinity & male role modelling" },
+      { "icon": "🤝", "text": "Intergenerational connection & cohesion" },
+      { "icon": "🏠", "text": "Safe, inclusive spaces for healing" }
+    ]
+  },
+  "cta": {
+    "heading": "Ready to be part of the movement?",
+    "description": "Whether you’re a young person looking for a safe space, a family seeking community, or someone who wants to support grassroots change — we want to hear from you.",
+    "buttons": [
+      { "text": "Join a Programme", "link": "#programs" },
+      { "text": "Volunteer With Us", "link": "/contact" },
+      { "text": "Partner With Us", "link": "/contact" },
+      { "text": "Support Our Work", "link": "#support", "primary": true }
+    ]
+  },
+  "support": {
+    "section_label": "Support Us",
+    "heading": "Support Hold It Down",
+    "description": "Your support helps us deliver free and accessible creative, wellbeing and intergenerational programmes across South London.",
+    "ways": [
+      { "icon": "heart", "title": "Donate", "desc": "Support workshops, materials and safe spaces for young people and families." },
+      { "icon": "people", "title": "Partner With Us", "desc": "Collaborate with Hold It Down to strengthen impact across South London communities." },
+      { "icon": "flag", "title": "Volunteer", "desc": "Share your time, skills or lived experience to support our programmes." },
+      { "icon": "briefcase", "title": "In-kind Support", "desc": "Contribute space, equipment or professional expertise to empower our work." }
+    ],
+    "cta_text": "Get in touch to support our work"
+  },
+  "gallery": {
+    "section_label": "Gallery",
+    "heading": "Moments that matter",
+    "description": "Highlights from our community events — real families, real connections, real impact.",
+    "video_src": "/media/video-1.mp4",
+    "video_poster": "/media/roots/roots-24.jpeg",
+    "video_caption": "Watch highlights from our Roots & Wings Family Fun Day 2025"
+  },
+  "programs": {
+    "section_label": "Our Programmes",
+    "heading_prefix": "Designed to",
+    "heading_highlight1": "inspire, connect",
+    "heading_mid": "and",
+    "heading_highlight2": "empower",
+    "description": "Each project responds directly to the needs of our community, giving young people and families the tools to grow in confidence, creativity, and resilience.",
+    "flagship_label": "Flagship Programme",
+    "flagship_title": "Roots & Wings",
+    "flagship_desc": "A celebration of fatherhood, family, and intergenerational connection. Roots & Wings brings fathers, children, and families together through sports, workshops, and shared experiences that strengthen bonds and create lasting memories.",
+    "flagship_desc2": "It’s about planting roots of love and giving wings of confidence to future generations. The programme now forms the foundation for longer-term intergenerational and male mentorship work across Croydon.",
+    "flagship_image": "/media/roots/roots-23.jpeg",
+    "flagship_image_alt": "Families and children at the Roots & Wings Family Fun Day",
+    "flagship_tags": ["Fatherhood", "Intergenerational", "Family Unity", "Wellbeing"]
+  },
   "cookie_banner": {
     "enabled": true,
     "message": "We use essential cookies to enhance your browsing experience and remember your preferences.",
@@ -11,10 +72,27 @@
     "decline_text": "Decline"
   },
   "contact": {
-    "items": [],
-    "heading": "Get In Touch"
+    "section_label": "Get In Touch",
+    "heading": "Let’s connect",
+    "description": "We’d love to hear from you. Whether you want to join a programme, volunteer, partner with us, or just learn more — reach out.",
+    "items": [
+      { "label": "Email", "value": "hollditdownuk@hotmail.com", "href": "mailto:hollditdownuk@hotmail.com", "icon": "email" },
+      { "label": "Instagram", "value": "@holditdowncic", "href": "https://www.instagram.com/holditdowncic", "icon": "instagram" },
+      { "label": "Location", "value": "Thornton Heath, Croydon CR7 8QY", "href": null, "icon": "location" }
+    ]
   },
   "hero": {
-    "heading_line2": "& together"
+    "badge": "Community Interest Company — Croydon, UK",
+    "heading_line1": "I Can",
+    "heading_line2": "You Can",
+    "heading_line3": "We Can",
+    "subtitle": "Hold It Down CIC supports young people aged 12–25 and older adults through creative, wellbeing, and intergenerational programmes across South London.",
+    "subtitle2": "We create safe, culturally rooted spaces where people can express themselves, build confidence, and connect across generations.",
+    "image": "/media/roots/roots-24.jpeg",
+    "image_alt": "Hold It Down CIC members gathered around a table in matching blue hoodies",
+    "cta_primary_text": "Explore Our Programmes",
+    "cta_primary_link": "#programs",
+    "cta_secondary_text": "Support Our Work",
+    "cta_secondary_link": "/contact"
   }
 }

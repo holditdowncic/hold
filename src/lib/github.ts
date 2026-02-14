@@ -1,104 +1,138 @@
-/**
- * GitHub API client for committing CMS content changes.
- * After each CMS action, we push a JSON snapshot to the repo
- * so Vercel auto-deploys from the new commit.
- */
+type GitHubFile = {
+  sha: string;
+  content: string; // base64
+  encoding: "base64";
+};
 
-const GITHUB_OWNER = "holditdowncic";
-const GITHUB_REPO = "hold";
-const GITHUB_BRANCH = "main";
+type GitHubCommitInfo = {
+  sha: string;
+  html_url?: string;
+};
 
-interface GitHubCommitResult {
-    success: boolean;
-    commitUrl?: string;
-    error?: string;
+function getRepoConfig() {
+  const owner = process.env.GITHUB_OWNER || "holditdowncic";
+  const repo = process.env.GITHUB_REPO || "hold";
+  const branch = process.env.GITHUB_BRANCH || "main";
+  const token = process.env.GITHUB_TOKEN || process.env.GITHUB_CMS_TOKEN;
+  return { owner, repo, branch, token };
 }
 
-/**
- * Commit a JSON content file to the GitHub repo.
- * Uses the GitHub Contents API (simple single-file commits).
- */
-export async function commitToGitHub(
-    filePath: string,
-    content: string,
-    commitMessage: string
-): Promise<GitHubCommitResult> {
-    const token = process.env.GITHUB_TOKEN;
-    if (!token) {
-        console.error("GITHUB_TOKEN not set");
-        return { success: false, error: "GITHUB_TOKEN not configured" };
-    }
-
-    const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`;
-
-    try {
-        // 1. Check if file already exists (to get its SHA for updates)
-        let existingSha: string | undefined;
-        const getResp = await fetch(apiUrl, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: "application/vnd.github.v3+json",
-            },
-        });
-
-        if (getResp.ok) {
-            const existing = await getResp.json();
-            existingSha = existing.sha;
-        }
-
-        // 2. Create or update the file
-        const body: Record<string, string> = {
-            message: commitMessage,
-            content: Buffer.from(content).toString("base64"),
-            branch: GITHUB_BRANCH,
-        };
-
-        if (existingSha) {
-            body.sha = existingSha;
-        }
-
-        const putResp = await fetch(apiUrl, {
-            method: "PUT",
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: "application/vnd.github.v3+json",
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(body),
-        });
-
-        if (!putResp.ok) {
-            const errData = await putResp.json();
-            console.error("GitHub commit failed:", errData);
-            return { success: false, error: errData.message || "GitHub API error" };
-        }
-
-        const result = await putResp.json();
-        return {
-            success: true,
-            commitUrl: result.commit?.html_url,
-        };
-    } catch (error) {
-        console.error("GitHub commit error:", error);
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error",
-        };
-    }
+function ghHeaders(token: string) {
+  return {
+    Authorization: `Bearer ${token}`,
+    Accept: "application/vnd.github+json",
+  };
 }
 
-/**
- * Commit a content snapshot for a specific table.
- * Stores as `data/<tableName>.json` in the repo.
- */
-export async function commitContentSnapshot(
-    tableName: string,
-    data: unknown,
-    description: string
-): Promise<GitHubCommitResult> {
-    const filePath = `data/${tableName}.json`;
-    const content = JSON.stringify(data, null, 2);
-    const commitMessage = `cms: ${description}`;
+export async function getGitHubFile(path: string, ref?: string): Promise<{ sha: string; text: string }> {
+  const { owner, repo, branch, token } = getRepoConfig();
+  if (!token) throw new Error("GITHUB_TOKEN not configured");
 
-    return commitToGitHub(filePath, content, commitMessage);
+  const url = new URL(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`);
+  url.searchParams.set("ref", ref || branch);
+
+  const res = await fetch(url.toString(), { headers: ghHeaders(token) });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`GitHub get file failed (${res.status}): ${body}`);
+  }
+
+  const json = (await res.json()) as GitHubFile;
+  const text = Buffer.from(json.content, "base64").toString("utf8");
+  return { sha: json.sha, text };
+}
+
+export async function putGitHubFile(args: {
+  path: string;
+  text: string;
+  message: string;
+  sha?: string;
+}): Promise<{ commitSha: string; commitUrl?: string }> {
+  const { owner, repo, branch, token } = getRepoConfig();
+  if (!token) throw new Error("GITHUB_TOKEN not configured");
+
+  const url = `https://api.github.com/repos/${owner}/${repo}/contents/${args.path}`;
+  const body: Record<string, string> = {
+    message: args.message,
+    content: Buffer.from(args.text, "utf8").toString("base64"),
+    branch,
+  };
+  if (args.sha) body.sha = args.sha;
+
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: { ...ghHeaders(token), "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const bodyText = await res.text();
+    throw new Error(`GitHub put file failed (${res.status}): ${bodyText}`);
+  }
+
+  const json = (await res.json()) as { commit?: GitHubCommitInfo };
+  return { commitSha: json.commit?.sha || "", commitUrl: json.commit?.html_url };
+}
+
+export async function listRecentCommits(perPage = 20) {
+  const { owner, repo, branch, token } = getRepoConfig();
+  if (!token) throw new Error("GITHUB_TOKEN not configured");
+
+  const url = new URL(`https://api.github.com/repos/${owner}/${repo}/commits`);
+  url.searchParams.set("sha", branch);
+  url.searchParams.set("per_page", String(perPage));
+
+  const res = await fetch(url.toString(), { headers: ghHeaders(token) });
+  if (!res.ok) {
+    const bodyText = await res.text();
+    throw new Error(`GitHub list commits failed (${res.status}): ${bodyText}`);
+  }
+  return (await res.json()) as Array<{ sha: string; commit: { message: string } }>;
+}
+
+export async function getCommitDetails(sha: string) {
+  const { owner, repo, token } = getRepoConfig();
+  if (!token) throw new Error("GITHUB_TOKEN not configured");
+
+  const url = `https://api.github.com/repos/${owner}/${repo}/commits/${sha}`;
+  const res = await fetch(url, { headers: ghHeaders(token) });
+  if (!res.ok) {
+    const bodyText = await res.text();
+    throw new Error(`GitHub commit details failed (${res.status}): ${bodyText}`);
+  }
+  return (await res.json()) as {
+    sha: string;
+    html_url?: string;
+    parents: Array<{ sha: string }>;
+    files?: Array<{ filename: string }>;
+    commit: { message: string };
+  };
+}
+
+export async function revertCommit(sha: string): Promise<{ revertedFiles: string[]; revertCommitShas: string[] }> {
+  const details = await getCommitDetails(sha);
+  const parentSha = details.parents?.[0]?.sha;
+  if (!parentSha) throw new Error("Cannot revert: commit has no parent");
+
+  const files = (details.files || []).map((f) => f.filename);
+  if (files.length === 0) throw new Error("Cannot revert: no files listed on commit");
+
+  const revertedFiles: string[] = [];
+  const revertCommitShas: string[] = [];
+
+  // We commit each file revert separately because the Contents API only supports single-file commits.
+  for (const file of files) {
+    const prev = await getGitHubFile(file, parentSha);
+    const current = await getGitHubFile(file); // grab sha for update
+    const res = await putGitHubFile({
+      path: file,
+      text: prev.text,
+      sha: current.sha,
+      message: `telegram: revert ${sha.slice(0, 7)} (${file})`,
+    });
+    revertedFiles.push(file);
+    revertCommitShas.push(res.commitSha);
+  }
+
+  return { revertedFiles, revertCommitShas };
 }
