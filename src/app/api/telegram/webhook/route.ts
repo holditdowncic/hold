@@ -471,10 +471,12 @@ export async function POST(request: NextRequest) {
             const url = await handlePhoto(largestPhoto.file_id);
             if (url) {
                 imageUrl = url;
-            } else {
+            } else if (!text) {
+                // Only fail hard if there's no text — meaning they ONLY sent an image
                 await sendTelegram(chatId, "❌ Failed to upload image. Please try again.");
                 return NextResponse.json({ ok: true });
             }
+            // If there IS text (e.g. screenshot + caption), continue with just the text
         }
 
         // ─── Voice messages ───
