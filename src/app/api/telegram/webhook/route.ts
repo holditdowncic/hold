@@ -356,7 +356,7 @@ export async function POST(request: NextRequest) {
         if (text === "/start") {
             await sendTelegram(
                 chatId,
-                `👋 <b>Hold It Down CMS</b>\n\nJust tell me what you want to change — in plain English.\n\n📝 <b>Text:</b> "Update hero heading to: New headline"\n📸 <b>Photo:</b> Send image + caption to add it\n🔍 <b>Screenshot:</b> Send screenshot of where you want changes\n\n/status /undo /deploy /cookies /sections`
+                `👋 <b>Hold It Down CMS</b>\n\nJust tell me what you want to change — in plain English.\n\n📝 <b>Text:</b> "Update hero heading to: New headline"\n📸 <b>Photo:</b> Send image + caption to add it\n🎙️ <b>Voice:</b> Record a voice message with your command\n🔍 <b>Screenshot:</b> Send screenshot + what to change\n\n/status /undo /deploy /cookies /sections`
             );
             return NextResponse.json({ ok: true });
         }
@@ -365,7 +365,7 @@ export async function POST(request: NextRequest) {
         if (text === "/help") {
             await sendTelegram(
                 chatId,
-                `📖 <b>How to use this bot</b>\n\n<b>⚡ Quick Commands:</b>\n/status — what's in the CMS right now\n/sections — see all editable sections & fields\n/undo — undo your last change\n/deploy — make changes live on the website\n/cookies — see cookie consent stats\n\n<b>✏️ What you can change:</b>\n• Hero section (heading, subtext, buttons)\n• About section\n• Team members (add, edit, remove)\n• Programmes (add, edit, remove)\n• Events (add, edit)\n• Gallery images\n• Stats & initiatives\n• Cookie banner\n\n<b>📸 Photos:</b>\nSend any photo with a short caption.\n\n<b>💡 Examples:</b>\n• Change hero heading to We Build Community\n• Add team member Sarah as Project Lead\n• Remove the event Spring Gala`
+                `📖 <b>How to use this bot</b>\n\n<b>⚡ Quick Commands:</b>\n/status — what's in the CMS right now\n/sections — see all editable sections & fields\n/undo — undo your last change\n/deploy — make changes live on the website\n/cookies — see cookie consent stats\n\n<b>✏️ What you can change:</b>\n• Hero section (heading, subtext, buttons)\n• About section\n• Team members (add, edit, remove)\n• Programmes (add, edit, remove)\n• Events (add, edit)\n• Gallery images\n• Stats & initiatives\n• Cookie banner\n\n<b>📸 Photos:</b>\nSend any photo with a short caption.\n\n<b>🎙️ Voice:</b>\nRecord a voice message — I'll transcribe and process it.\n\n<b>💡 Examples:</b>\n• Change hero heading to We Build Community\n• Add team member Sarah as Project Lead\n• Remove the event Spring Gala`
             );
             return NextResponse.json({ ok: true });
         }
