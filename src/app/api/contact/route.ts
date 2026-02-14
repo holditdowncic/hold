@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
             message.trim(),
             ``,
             `—`,
-            `<i>Sent from holditdown.uk contact form</i>`,
+            `<i>Sent from holditdowncic.uk contact form</i>`,
         ].filter(Boolean).join("\n");
 
         // Send to all admin IDs

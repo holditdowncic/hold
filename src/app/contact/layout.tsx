@@ -5,13 +5,13 @@ export const metadata: Metadata = {
     description:
         "Contact Hold It Down CIC to get involved, volunteer, partner, or learn more about our community programmes in Croydon, South London. Email us at hollditdownuk@hotmail.com.",
     alternates: {
-        canonical: "https://www.holditdown.uk/contact",
+        canonical: "https://www.holditdowncic.uk/contact",
     },
     openGraph: {
         title: "Contact | Hold It Down CIC",
         description:
             "Get in touch with Hold It Down CIC. Volunteer, partner, or join our programmes for young people and families in Croydon, South London.",
-        url: "https://www.holditdown.uk/contact",
+        url: "https://www.holditdowncic.uk/contact",
     },
 };
 

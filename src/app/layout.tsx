@@ -3,7 +3,7 @@ import { ThemeProvider } from "@/lib/theme";
 import CookieBanner from "@/components/CookieBanner";
 import "./globals.css";
 
-const SITE_URL = "https://www.holditdown.uk";
+const SITE_URL = "https://www.holditdowncic.uk";
 
 export const viewport = {
   width: "device-width",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     "Hold It Down CIC is a leading youth organisation in London, UK. Based in Croydon, South London, we create culturally rooted, intergenerational spaces for young people aged 12–25, fathers, families and elders. Our programmes include Roots & Wings, Talk Di TingZ, mentorship, fatherhood support, and outdoor adventures.",
   keywords: [
     // Brand
-    "Hold It Down", "Hold It Down CIC", "holditdown", "holditdown.uk",
+    "Hold It Down", "Hold It Down CIC", "holditdown", "holditdowncic.uk",
     // Youth + Location
     "youth organisation London", "youth organisation UK", "youth organisation Croydon",
     "youth organisation South London", "youth organisation near me",
@@ -197,7 +197,7 @@ const faqJsonLd = {
       name: "How can I contact Hold It Down CIC?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "You can contact Hold It Down CIC by email at hollditdownuk@hotmail.com, through their website at holditdown.uk/contact, or via Instagram @holditdowncic.",
+        text: "You can contact Hold It Down CIC by email at hollditdownuk@hotmail.com, through their website at holditdowncic.uk/contact, or via Instagram @holditdowncic.",
       },
     },
     {

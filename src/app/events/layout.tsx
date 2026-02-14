@@ -5,13 +5,13 @@ export const metadata: Metadata = {
     description:
         "Explore Hold It Down CIC's community events in Croydon, South London. From Roots & Wings Family Fun Days to Talk Di TingZ youth podcast sessions, our events bring people together to connect, heal, and celebrate.",
     alternates: {
-        canonical: "https://www.holditdown.uk/events",
+        canonical: "https://www.holditdowncic.uk/events",
     },
     openGraph: {
         title: "Events | Hold It Down CIC",
         description:
             "Community events bringing families and young people together in Croydon. Roots & Wings Family Fun Day, Talk Di TingZ podcasts, outdoor adventures, and more.",
-        url: "https://www.holditdown.uk/events",
+        url: "https://www.holditdowncic.uk/events",
         images: [
             {
                 url: "/media/roots/roots-1.jpeg",

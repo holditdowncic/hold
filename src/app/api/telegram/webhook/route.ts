@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { parseCommand } from "@/lib/openrouter";
 import { supabaseAdmin } from "@/lib/supabase";
+import { executeCMSAction } from "@/lib/cms-actions";
 
 const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 
@@ -100,34 +101,26 @@ async function handlePhoto(fileId: string): Promise<string | null> {
     }
 }
 
-// Execute a CMS action via internal API
-async function executeCMSAction(action: Record<string, unknown>): Promise<{ success: boolean; message: string }> {
+// Revalidate site via internal API
+async function triggerRevalidation(): Promise<boolean> {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
         || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-
     try {
-        const response = await fetch(`${baseUrl}/api/cms`, {
+        const res = await fetch(`${baseUrl}/api/revalidate`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${process.env.CMS_API_SECRET}`,
             },
-            body: JSON.stringify(action),
         });
-
-        const data = await response.json();
-
-        if (data.success) {
-            return { success: true, message: formatResult(action, data.result) };
-        }
-        return { success: false, message: data.error || "Unknown error" };
-    } catch (error) {
-        return { success: false, message: error instanceof Error ? error.message : "Request failed" };
+        return res.ok;
+    } catch {
+        return false;
     }
 }
 
 // Format result for Telegram display
-function formatResult(action: Record<string, unknown>, result: unknown): string {
+function formatResult(action: Record<string, unknown>, _result: unknown): string {
     const act = action.action as string;
 
     switch (act) {
@@ -162,7 +155,7 @@ function formatResult(action: Record<string, unknown>, result: unknown): string 
         case "remove_initiative":
             return `✅ Removed initiative: <b>${action.title}</b>`;
         case "get_status": {
-            const counts = result as Record<string, number>;
+            const counts = _result as Record<string, number>;
             const lines = Object.entries(counts)
                 .map(([table, count]) => `  • ${table}: ${count}`)
                 .join("\n");
@@ -193,23 +186,11 @@ export async function POST(request: NextRequest) {
 
             if (data === "cms_deploy") {
                 await sendTelegram(chatId, "🚀 Refreshing website...");
-                try {
-                    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
-                        || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-                    const res = await fetch(`${baseUrl}/api/revalidate`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${process.env.CMS_API_SECRET}`,
-                        },
-                    });
-                    if (res.ok) {
-                        await sendTelegram(chatId, "✅ <b>Website is live!</b>\n\n🌐 <a href=\"https://www.holditdowncic.uk\">www.holditdowncic.uk</a>\n\nAll changes are now visible.");
-                    } else {
-                        await sendTelegram(chatId, "❌ Refresh failed. Try /deploy manually.");
-                    }
-                } catch {
-                    await sendTelegram(chatId, "❌ Could not reach the server. Try /deploy manually.");
+                const ok = await triggerRevalidation();
+                if (ok) {
+                    await sendTelegram(chatId, "✅ <b>Website is live!</b>\n\n🌐 <a href=\"https://www.holditdowncic.uk\">www.holditdowncic.uk</a>\n\nAll changes are now visible.");
+                } else {
+                    await sendTelegram(chatId, "❌ Refresh failed. Try /deploy manually.");
                 }
             } else if (data === "cms_revert") {
                 await sendTelegram(chatId, "⏳ Reverting last change...");
@@ -217,11 +198,11 @@ export async function POST(request: NextRequest) {
                 if (result.success) {
                     await sendTelegramWithButtons(
                         chatId,
-                        `${result.message}\n\n🔄 Change has been reverted.`,
+                        `✅ Change has been reverted.\n\n🔄 Ready to deploy.`,
                         [[{ text: "🚀 Deploy Now", callback_data: "cms_deploy" }]]
                     );
                 } else {
-                    await sendTelegram(chatId, `❌ ${result.message}`);
+                    await sendTelegram(chatId, `❌ ${result.error || "Unknown error"}`);
                 }
             }
 
@@ -266,9 +247,10 @@ export async function POST(request: NextRequest) {
             await sendTelegram(chatId, "⏳ Reverting last change...");
             const result = await executeCMSAction({ action: "undo" });
             if (result.success) {
-                await sendTelegram(chatId, `${result.message}\n\n🌐 The website will update within 60 seconds.`);
+                const msg = (result.result as Record<string, string>)?.message || "Change reverted.";
+                await sendTelegram(chatId, `${msg}\n\n🌐 The website will update within 60 seconds.`);
             } else {
-                await sendTelegram(chatId, `❌ ${result.message}`);
+                await sendTelegram(chatId, `❌ ${result.error || "Unknown error"}`);
             }
             return NextResponse.json({ ok: true });
         }
@@ -278,9 +260,13 @@ export async function POST(request: NextRequest) {
             await sendTelegram(chatId, "📊 Fetching status...");
             const result = await executeCMSAction({ action: "get_status" });
             if (result.success) {
-                await sendTelegram(chatId, result.message);
+                const counts = result.result as Record<string, number>;
+                const lines = Object.entries(counts)
+                    .map(([table, count]) => `  • ${table}: ${count}`)
+                    .join("\n");
+                await sendTelegram(chatId, `📊 <b>CMS Status</b>\n\n${lines}`);
             } else {
-                await sendTelegram(chatId, `❌ ${result.message}`);
+                await sendTelegram(chatId, `❌ ${result.error || "Unknown error"}`);
             }
             return NextResponse.json({ ok: true });
         }
@@ -288,24 +274,11 @@ export async function POST(request: NextRequest) {
         // Handle /deploy (revalidate all pages so changes go live immediately)
         if (text === "/deploy") {
             await sendTelegram(chatId, "🚀 Refreshing website cache...");
-            try {
-                const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
-                    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-                const res = await fetch(`${baseUrl}/api/revalidate`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${process.env.CMS_API_SECRET}`,
-                    },
-                });
-                const data = await res.json();
-                if (res.ok && data.success) {
-                    await sendTelegram(chatId, "✅ <b>Website refreshed!</b>\n\nAll pages have been revalidated. Changes are now live at https://www.holditdowncic.uk");
-                } else {
-                    await sendTelegram(chatId, `❌ Refresh failed: ${data.error || "Unknown error"}`);
-                }
-            } catch (err) {
-                await sendTelegram(chatId, `❌ Error: ${err instanceof Error ? err.message : "Unknown error"}`);
+            const ok = await triggerRevalidation();
+            if (ok) {
+                await sendTelegram(chatId, "✅ <b>Website refreshed!</b>\n\nAll pages have been revalidated. Changes are now live at https://www.holditdowncic.uk");
+            } else {
+                await sendTelegram(chatId, "❌ Refresh failed. Please try again.");
             }
             return NextResponse.json({ ok: true });
         }
@@ -401,13 +374,14 @@ export async function POST(request: NextRequest) {
             `🎯 <b>Parsed action:</b> <code>${parsedAction.action}</code>\n\n<pre>${JSON.stringify(parsedAction, null, 2)}</pre>\n\n⏳ Executing...`
         );
 
-        // Execute the action
+        // Execute the action DIRECTLY (no HTTP round-trip)
         const result = await executeCMSAction(parsedAction as unknown as Record<string, unknown>);
 
         if (result.success) {
+            const msg = formatResult(parsedAction as unknown as Record<string, unknown>, result.result);
             await sendTelegramWithButtons(
                 chatId,
-                `${result.message}`,
+                msg,
                 [
                     [
                         { text: "🚀 Deploy Now", callback_data: "cms_deploy" },
@@ -416,7 +390,7 @@ export async function POST(request: NextRequest) {
                 ]
             );
         } else {
-            await sendTelegram(chatId, `❌ <b>Error:</b> ${result.message}\n\nPlease try again or rephrase your command.`);
+            await sendTelegram(chatId, `❌ <b>Error:</b> ${result.error}\n\nPlease try again or rephrase your command.`);
         }
 
         return NextResponse.json({ ok: true });
