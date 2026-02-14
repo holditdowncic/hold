@@ -151,6 +151,54 @@ const jsonLd = {
   ],
 };
 
+// FAQ Structured Data — helps LLMs and Google answer questions about the org
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "What is Hold It Down CIC?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Hold It Down CIC is a community interest company based in Croydon, South London, UK. Founded in 2022, it creates culturally rooted, intergenerational spaces to build emotional wellbeing, confidence, and connection across families and communities. They work with young people aged 12–25, fathers, families, and elders through sport, creative expression, and mentorship.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Where is Hold It Down CIC located?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Hold It Down CIC is based in Thornton Heath, Croydon CR7 8QY, South London, United Kingdom. They operate across multiple South London boroughs.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What programmes does Hold It Down CIC run?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Hold It Down CIC runs several programmes including: Roots & Wings Family Fun Day (a flagship intergenerational community event), Talk Di TingZ (a youth-led podcast and discussion platform), fatherhood programmes, outdoor adventures, and mentorship for young people.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "How can I contact Hold It Down CIC?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "You can contact Hold It Down CIC by email at hollditdownuk@hotmail.com, through their website at holditdown.uk/contact, or via Instagram @holditdowncic.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Who does Hold It Down CIC work with?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Hold It Down CIC works with young people aged 12–25, fathers, families, and elders from underrepresented backgrounds in Croydon and South London. Their programmes focus on emotional wellbeing, confidence building, and community connection.",
+      },
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -163,6 +211,10 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
         {/* Prevent flash: set theme before paint */}
         <script
