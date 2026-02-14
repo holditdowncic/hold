@@ -102,9 +102,8 @@ async function handlePhoto(fileId: string): Promise<string | null> {
 
 // Execute a CMS action via internal API
 async function executeCMSAction(action: Record<string, unknown>): Promise<{ success: boolean; message: string }> {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000";
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
+        || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
     try {
         const response = await fetch(`${baseUrl}/api/cms`, {
@@ -195,9 +194,8 @@ export async function POST(request: NextRequest) {
             if (data === "cms_deploy") {
                 await sendTelegram(chatId, "🚀 Refreshing website...");
                 try {
-                    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL
-                        ? `https://${process.env.VERCEL_URL}`
-                        : "http://localhost:3000";
+                    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
+                        || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
                     const res = await fetch(`${baseUrl}/api/revalidate`, {
                         method: "POST",
                         headers: {
@@ -206,7 +204,7 @@ export async function POST(request: NextRequest) {
                         },
                     });
                     if (res.ok) {
-                        await sendTelegram(chatId, "✅ <b>Website is live!</b>\n\n🌐 <a href=\"https://www.holditdown.uk\">www.holditdown.uk</a>\n\nAll changes are now visible.");
+                        await sendTelegram(chatId, "✅ <b>Website is live!</b>\n\n🌐 <a href=\"https://www.holditdowncic.uk\">www.holditdowncic.uk</a>\n\nAll changes are now visible.");
                     } else {
                         await sendTelegram(chatId, "❌ Refresh failed. Try /deploy manually.");
                     }
@@ -291,9 +289,8 @@ export async function POST(request: NextRequest) {
         if (text === "/deploy") {
             await sendTelegram(chatId, "🚀 Refreshing website cache...");
             try {
-                const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL
-                    ? `https://${process.env.VERCEL_URL}`
-                    : "http://localhost:3000";
+                const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
+                    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
                 const res = await fetch(`${baseUrl}/api/revalidate`, {
                     method: "POST",
                     headers: {
@@ -303,7 +300,7 @@ export async function POST(request: NextRequest) {
                 });
                 const data = await res.json();
                 if (res.ok && data.success) {
-                    await sendTelegram(chatId, "✅ <b>Website refreshed!</b>\n\nAll pages have been revalidated. Changes are now live at https://www.holditdown.uk");
+                    await sendTelegram(chatId, "✅ <b>Website refreshed!</b>\n\nAll pages have been revalidated. Changes are now live at https://www.holditdowncic.uk");
                 } else {
                     await sendTelegram(chatId, `❌ Refresh failed: ${data.error || "Unknown error"}`);
                 }
