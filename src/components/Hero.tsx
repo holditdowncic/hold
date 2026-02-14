@@ -191,8 +191,6 @@ export default function Hero({ content }: HeroProps) {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-bg/60 via-transparent to-transparent" />
               </div>
-              {/* Decorative accent */}
-              <div className="absolute -right-3 -bottom-3 -z-10 h-full w-full rounded-2xl border border-accent/20 bg-accent/5" />
             </div>
           </Reveal>
         </div>
