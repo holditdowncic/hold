@@ -1,0 +1,20 @@
+{
+  "about": {},
+  "cta": {},
+  "support": {},
+  "gallery": {},
+  "programs": {},
+  "cookie_banner": {
+    "enabled": true,
+    "message": "We use essential cookies to enhance your browsing experience and remember your preferences.",
+    "accept_text": "Accept All",
+    "decline_text": "Decline"
+  },
+  "contact": {
+    "items": [],
+    "heading": "Get In Touch"
+  },
+  "hero": {
+    "heading_line2": "& together"
+  }
+}

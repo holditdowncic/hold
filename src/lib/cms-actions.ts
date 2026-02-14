@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
+import { commitContentSnapshot } from "@/lib/github";
 
 // Save a snapshot before any mutation for undo support
 async function saveHistory(tableName: string, recordId: string, previousData: Record<string, unknown>) {
@@ -347,6 +348,53 @@ export async function executeCMSAction(
         // Revalidate the home page and events page
         revalidatePath("/");
         revalidatePath("/events");
+
+        // ─── Commit snapshot to GitHub (triggers Vercel auto-deploy) ───
+        try {
+            const actionStr = String(action);
+            const tableMap: Record<string, string> = {
+                update_section: "site_content",
+                update_section_field: "site_content",
+                add_team_member: "team_members",
+                update_team_member: "team_members",
+                remove_team_member: "team_members",
+                add_gallery_image: "gallery_images",
+                remove_gallery_image: "gallery_images",
+                add_program: "programs",
+                update_program: "programs",
+                remove_program: "programs",
+                add_event: "events",
+                update_event: "events",
+                update_stat: "stats",
+                add_initiative: "initiatives",
+                remove_initiative: "initiatives",
+            };
+
+            const tableName = tableMap[actionStr];
+            if (tableName && supabaseAdmin) {
+                // Fetch full table snapshot
+                const { data: snapshot } = await supabaseAdmin
+                    .from(tableName)
+                    .select("*")
+                    .order("id", { ascending: true });
+
+                if (snapshot) {
+                    // Build descriptive commit message
+                    let desc = actionStr.replace(/_/g, " ");
+                    if (body.section) desc += ` (${body.section})`;
+                    if (body.field) desc += ` → ${body.field}`;
+                    if (body.name) desc += ` → ${body.name}`;
+                    if (body.title) desc += ` → ${body.title}`;
+                    if (body.slug) desc += ` → ${body.slug}`;
+                    if (body.label) desc += ` → ${body.label}`;
+
+                    await commitContentSnapshot(tableName, snapshot, desc);
+                }
+            }
+        } catch (commitErr) {
+            // Don't fail the action if GitHub commit fails
+            console.error("GitHub commit failed (non-blocking):", commitErr);
+        }
 
         return { success: true, result };
     } catch (error: unknown) {

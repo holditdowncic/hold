@@ -286,7 +286,7 @@ export async function POST(request: NextRequest) {
                 if (result.success) {
                     await sendTelegram(chatId, `✅ <b>Committed!</b>\n\n${describeAction(pending.action)}\n\n🌐 <a href="https://www.holditdowncic.uk">View Live Site</a>`);
                     // Auto-deploy
-                    await sendTelegram(chatId, "🚀 Deploying... (~1-2 min)");
+                    await sendTelegram(chatId, "🚀 Pushing to GitHub \u0026 deploying... (~1-2 min)");
                     const deployed = await triggerRevalidation();
                     if (deployed) {
                         await sendTelegram(chatId, `✅ <b>Deployed!</b>\n\n🌐 <a href="https://www.holditdowncic.uk">View Live Site</a>`);
@@ -307,7 +307,7 @@ export async function POST(request: NextRequest) {
 
             // ─── Deploy ───
             if (data === "cms_deploy") {
-                await sendTelegram(chatId, "🚀 Deploying...");
+                await sendTelegram(chatId, "🚀 Pushing to GitHub \u0026 deploying...");
                 const ok = await triggerRevalidation();
                 if (ok) {
                     await sendTelegram(chatId, "✅ <b>Deployed!</b>\n\n🌐 Changes are now live at <a href=\"https://www.holditdowncic.uk\">holditdowncic.uk</a>");
@@ -325,7 +325,7 @@ export async function POST(request: NextRequest) {
                     const msg = (result.result as Record<string, string>)?.message || "Last change reverted.";
                     await sendTelegram(chatId, `✅ <b>Reverted:</b> ${msg}\n\n🌐 <a href="https://www.holditdowncic.uk">View Live Site</a>`);
                     // Auto-deploy
-                    await sendTelegram(chatId, "🚀 Deploying... (~1-2 min)");
+                    await sendTelegram(chatId, "🚀 Pushing to GitHub \u0026 deploying... (~1-2 min)");
                     const deployed = await triggerRevalidation();
                     if (deployed) {
                         await sendTelegram(chatId, `✅ <b>Deployed!</b>\n\n🌐 <a href="https://www.holditdowncic.uk">View Live Site</a>`);
@@ -378,7 +378,7 @@ export async function POST(request: NextRequest) {
                 const msg = (result.result as Record<string, string>)?.message || "Last change reverted.";
                 await sendTelegram(chatId, `✅ <b>Reverted:</b> ${msg}\n\n🌐 <a href="https://www.holditdowncic.uk">View Live Site</a>`);
                 // Auto-deploy
-                await sendTelegram(chatId, "🚀 Deploying... (~1-2 min)");
+                await sendTelegram(chatId, "🚀 Pushing to GitHub \u0026 deploying... (~1-2 min)");
                 const deployed = await triggerRevalidation();
                 if (deployed) {
                     await sendTelegram(chatId, `✅ <b>Deployed!</b>\n\n🌐 <a href="https://www.holditdowncic.uk">View Live Site</a>`);
@@ -432,7 +432,7 @@ export async function POST(request: NextRequest) {
 
         // ─── /deploy ───
         if (text === "/deploy") {
-            await sendTelegram(chatId, "🚀 Deploying...");
+            await sendTelegram(chatId, "🚀 Pushing to GitHub \u0026 deploying...");
             const ok = await triggerRevalidation();
             if (ok) {
                 await sendTelegram(chatId, "✅ <b>Deployed!</b>\n\nAll pages revalidated. Changes are now live.");
