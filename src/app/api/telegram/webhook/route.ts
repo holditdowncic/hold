@@ -9,6 +9,9 @@ import {
   revertCommit,
 } from "@/lib/github";
 
+// This route uses Node-only APIs (Buffer). Force Node runtime on Vercel.
+export const runtime = "nodejs";
+
 const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 const TELEGRAM_FILE_API = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 
@@ -114,32 +117,55 @@ function parseDeterministicCommand(text: string): CMSAction[] | null {
 }
 
 async function sendTelegram(chatId: number, text: string, buttons?: { text: string; callback_data: string }[][]) {
-  await fetch(`${TELEGRAM_API}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text,
-      parse_mode: "HTML",
-      ...(buttons ? { reply_markup: { inline_keyboard: buttons } } : {}),
-    }),
-  });
+  try {
+    if (!process.env.TELEGRAM_BOT_TOKEN) {
+      console.error("Telegram sendMessage skipped: TELEGRAM_BOT_TOKEN missing");
+      return;
+    }
+    const res = await fetch(`${TELEGRAM_API}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text,
+        parse_mode: "HTML",
+        ...(buttons ? { reply_markup: { inline_keyboard: buttons } } : {}),
+      }),
+    });
+    if (!res.ok) {
+      const body = await res.text();
+      console.error("Telegram sendMessage failed:", res.status, body);
+    }
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    console.error("Telegram sendMessage exception:", msg);
+  }
 }
 
 async function sendChatAction(chatId: number, action: "typing" | "upload_photo" | "upload_document" = "typing") {
-  await fetch(`${TELEGRAM_API}/sendChatAction`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: chatId, action }),
-  });
+  try {
+    if (!process.env.TELEGRAM_BOT_TOKEN) return;
+    await fetch(`${TELEGRAM_API}/sendChatAction`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, action }),
+    });
+  } catch {
+    // Non-critical
+  }
 }
 
 async function answerCallback(callbackId: string, text?: string) {
-  await fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ callback_query_id: callbackId, text: text || "" }),
-  });
+  try {
+    if (!process.env.TELEGRAM_BOT_TOKEN) return;
+    await fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ callback_query_id: callbackId, text: text || "" }),
+    });
+  } catch {
+    // Non-critical
+  }
 }
 
 function jsonPretty(value: unknown) {

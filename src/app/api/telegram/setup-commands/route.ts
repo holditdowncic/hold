@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 
+export const runtime = "nodejs";
+
 export async function POST(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   const secret = process.env.TELEGRAM_SETUP_SECRET || process.env.CMS_API_SECRET;
