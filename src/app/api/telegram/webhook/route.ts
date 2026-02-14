@@ -119,6 +119,48 @@ async function triggerRevalidation(): Promise<boolean> {
     }
 }
 
+// Describe an action in plain English (shown while executing)
+function describeAction(action: Record<string, unknown>): string {
+    switch (action.action) {
+        case "update_section_field":
+            return `Updating <b>${action.field}</b> in the <b>${action.section}</b> section...`;
+        case "update_section":
+            return `Updating the entire <b>${action.section}</b> section...`;
+        case "add_team_member":
+            return `Adding <b>${action.name}</b> to the team...`;
+        case "remove_team_member":
+            return `Removing <b>${action.name}</b> from the team...`;
+        case "update_team_member":
+            return `Updating <b>${action.name}</b>'s details...`;
+        case "add_gallery_image":
+            return `Adding image to the gallery...`;
+        case "remove_gallery_image":
+            return `Removing image from the gallery...`;
+        case "add_program":
+            return `Adding program: <b>${action.title}</b>...`;
+        case "update_program":
+            return `Updating program: <b>${action.title}</b>...`;
+        case "remove_program":
+            return `Removing program: <b>${action.title}</b>...`;
+        case "add_event":
+            return `Adding a new event...`;
+        case "update_event":
+            return `Updating event: <b>${action.slug}</b>...`;
+        case "update_stat":
+            return `Updating stat: <b>${action.label}</b>...`;
+        case "add_initiative":
+            return `Adding initiative: <b>${action.title}</b>...`;
+        case "remove_initiative":
+            return `Removing initiative: <b>${action.title}</b>...`;
+        case "get_status":
+            return `Fetching CMS status...`;
+        case "undo":
+            return `Reverting last change...`;
+        default:
+            return `Processing your request...`;
+    }
+}
+
 // Format result for Telegram display
 function formatResult(action: Record<string, unknown>, _result: unknown): string {
     const act = action.action as string;
@@ -228,7 +270,7 @@ export async function POST(request: NextRequest) {
         if (text === "/start") {
             await sendTelegram(
                 chatId,
-                `🤖 <b>Hold It Down CMS Bot</b>\n\nSend me natural language commands to manage the website content.\n\n<b>Examples:</b>\n• "Change the hero heading to Welcome Home"\n• "Add team member John Smith as Lead Developer"\n• "Update the about section heading"\n• "Add a new event called Spring Gala on March 15"\n• "Change the cookie banner message to We only use essential cookies"\n• "Disable the cookie banner"\n• "Undo" — reverts the last change\n• "Show status"\n\n📸 <b>Image uploads:</b> Send a photo with a caption like "Add this to gallery as Community Day" or "Use this as the hero image"\n\n💡 Just type what you want to change!`
+                `👋 <b>Welcome to Hold It Down CMS</b>\n\nJust tell me what you want to change on the website — in plain English.\n\n<b>💬 Try saying things like:</b>\n• Change the main heading to Welcome Home\n• Add a new team member called John\n• Add a new event for March 15\n• Undo my last change\n\n<b>📸 Upload photos:</b>\nSend a photo with a caption like:\n• Add this to the gallery\n• Use this as the hero image\n\n<b>⚡ Quick commands:</b>\n/help — see all commands\n/status — check what's in the CMS\n/undo — undo last change\n/deploy — push changes live\n\n💡 That's it — just type naturally!`
             );
             return NextResponse.json({ ok: true });
         }
@@ -237,7 +279,7 @@ export async function POST(request: NextRequest) {
         if (text === "/help") {
             await sendTelegram(
                 chatId,
-                `📖 <b>Available Commands</b>\n\n<b>Quick commands:</b>\n/status — check CMS table counts\n/cookies — cookie consent analytics\n/undo — revert last change\n/deploy — refresh site with latest changes\n/help — show this message\n\n<b>Sections:</b> hero, about, cta, contact, support, gallery, programs, cookie_banner\n\n<b>Data:</b> team members, gallery images, programs, events, stats, initiatives\n\n<b>Actions:</b>\n• Update text fields\n• Add/remove items\n• Upload images (send photo + caption)\n• Enable/disable cookie banner\n\n<b>Tip:</b> Just describe what you want to change in plain English!`
+                `📖 <b>How to use this bot</b>\n\n<b>⚡ Quick Commands:</b>\n/status — what's in the CMS right now\n/undo — undo your last change\n/deploy — make changes live on the website\n/cookies — see cookie consent stats\n\n<b>✏️ What you can change:</b>\n• Hero section (heading, subtext, buttons)\n• About section\n• Team members (add, edit, remove)\n• Programmes (add, edit, remove)\n• Events (add, edit)\n• Gallery images\n• Stats & initiatives\n• Cookie banner\n\n<b>📸 Photos:</b>\nSend any photo with a short caption describing where to use it.\n\n<b>💡 Examples:</b>\n• Change hero heading to We Build Community\n• Add team member Sarah as Project Lead\n• Remove the event Spring Gala\n• Show status\n• Undo`
             );
             return NextResponse.json({ ok: true });
         }
@@ -368,11 +410,9 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ ok: true });
         }
 
-        // Show what will be done
-        await sendTelegram(
-            chatId,
-            `🎯 <b>Parsed action:</b> <code>${parsedAction.action}</code>\n\n<pre>${JSON.stringify(parsedAction, null, 2)}</pre>\n\n⏳ Executing...`
-        );
+        // Show a simple human-readable summary of what we're doing
+        const actionLabel = describeAction(parsedAction as unknown as Record<string, unknown>);
+        await sendTelegram(chatId, `⏳ ${actionLabel}`);
 
         // Execute the action DIRECTLY (no HTTP round-trip)
         const result = await executeCMSAction(parsedAction as unknown as Record<string, unknown>);
