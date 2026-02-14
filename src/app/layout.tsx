@@ -85,10 +85,10 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/logos/holdlogo.png",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Hold It Down CIC Logo",
+        alt: "Hold It Down CIC — Youth Organisation in London, UK",
       },
     ],
   },
@@ -97,7 +97,7 @@ export const metadata: Metadata = {
     title: "Hold It Down CIC | Youth Organisation in London, UK",
     description:
       "Leading youth organisation in London. Youth empowerment, mentorship, fatherhood programmes, and community events in Croydon, South London.",
-    images: ["/logos/holdlogo.png"],
+    images: ["/og-image.jpg"],
   },
   robots: {
     index: true,
