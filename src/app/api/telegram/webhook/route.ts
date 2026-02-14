@@ -5,20 +5,16 @@ import { executeCMSAction } from "@/lib/cms-actions";
 
 const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 
-// Send a message via Telegram Bot API
+// ─── Telegram helpers ───
+
 async function sendTelegram(chatId: number, text: string, parseMode = "HTML") {
     await fetch(`${TELEGRAM_API}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            chat_id: chatId,
-            text,
-            parse_mode: parseMode,
-        }),
+        body: JSON.stringify({ chat_id: chatId, text, parse_mode: parseMode }),
     });
 }
 
-// Send a message with inline keyboard buttons
 async function sendTelegramWithButtons(
     chatId: number,
     text: string,
@@ -37,19 +33,14 @@ async function sendTelegramWithButtons(
     });
 }
 
-// Answer a callback query (acknowledge button press)
 async function answerCallback(callbackId: string, text?: string) {
     await fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            callback_query_id: callbackId,
-            text: text || "",
-        }),
+        body: JSON.stringify({ callback_query_id: callbackId, text: text || "" }),
     });
 }
 
-// Check if user is an authorized admin
 function isAdmin(userId: number): boolean {
     const adminIds = (process.env.TELEGRAM_ADMIN_IDS || "")
         .split(",")
@@ -58,22 +49,20 @@ function isAdmin(userId: number): boolean {
     return adminIds.includes(String(userId));
 }
 
-// Download a Telegram file and upload to Supabase storage
+// ─── Photo upload ───
+
 async function handlePhoto(fileId: string): Promise<string | null> {
     if (!supabaseAdmin) return null;
     try {
-        // Get file path from Telegram
         const fileResp = await fetch(`${TELEGRAM_API}/getFile?file_id=${fileId}`);
         const fileData = await fileResp.json();
         const filePath = fileData.result?.file_path;
         if (!filePath) return null;
 
-        // Download file
         const downloadUrl = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${filePath}`;
         const fileResponse = await fetch(downloadUrl);
         const buffer = await fileResponse.arrayBuffer();
 
-        // Upload to Supabase Storage
         const ext = filePath.split(".").pop() || "jpg";
         const filename = `telegram/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
@@ -89,7 +78,6 @@ async function handlePhoto(fileId: string): Promise<string | null> {
             return null;
         }
 
-        // Get public URL
         const { data: urlData } = supabaseAdmin.storage
             .from("website-images")
             .getPublicUrl(filename);
@@ -101,7 +89,8 @@ async function handlePhoto(fileId: string): Promise<string | null> {
     }
 }
 
-// Revalidate site via internal API
+// ─── Revalidation ───
+
 async function triggerRevalidation(): Promise<boolean> {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
         || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
@@ -119,105 +108,157 @@ async function triggerRevalidation(): Promise<boolean> {
     }
 }
 
-// Describe an action in plain English (shown while executing)
+// ─── Human-readable descriptions ───
+
 function describeAction(action: Record<string, unknown>): string {
     switch (action.action) {
         case "update_section_field":
-            return `Updating <b>${action.field}</b> in the <b>${action.section}</b> section...`;
+            return `Update <b>${action.field}</b> in <b>${action.section}</b> section`;
         case "update_section":
-            return `Updating the entire <b>${action.section}</b> section...`;
+            return `Update entire <b>${action.section}</b> section`;
         case "add_team_member":
-            return `Adding <b>${action.name}</b> to the team...`;
+            return `Add <b>${action.name}</b> to the team`;
         case "remove_team_member":
-            return `Removing <b>${action.name}</b> from the team...`;
+            return `Remove <b>${action.name}</b> from the team`;
         case "update_team_member":
-            return `Updating <b>${action.name}</b>'s details...`;
+            return `Update <b>${action.name}</b>'s details`;
         case "add_gallery_image":
-            return `Adding image to the gallery...`;
+            return `Add image to the gallery`;
         case "remove_gallery_image":
-            return `Removing image from the gallery...`;
+            return `Remove image from the gallery`;
         case "add_program":
-            return `Adding program: <b>${action.title}</b>...`;
+            return `Add programme: <b>${action.title}</b>`;
         case "update_program":
-            return `Updating program: <b>${action.title}</b>...`;
+            return `Update programme: <b>${action.title}</b>`;
         case "remove_program":
-            return `Removing program: <b>${action.title}</b>...`;
+            return `Remove programme: <b>${action.title}</b>`;
         case "add_event":
-            return `Adding a new event...`;
+            return `Add a new event`;
         case "update_event":
-            return `Updating event: <b>${action.slug}</b>...`;
+            return `Update event: <b>${action.slug}</b>`;
         case "update_stat":
-            return `Updating stat: <b>${action.label}</b>...`;
+            return `Update stat: <b>${action.label}</b> → ${action.value}`;
         case "add_initiative":
-            return `Adding initiative: <b>${action.title}</b>...`;
+            return `Add initiative: <b>${action.title}</b>`;
         case "remove_initiative":
-            return `Removing initiative: <b>${action.title}</b>...`;
-        case "get_status":
-            return `Fetching CMS status...`;
-        case "undo":
-            return `Reverting last change...`;
+            return `Remove initiative: <b>${action.title}</b>`;
         default:
-            return `Processing your request...`;
+            return `${action.action}`;
     }
 }
 
-// Format result for Telegram display
-function formatResult(action: Record<string, unknown>, _result: unknown): string {
-    const act = action.action as string;
-
-    switch (act) {
+function formatSummary(action: Record<string, unknown>): string {
+    // Build a short human-readable summary of what will change
+    const lines: string[] = [];
+    switch (action.action) {
         case "update_section_field":
-            return `✅ Updated <b>${action.section}.${action.field}</b>`;
+            lines.push(`<b>Section:</b> ${action.section}`);
+            lines.push(`<b>Field:</b> ${action.field}`);
+            lines.push(`<b>New value:</b> ${action.value}`);
+            break;
         case "update_section":
-            return `✅ Updated entire <b>${action.section}</b> section`;
+            lines.push(`<b>Section:</b> ${action.section}`);
+            lines.push(`<b>Full content update</b>`);
+            break;
         case "add_team_member":
-            return `✅ Added team member: <b>${action.name}</b>`;
+            lines.push(`<b>Name:</b> ${action.name}`);
+            if (action.role) lines.push(`<b>Role:</b> ${action.role}`);
+            break;
         case "remove_team_member":
-            return `✅ Removed team member: <b>${action.name}</b>`;
+            lines.push(`<b>Name:</b> ${action.name}`);
+            break;
         case "update_team_member":
-            return `✅ Updated team member: <b>${action.name}</b>`;
-        case "add_gallery_image":
-            return `✅ Added gallery image: <b>${action.caption || "New image"}</b>`;
-        case "remove_gallery_image":
-            return `✅ Removed gallery image: <b>${action.caption}</b>`;
+            lines.push(`<b>Name:</b> ${action.name}`);
+            if (action.updates) lines.push(`<b>Changes:</b> ${Object.keys(action.updates as object).join(", ")}`);
+            break;
         case "add_program":
-            return `✅ Added program: <b>${action.title}</b>`;
-        case "update_program":
-            return `✅ Updated program: <b>${action.title}</b>`;
-        case "remove_program":
-            return `✅ Removed program: <b>${action.title}</b>`;
-        case "add_event":
-            return `✅ Added event: <b>${(action.event as Record<string, string>)?.title || "New event"}</b>`;
-        case "update_event":
-            return `✅ Updated event: <b>${action.slug}</b>`;
-        case "update_stat":
-            return `✅ Updated stat: <b>${action.label}</b> → ${action.value}`;
-        case "add_initiative":
-            return `✅ Added initiative: <b>${action.title}</b>`;
-        case "remove_initiative":
-            return `✅ Removed initiative: <b>${action.title}</b>`;
-        case "get_status": {
-            const counts = _result as Record<string, number>;
-            const lines = Object.entries(counts)
-                .map(([table, count]) => `  • ${table}: ${count}`)
-                .join("\n");
-            return `📊 <b>CMS Status</b>\n\n${lines}`;
+            lines.push(`<b>Title:</b> ${action.title}`);
+            if (action.description) lines.push(`<b>Description:</b> ${(action.description as string).substring(0, 80)}...`);
+            break;
+        case "add_event": {
+            const evt = action.event as Record<string, string> | undefined;
+            if (evt?.title) lines.push(`<b>Title:</b> ${evt.title}`);
+            if (evt?.date) lines.push(`<b>Date:</b> ${evt.date}`);
+            break;
         }
+        case "update_stat":
+            lines.push(`<b>Stat:</b> ${action.label}`);
+            lines.push(`<b>New value:</b> ${action.value}`);
+            break;
         default:
-            return `✅ Action completed: ${act}`;
+            // Generic: show all non-action keys
+            for (const [k, v] of Object.entries(action)) {
+                if (k !== "action") lines.push(`<b>${k}:</b> ${v}`);
+            }
+    }
+    return lines.join("\n");
+}
+
+// ─── Pending actions (confirmation flow) ───
+
+async function storePendingAction(chatId: number, action: Record<string, unknown>, description: string): Promise<string | null> {
+    if (!supabaseAdmin) return null;
+    try {
+        // Clean up old pending actions for this chat
+        await supabaseAdmin
+            .from("pending_cms_actions")
+            .delete()
+            .eq("chat_id", chatId);
+
+        const { data, error } = await supabaseAdmin
+            .from("pending_cms_actions")
+            .insert({
+                chat_id: chatId,
+                action_data: action,
+                description,
+            })
+            .select("id")
+            .single();
+
+        if (error) {
+            console.error("Store pending action error:", error);
+            return null;
+        }
+        return data.id;
+    } catch (e) {
+        console.error("Store pending action error:", e);
+        return null;
     }
 }
+
+async function getPendingAction(actionId: string): Promise<{ chatId: number; action: Record<string, unknown> } | null> {
+    if (!supabaseAdmin) return null;
+    try {
+        const { data, error } = await supabaseAdmin
+            .from("pending_cms_actions")
+            .select("chat_id, action_data")
+            .eq("id", actionId)
+            .single();
+
+        if (error || !data) return null;
+        return { chatId: data.chat_id, action: data.action_data };
+    } catch {
+        return null;
+    }
+}
+
+async function deletePendingAction(actionId: string) {
+    if (!supabaseAdmin) return;
+    await supabaseAdmin.from("pending_cms_actions").delete().eq("id", actionId);
+}
+
+// ─── Main webhook handler ───
 
 export async function POST(request: NextRequest) {
     try {
         const update = await request.json();
 
-        // Handle callback queries (inline button presses)
+        // ─── Callback queries (button presses) ───
         if (update.callback_query) {
             const cb = update.callback_query;
             const chatId = cb.message?.chat?.id;
             const userId = cb.from?.id;
-            const data = cb.data;
+            const data = cb.data as string;
 
             if (!chatId || !userId || !isAdmin(userId)) {
                 await answerCallback(cb.id, "Not authorized");
@@ -226,78 +267,128 @@ export async function POST(request: NextRequest) {
 
             await answerCallback(cb.id);
 
+            // ─── Confirm a pending change ───
+            if (data.startsWith("cms_yes_")) {
+                const actionId = data.replace("cms_yes_", "");
+                const pending = await getPendingAction(actionId);
+
+                if (!pending) {
+                    await sendTelegram(chatId, "⚠️ This action has expired. Please send your command again.");
+                    return NextResponse.json({ ok: true });
+                }
+
+                await sendTelegram(chatId, "🚀 Committing...");
+
+                const result = await executeCMSAction(pending.action);
+                await deletePendingAction(actionId);
+
+                if (result.success) {
+                    await sendTelegram(chatId, `✅ <b>Committed!</b>\n\n${describeAction(pending.action)}\n\n🌐 <a href="https://www.holditdowncic.uk">View Live Site</a>`);
+                    // Auto-deploy
+                    await sendTelegram(chatId, "🚀 Deploying... (~1-2 min)");
+                    const deployed = await triggerRevalidation();
+                    if (deployed) {
+                        await sendTelegram(chatId, `✅ <b>Deployed!</b>\n\n🌐 <a href="https://www.holditdowncic.uk">View Live Site</a>`);
+                    }
+                } else {
+                    await sendTelegram(chatId, `❌ <b>Error:</b> ${result.error}\n\nPlease try again.`);
+                }
+                return NextResponse.json({ ok: true });
+            }
+
+            // ─── Cancel a pending change ───
+            if (data.startsWith("cms_no_")) {
+                const actionId = data.replace("cms_no_", "");
+                await deletePendingAction(actionId);
+                await sendTelegram(chatId, "❌ Cancelled. No changes were made.");
+                return NextResponse.json({ ok: true });
+            }
+
+            // ─── Deploy ───
             if (data === "cms_deploy") {
-                await sendTelegram(chatId, "🚀 Refreshing website...");
+                await sendTelegram(chatId, "🚀 Deploying...");
                 const ok = await triggerRevalidation();
                 if (ok) {
-                    await sendTelegram(chatId, "✅ <b>Website is live!</b>\n\n🌐 <a href=\"https://www.holditdowncic.uk\">www.holditdowncic.uk</a>\n\nAll changes are now visible.");
+                    await sendTelegram(chatId, "✅ <b>Deployed!</b>\n\n🌐 Changes are now live at <a href=\"https://www.holditdowncic.uk\">holditdowncic.uk</a>");
                 } else {
-                    await sendTelegram(chatId, "❌ Refresh failed. Try /deploy manually.");
+                    await sendTelegram(chatId, "❌ Deploy failed. Try /deploy manually.");
                 }
-            } else if (data === "cms_revert") {
-                await sendTelegram(chatId, "⏳ Reverting last change...");
+                return NextResponse.json({ ok: true });
+            }
+
+            // ─── Revert ───
+            if (data === "cms_revert") {
+                await sendTelegram(chatId, "⏳ Reverting...");
                 const result = await executeCMSAction({ action: "undo" });
                 if (result.success) {
-                    await sendTelegramWithButtons(
-                        chatId,
-                        `✅ Change has been reverted.\n\n🔄 Ready to deploy.`,
-                        [[{ text: "🚀 Deploy Now", callback_data: "cms_deploy" }]]
-                    );
+                    const msg = (result.result as Record<string, string>)?.message || "Last change reverted.";
+                    await sendTelegram(chatId, `✅ <b>Reverted:</b> ${msg}\n\n🌐 <a href="https://www.holditdowncic.uk">View Live Site</a>`);
+                    // Auto-deploy
+                    await sendTelegram(chatId, "🚀 Deploying... (~1-2 min)");
+                    const deployed = await triggerRevalidation();
+                    if (deployed) {
+                        await sendTelegram(chatId, `✅ <b>Deployed!</b>\n\n🌐 <a href="https://www.holditdowncic.uk">View Live Site</a>`);
+                    }
                 } else {
-                    await sendTelegram(chatId, `❌ ${result.error || "Unknown error"}`);
+                    await sendTelegram(chatId, `❌ ${result.error || "Nothing to undo."}`);
                 }
+                return NextResponse.json({ ok: true });
             }
 
             return NextResponse.json({ ok: true });
         }
 
+        // ─── Regular messages ───
         const message = update.message;
-        if (!message) {
-            return NextResponse.json({ ok: true });
-        }
+        if (!message) return NextResponse.json({ ok: true });
 
         const chatId = message.chat.id;
         const userId = message.from?.id;
         const text = message.text || message.caption || "";
 
-        // Auth check
         if (!userId || !isAdmin(userId)) {
             await sendTelegram(chatId, "⛔ You are not authorized to use this bot.");
             return NextResponse.json({ ok: true });
         }
 
-        // Handle /start
+        // ─── /start ───
         if (text === "/start") {
             await sendTelegram(
                 chatId,
-                `👋 <b>Welcome to Hold It Down CMS</b>\n\nJust tell me what you want to change on the website — in plain English.\n\n<b>💬 Try saying things like:</b>\n• Change the main heading to Welcome Home\n• Add a new team member called John\n• Add a new event for March 15\n• Undo my last change\n\n<b>📸 Upload photos:</b>\nSend a photo with a caption like:\n• Add this to the gallery\n• Use this as the hero image\n\n<b>⚡ Quick commands:</b>\n/help — see all commands\n/status — check what's in the CMS\n/undo — undo last change\n/deploy — push changes live\n\n💡 That's it — just type naturally!`
+                `👋 <b>Hold It Down CMS</b>\n\nJust tell me what you want to change — in plain English.\n\n📝 <b>Text:</b> "Update hero heading to: New headline"\n📸 <b>Photo:</b> Send image + caption to add it\n🔍 <b>Screenshot:</b> Send screenshot of where you want changes\n\n/status /undo /deploy /cookies /sections`
             );
             return NextResponse.json({ ok: true });
         }
 
-        // Handle /help
+        // ─── /help ───
         if (text === "/help") {
             await sendTelegram(
                 chatId,
-                `📖 <b>How to use this bot</b>\n\n<b>⚡ Quick Commands:</b>\n/status — what's in the CMS right now\n/undo — undo your last change\n/deploy — make changes live on the website\n/cookies — see cookie consent stats\n\n<b>✏️ What you can change:</b>\n• Hero section (heading, subtext, buttons)\n• About section\n• Team members (add, edit, remove)\n• Programmes (add, edit, remove)\n• Events (add, edit)\n• Gallery images\n• Stats & initiatives\n• Cookie banner\n\n<b>📸 Photos:</b>\nSend any photo with a short caption describing where to use it.\n\n<b>💡 Examples:</b>\n• Change hero heading to We Build Community\n• Add team member Sarah as Project Lead\n• Remove the event Spring Gala\n• Show status\n• Undo`
+                `📖 <b>How to use this bot</b>\n\n<b>⚡ Quick Commands:</b>\n/status — what's in the CMS right now\n/sections — see all editable sections & fields\n/undo — undo your last change\n/deploy — make changes live on the website\n/cookies — see cookie consent stats\n\n<b>✏️ What you can change:</b>\n• Hero section (heading, subtext, buttons)\n• About section\n• Team members (add, edit, remove)\n• Programmes (add, edit, remove)\n• Events (add, edit)\n• Gallery images\n• Stats & initiatives\n• Cookie banner\n\n<b>📸 Photos:</b>\nSend any photo with a short caption.\n\n<b>💡 Examples:</b>\n• Change hero heading to We Build Community\n• Add team member Sarah as Project Lead\n• Remove the event Spring Gala`
             );
             return NextResponse.json({ ok: true });
         }
 
-        // Handle /undo
-        if (text === "/undo") {
+        // ─── /undo or /revert ───
+        if (text === "/undo" || text === "/revert") {
             await sendTelegram(chatId, "⏳ Reverting last change...");
             const result = await executeCMSAction({ action: "undo" });
             if (result.success) {
-                const msg = (result.result as Record<string, string>)?.message || "Change reverted.";
-                await sendTelegram(chatId, `${msg}\n\n🌐 The website will update within 60 seconds.`);
+                const msg = (result.result as Record<string, string>)?.message || "Last change reverted.";
+                await sendTelegram(chatId, `✅ <b>Reverted:</b> ${msg}\n\n🌐 <a href="https://www.holditdowncic.uk">View Live Site</a>`);
+                // Auto-deploy
+                await sendTelegram(chatId, "🚀 Deploying... (~1-2 min)");
+                const deployed = await triggerRevalidation();
+                if (deployed) {
+                    await sendTelegram(chatId, `✅ <b>Deployed!</b>\n\n🌐 <a href="https://www.holditdowncic.uk">View Live Site</a>`);
+                }
             } else {
-                await sendTelegram(chatId, `❌ ${result.error || "Unknown error"}`);
+                await sendTelegram(chatId, `❌ ${result.error || "Nothing to undo."}`);
             }
             return NextResponse.json({ ok: true });
         }
 
-        // Handle /status
+        // ─── /status ───
         if (text === "/status") {
             await sendTelegram(chatId, "📊 Fetching status...");
             const result = await executeCMSAction({ action: "get_status" });
@@ -313,74 +404,67 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ ok: true });
         }
 
-        // Handle /deploy (revalidate all pages so changes go live immediately)
+        // ─── /sections ───
+        if (text === "/sections") {
+            if (!supabaseAdmin) {
+                await sendTelegram(chatId, "❌ Database not configured.");
+                return NextResponse.json({ ok: true });
+            }
+            const { data: sections, error: secErr } = await supabaseAdmin
+                .from("site_content")
+                .select("section, content")
+                .order("section");
+            if (secErr || !sections) {
+                await sendTelegram(chatId, "❌ Could not fetch sections.");
+                return NextResponse.json({ ok: true });
+            }
+            const lines = sections.map((s: { section: string; content: Record<string, unknown> }) => {
+                const fields = Object.keys(s.content || {}).join(", ");
+                return `📌 <b>${s.section}</b>\n     <i>${fields}</i>`;
+            }).join("\n\n");
+            await sendTelegram(
+                chatId,
+                `📁 <b>Website Sections</b>\n\n${lines}\n\n💡 Say: <i>"Change [section] [field] to [value]"</i>`
+            );
+            return NextResponse.json({ ok: true });
+        }
+
+        // ─── /deploy ───
         if (text === "/deploy") {
-            await sendTelegram(chatId, "🚀 Refreshing website cache...");
+            await sendTelegram(chatId, "🚀 Deploying...");
             const ok = await triggerRevalidation();
             if (ok) {
-                await sendTelegram(chatId, "✅ <b>Website refreshed!</b>\n\nAll pages have been revalidated. Changes are now live at https://www.holditdowncic.uk");
+                await sendTelegram(chatId, "✅ <b>Deployed!</b>\n\nAll pages revalidated. Changes are now live.");
             } else {
-                await sendTelegram(chatId, "❌ Refresh failed. Please try again.");
+                await sendTelegram(chatId, "❌ Deploy failed. Please try again.");
             }
             return NextResponse.json({ ok: true });
         }
 
-        // Handle /cookies — show cookie consent analytics
+        // ─── /cookies ───
         if (text === "/cookies") {
             if (!supabaseAdmin) {
                 await sendTelegram(chatId, "❌ Database not configured.");
                 return NextResponse.json({ ok: true });
             }
-            await sendTelegram(chatId, "🍪 Fetching cookie analytics...");
-
-            const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-
-            // Total all-time
-            const { count: totalAccepted } = await supabaseAdmin
-                .from("cookie_consent_log")
-                .select("*", { count: "exact", head: true })
-                .eq("action", "accepted");
-            const { count: totalDeclined } = await supabaseAdmin
-                .from("cookie_consent_log")
-                .select("*", { count: "exact", head: true })
-                .eq("action", "declined");
-
-            // Today
-            const { count: todayAccepted } = await supabaseAdmin
-                .from("cookie_consent_log")
-                .select("*", { count: "exact", head: true })
-                .eq("action", "accepted")
-                .gte("created_at", `${today}T00:00:00Z`);
-            const { count: todayDeclined } = await supabaseAdmin
-                .from("cookie_consent_log")
-                .select("*", { count: "exact", head: true })
-                .eq("action", "declined")
-                .gte("created_at", `${today}T00:00:00Z`);
-
+            const today = new Date().toISOString().split("T")[0];
+            const { count: totalAccepted } = await supabaseAdmin.from("cookie_consent_log").select("*", { count: "exact", head: true }).eq("action", "accepted");
+            const { count: totalDeclined } = await supabaseAdmin.from("cookie_consent_log").select("*", { count: "exact", head: true }).eq("action", "declined");
+            const { count: todayAccepted } = await supabaseAdmin.from("cookie_consent_log").select("*", { count: "exact", head: true }).eq("action", "accepted").gte("created_at", `${today}T00:00:00Z`);
+            const { count: todayDeclined } = await supabaseAdmin.from("cookie_consent_log").select("*", { count: "exact", head: true }).eq("action", "declined").gte("created_at", `${today}T00:00:00Z`);
             const total = (totalAccepted || 0) + (totalDeclined || 0);
             const todayTotal = (todayAccepted || 0) + (todayDeclined || 0);
             const acceptRate = total > 0 ? Math.round(((totalAccepted || 0) / total) * 100) : 0;
-
             await sendTelegram(
                 chatId,
-                `🍪 <b>Cookie Consent Analytics</b>\n\n` +
-                `<b>📅 Today:</b>\n` +
-                `  ✅ Accepted: ${todayAccepted || 0}\n` +
-                `  ❌ Declined: ${todayDeclined || 0}\n` +
-                `  📊 Total: ${todayTotal}\n\n` +
-                `<b>📈 All Time:</b>\n` +
-                `  ✅ Accepted: ${totalAccepted || 0}\n` +
-                `  ❌ Declined: ${totalDeclined || 0}\n` +
-                `  📊 Total: ${total}\n` +
-                `  🎯 Accept Rate: ${acceptRate}%`
+                `🍪 <b>Cookie Consent</b>\n\n<b>Today:</b>\n  ✅ ${todayAccepted || 0}  ❌ ${todayDeclined || 0}  📊 ${todayTotal}\n\n<b>All Time:</b>\n  ✅ ${totalAccepted || 0}  ❌ ${totalDeclined || 0}  📊 ${total}\n  🎯 Accept Rate: ${acceptRate}%`
             );
             return NextResponse.json({ ok: true });
         }
 
-        // Handle photo uploads
+        // ─── Photo uploads ───
         let imageUrl: string | undefined;
         if (message.photo && message.photo.length > 0) {
-            // Get highest resolution photo
             const largestPhoto = message.photo[message.photo.length - 1];
             await sendTelegram(chatId, "📤 Uploading image...");
             const url = await handlePhoto(largestPhoto.file_id);
@@ -392,7 +476,7 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        // Parse command via OpenRouter
+        // ─── Parse natural language command ───
         if (!text && !imageUrl) {
             await sendTelegram(chatId, "💬 Please send a text command or a photo with a caption.");
             return NextResponse.json({ ok: true });
@@ -405,37 +489,52 @@ export async function POST(request: NextRequest) {
         if (parsedAction.action === "unknown") {
             await sendTelegram(
                 chatId,
-                `🤔 I couldn't understand that command.\n\n${parsedAction.message}\n\nTry rephrasing or type /help for examples.`
+                `🤔 I couldn't understand that.\n\n${parsedAction.message || "Try rephrasing or type /help for examples."}`
             );
             return NextResponse.json({ ok: true });
         }
 
-        // Show a simple human-readable summary of what we're doing
-        const actionLabel = describeAction(parsedAction as unknown as Record<string, unknown>);
-        await sendTelegram(chatId, `⏳ ${actionLabel}`);
+        // ─── Show preview & ask for confirmation ───
+        const actionObj = parsedAction as unknown as Record<string, unknown>;
+        const description = describeAction(actionObj);
+        const summary = formatSummary(actionObj);
 
-        // Execute the action DIRECTLY (no HTTP round-trip)
-        const result = await executeCMSAction(parsedAction as unknown as Record<string, unknown>);
+        // Store pending action in DB
+        const pendingId = await storePendingAction(chatId, actionObj, description);
 
-        if (result.success) {
-            const msg = formatResult(parsedAction as unknown as Record<string, unknown>, result.result);
+        if (pendingId) {
+            // Show preview with confirm/cancel buttons
             await sendTelegramWithButtons(
                 chatId,
-                msg,
+                `📋 <b>Preview</b>\n\n<b>Action:</b> ${description}\n${summary}\n\n<b>Ready to commit?</b>`,
                 [
                     [
-                        { text: "🚀 Deploy Now", callback_data: "cms_deploy" },
-                        { text: "↩️ Revert Change", callback_data: "cms_revert" },
+                        { text: "✅ Yes, Commit", callback_data: `cms_yes_${pendingId}` },
+                        { text: "❌ No, Cancel", callback_data: `cms_no_${pendingId}` },
                     ],
                 ]
             );
         } else {
-            await sendTelegram(chatId, `❌ <b>Error:</b> ${result.error}\n\nPlease try again or rephrase your command.`);
+            // Fallback: if we can't store pending action, execute directly
+            await sendTelegram(chatId, `⏳ ${description}...`);
+            const result = await executeCMSAction(actionObj);
+            if (result.success) {
+                await sendTelegramWithButtons(
+                    chatId,
+                    `✅ <b>Done!</b>\n\n${description}`,
+                    [[
+                        { text: "🚀 Deploy Now", callback_data: "cms_deploy" },
+                        { text: "↩️ Undo", callback_data: "cms_revert" },
+                    ]]
+                );
+            } else {
+                await sendTelegram(chatId, `❌ ${result.error}\n\nPlease try again.`);
+            }
         }
 
         return NextResponse.json({ ok: true });
     } catch (error) {
         console.error("Telegram webhook error:", error);
-        return NextResponse.json({ ok: true }); // Always return 200 to Telegram
+        return NextResponse.json({ ok: true });
     }
 }
