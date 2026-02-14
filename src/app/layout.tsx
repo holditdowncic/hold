@@ -74,10 +74,10 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/media/roots/roots-1.jpeg",
+        url: "/logos/holdlogo.png",
         width: 1200,
         height: 630,
-        alt: "Hold It Down CIC - Community event with families and young people in Croydon",
+        alt: "Hold It Down CIC Logo",
       },
     ],
   },
@@ -86,7 +86,7 @@ export const metadata: Metadata = {
     title: "Hold It Down CIC | Community Interest Company in Croydon",
     description:
       "Creating culturally rooted spaces to build emotional wellbeing and connection across families and communities in Croydon, UK.",
-    images: ["/media/roots/roots-1.jpeg"],
+    images: ["/logos/holdlogo.png"],
   },
   robots: {
     index: true,
