@@ -195,6 +195,27 @@ export interface CookieBannerContent {
     enabled: boolean;
 }
 
+// --- Custom sections (rendered dynamically on the homepage) ---
+
+export interface CustomSectionButton {
+    text: string;
+    href: string;
+    variant?: "primary" | "secondary";
+}
+
+export interface CustomSection {
+    id: string;
+    section_label?: string;
+    heading: string;
+    body?: string[];
+    image?: string | null;
+    image_alt?: string;
+    buttons?: CustomSectionButton[];
+    layout?: "image_left" | "image_right" | "no_image";
+    bg?: "default" | "elevated";
+    sort_order: number;
+}
+
 // --- CMS Action types (from OpenRouter AI) ---
 
 export type CMSAction =
@@ -213,6 +234,10 @@ export type CMSAction =
     | { action: "update_stat"; label: string; value: number; suffix?: string; prefix?: string }
     | { action: "add_initiative"; title: string; detail: string }
     | { action: "remove_initiative"; title: string }
+    | { action: "add_custom_section"; section: Omit<CustomSection, "id" | "sort_order"> & { id?: string; sort_order?: number } }
+    | { action: "update_custom_section"; id: string; updates: Partial<CustomSection> }
+    | { action: "remove_custom_section"; id: string }
+    | { action: "reorder_custom_sections"; ids: string[] }
     | { action: "get_status" }
     | { action: "undo" }
     | { action: "unknown"; message: string };

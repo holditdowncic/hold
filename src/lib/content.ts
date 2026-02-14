@@ -3,6 +3,7 @@ import type {
   CookieBannerContent,
   ContactContent,
   CTAContent,
+  CustomSection,
   EventData,
   GalleryContent,
   GalleryImage,
@@ -30,6 +31,12 @@ function getSection<T>(section: string): T | null {
   const raw = (sectionsJson as SectionsJson)[section];
   if (!raw || typeof raw !== "object") return null;
   return raw as T;
+}
+
+function getSectionArray<T>(key: string): T[] {
+  const raw = (sectionsJson as SectionsJson)[key];
+  if (!Array.isArray(raw)) return [];
+  return raw as T[];
 }
 
 function sortByOrder<T extends { sort_order?: number }>(items: T[]): T[] {
@@ -76,6 +83,10 @@ export async function getMissionContent(): Promise<MissionContent | null> {
 
 export async function getCookieBannerContent(): Promise<CookieBannerContent | null> {
   return getSection<Partial<CookieBannerContent>>("cookie_banner") as CookieBannerContent | null;
+}
+
+export async function getCustomSections(): Promise<CustomSection[]> {
+  return sortByOrder(getSectionArray<CustomSection>("custom_sections"));
 }
 
 // ============================================
@@ -125,6 +136,7 @@ export async function getAllContent() {
     galleryMeta,
     programsMeta,
     mission,
+    customSections,
     teamMembers,
     galleryImages,
     programs,
@@ -140,6 +152,7 @@ export async function getAllContent() {
     getGalleryMeta(),
     getProgramsMeta(),
     getMissionContent(),
+    getCustomSections(),
     getTeamMembers(),
     getGalleryImages(),
     getPrograms(),
@@ -157,6 +170,7 @@ export async function getAllContent() {
     galleryMeta,
     programsMeta,
     mission,
+    customSections,
     teamMembers,
     galleryImages,
     programs,

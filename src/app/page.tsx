@@ -8,6 +8,7 @@ import Mission from "@/components/Mission";
 import Programs from "@/components/Programs";
 import Events from "@/components/Events";
 import Impact from "@/components/Impact";
+import CustomSections from "@/components/CustomSections";
 import Team from "@/components/Team";
 import Support from "@/components/Support";
 import CTA from "@/components/CTA";
@@ -38,6 +39,7 @@ export default async function Home() {
         />
         <Events events={content.events} />
         <Impact />
+        <CustomSections sections={content.customSections} />
         <Team members={content.teamMembers} />
         <Support content={content.support} />
         <Gallery images={content.galleryImages} meta={content.galleryMeta} />

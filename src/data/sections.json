@@ -127,5 +127,24 @@
     "cta_primary_link": "#programs",
     "cta_secondary_text": "Support Our Work",
     "cta_secondary_link": "/contact"
-  }
+  },
+  "custom_sections": [
+    {
+      "id": "custom-1",
+      "section_label": "New Section",
+      "heading": "Add your own section from Telegram",
+      "body": [
+        "You can add, edit, reorder, and delete these sections from Telegram.",
+        "You can also attach an uploaded image to any custom section."
+      ],
+      "image": null,
+      "image_alt": "",
+      "buttons": [
+        { "text": "Get In Touch", "href": "/contact", "variant": "secondary" }
+      ],
+      "layout": "no_image",
+      "bg": "elevated",
+      "sort_order": 1
+    }
+  ]
 }

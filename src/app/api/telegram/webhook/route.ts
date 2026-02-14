@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { CMSAction, EventData, GalleryImage, Initiative, Program, Stat, TeamMember } from "@/lib/types";
+import type { CMSAction, CustomSection, EventData, GalleryImage, Initiative, Program, Stat, TeamMember } from "@/lib/types";
 import { parseCommand, parseCommandWithMedia } from "@/lib/openrouter";
 import {
   getGitHubFile,
@@ -257,6 +257,74 @@ async function applyAction(action: CMSAction): Promise<{ description: string; co
         });
       }
 
+      case "add_custom_section": {
+        const { section } = action;
+        return await updateJsonFile<Record<string, unknown>>("src/data/sections.json", (data) => {
+          const raw = data["custom_sections"];
+          const arr = (Array.isArray(raw) ? raw : []) as CustomSection[];
+          const id = section.id || `custom-${Date.now()}`;
+          const item: CustomSection = {
+            id,
+            section_label: section.section_label || "",
+            heading: section.heading || "New section",
+            body: Array.isArray(section.body) ? section.body : [],
+            image: section.image ?? null,
+            image_alt: section.image_alt || "",
+            buttons: Array.isArray(section.buttons) ? section.buttons : [],
+            layout: section.layout || (section.image ? "image_right" : "no_image"),
+            bg: section.bg || "default",
+            sort_order: typeof section.sort_order === "number" ? section.sort_order : nextSortOrder(arr),
+          };
+          const next = [...arr, item].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+          data["custom_sections"] = next;
+          return { data, description: `custom: add ${id}` };
+        });
+      }
+
+      case "update_custom_section": {
+        const { id, updates } = action;
+        return await updateJsonFile<Record<string, unknown>>("src/data/sections.json", (data) => {
+          const raw = data["custom_sections"];
+          const arr = (Array.isArray(raw) ? raw : []) as CustomSection[];
+          const idx = arr.findIndex((s) => s.id === id);
+          if (idx === -1) return { data, description: `custom: '${id}' not found (no-op)` };
+          const next = [...arr];
+          next[idx] = { ...next[idx], ...updates };
+          data["custom_sections"] = next;
+          return { data, description: `custom: update ${id}` };
+        });
+      }
+
+      case "remove_custom_section": {
+        const { id } = action;
+        return await updateJsonFile<Record<string, unknown>>("src/data/sections.json", (data) => {
+          const raw = data["custom_sections"];
+          const arr = (Array.isArray(raw) ? raw : []) as CustomSection[];
+          data["custom_sections"] = arr.filter((s) => s.id !== id);
+          return { data, description: `custom: remove ${id}` };
+        });
+      }
+
+      case "reorder_custom_sections": {
+        const { ids } = action;
+        return await updateJsonFile<Record<string, unknown>>("src/data/sections.json", (data) => {
+          const raw = data["custom_sections"];
+          const arr = (Array.isArray(raw) ? raw : []) as CustomSection[];
+          const map = new Map(arr.map((s) => [s.id, s]));
+          const reordered: CustomSection[] = [];
+          for (const id of ids) {
+            const item = map.get(id);
+            if (item) reordered.push(item);
+          }
+          for (const s of arr) {
+            if (!ids.includes(s.id)) reordered.push(s);
+          }
+          const next = reordered.map((s, i) => ({ ...s, sort_order: i + 1 }));
+          data["custom_sections"] = next;
+          return { data, description: `custom: reorder (${next.length})` };
+        });
+      }
+
       case "add_team_member": {
         const { name, role, image_url } = action;
         return await updateJsonFile<TeamMember[]>("src/data/team.json", (data) => {
@@ -452,6 +520,7 @@ async function handleHelp(chatId: number) {
     "- “Add a team member Jane Doe as Programme Lead”",
     "- (Photo) Send a screenshot + caption like: “Change ‘and’ to ‘&’ in this heading”",
     "- (Voice) Send a voice note describing the change",
+    "- “Add a new section called ‘Donations’ with an image and a button to /contact”",
     "",
     "Commands:",
     "- /set <section>.<field> <value>",

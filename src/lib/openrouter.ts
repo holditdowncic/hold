@@ -35,6 +35,10 @@ function systemPrompt(): string {
     "CMSAction is one of:",
     "- update_section_field {section, field, value} updates src/data/sections.json section object field",
     "- update_section {section, content} replaces the section object",
+    "- add_custom_section {section} adds an item to src/data/sections.json custom_sections[]",
+    "- update_custom_section {id, updates} updates an item in custom_sections[] by id",
+    "- remove_custom_section {id} removes an item from custom_sections[] by id",
+    "- reorder_custom_sections {ids} reorders custom_sections[] by id list",
     "- add_team_member {name, role, image_url?} edits src/data/team.json",
     "- update_team_member {name, updates} edits src/data/team.json",
     "- remove_team_member {name} edits src/data/team.json",
@@ -53,6 +57,7 @@ function systemPrompt(): string {
     "- unknown {message}",
     "Allowed section keys: hero, about, mission, programs, gallery, cta, support, contact, cookie_banner.",
     "If the user provides an image (screenshot/photo), use it only to disambiguate what text/section they mean.",
+    "If the user says 'add a new section', prefer add_custom_section instead of trying to overload existing sections.",
     "If the user request is ambiguous or unsafe, return unknown with a brief message asking for clarification.",
   ].join("\n");
 }
