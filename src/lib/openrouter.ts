@@ -64,29 +64,56 @@ function getClient(): OpenAI | null {
     });
 }
 
+// Define the message content type for OpenAI client
+type MessageContent =
+    | string
+    | Array<{ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } }>;
+
 export async function parseCommand(
     userMessage: string,
-    imageUrl?: string
+    imageContext?: { url?: string; base64?: string; mimeType?: string }
 ): Promise<CMSAction> {
     const client = getClient();
     if (!client) {
         return { action: "unknown", message: "OpenRouter API key not configured" };
     }
 
-    let messageContent = userMessage;
-    if (imageUrl) {
-        messageContent += `\n\n[User also sent an image. The image has been uploaded and is available at: ${imageUrl}]`;
+    const messages: Array<{ role: "system" | "user"; content: MessageContent }> = [
+        { role: "system", content: SYSTEM_PROMPT },
+    ];
+
+    if (imageContext?.base64) {
+        // Multimodal request with Base64 image
+        const mimeType = imageContext.mimeType || "image/jpeg";
+        const dataUrl = `data:${mimeType};base64,${imageContext.base64}`;
+
+        messages.push({
+            role: "user",
+            content: [
+                { type: "text", text: userMessage },
+                { type: "image_url", image_url: { url: dataUrl } }
+            ]
+        });
+    } else if (imageContext?.url) {
+        // Multimodal request with Image URL
+        messages.push({
+            role: "user",
+            content: [
+                { type: "text", text: userMessage },
+                // Note: Some models might not support remote URLs directly, but Gemini/OpenAI usually do.
+                // However, Base64 is safer for consistency. We'll stick to URL if provided.
+                { type: "text", text: `\n\n[Attached Image URL: ${imageContext.url}]` }
+            ]
+        });
+    } else {
+        // Text-only request
+        messages.push({ role: "user", content: userMessage });
     }
 
     try {
         const apiResponse = await client.chat.completions.create({
-            model: "minimax/minimax-m2.5",
-            messages: [
-                { role: "system", content: SYSTEM_PROMPT },
-                { role: "user", content: messageContent },
-            ],
-            // @ts-expect-error — OpenRouter extended parameter for minimax reasoning
-            reasoning: { enabled: true },
+            model: "google/gemini-3-flash-preview", // Multimodal model
+            messages: messages as any, // Type cast needed for OpenRouter extensions
             temperature: 0.1,
             max_tokens: 1000,
         });
