@@ -28,7 +28,7 @@ export async function parseCommand(text: string): Promise<CMSAction[]> {
     return [{ action: "unknown", message: "OPENROUTER_API_KEY not configured. Use /set commands instead." }];
   }
 
-  const model = process.env.OPENROUTER_MODEL || "openai/gpt-4o-mini";
+  const model = process.env.OPENROUTER_MODEL || "google/gemini-3-flash-preview";
 
   const system = [
     "You are a command parser for a Telegram bot that edits a website by changing JSON files in a GitHub repo.",
@@ -62,27 +62,34 @@ export async function parseCommand(text: string): Promise<CMSAction[]> {
     text,
   ].join("\n");
 
-  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model,
-      temperature: 0.2,
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: user },
-      ],
-      // Many OpenRouter models support this OpenAI-style hint.
-      response_format: { type: "json_object" },
-    }),
-  });
+  const payloadBase = {
+    model,
+    temperature: 0.2,
+    messages: [
+      { role: "system", content: system },
+      { role: "user", content: user },
+    ],
+  };
 
+  async function call(payload: any) {
+    return fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+  }
+
+  // Some models reject response_format; try with it first, then retry without.
+  let res = await call({ ...payloadBase, response_format: { type: "json_object" } });
   if (!res.ok) {
     const bodyText = await res.text();
-    return [{ action: "unknown", message: `OpenRouter error (${res.status}): ${bodyText}` }];
+    res = await call(payloadBase);
+    if (!res.ok) {
+      return [{ action: "unknown", message: `OpenRouter error (${res.status}): ${bodyText}` }];
+    }
   }
 
   const data = (await res.json()) as OpenRouterResponse;
@@ -102,4 +109,3 @@ export async function parseCommand(text: string): Promise<CMSAction[]> {
     return [{ action: "unknown", message: "Failed to parse OpenRouter response JSON. Try again." }];
   }
 }
-
