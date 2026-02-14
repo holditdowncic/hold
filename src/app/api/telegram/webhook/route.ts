@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { parseCommand } from "@/lib/openrouter";
 import { supabaseAdmin } from "@/lib/supabase";
 import { executeCMSAction } from "@/lib/cms-actions";
+import { transcribeVoice } from "@/lib/transcribe";
 
 const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 
@@ -344,7 +345,7 @@ export async function POST(request: NextRequest) {
 
         const chatId = message.chat.id;
         const userId = message.from?.id;
-        const text = message.text || message.caption || "";
+        let text = message.text || message.caption || "";
 
         if (!userId || !isAdmin(userId)) {
             await sendTelegram(chatId, "⛔ You are not authorized to use this bot.");
@@ -472,6 +473,37 @@ export async function POST(request: NextRequest) {
                 imageUrl = url;
             } else {
                 await sendTelegram(chatId, "❌ Failed to upload image. Please try again.");
+                return NextResponse.json({ ok: true });
+            }
+        }
+
+        // ─── Voice messages ───
+        if (message.voice || message.audio) {
+            const voice = message.voice || message.audio;
+            await sendTelegram(chatId, "🎙️ Transcribing your voice message...");
+            try {
+                const fileResp = await fetch(`${TELEGRAM_API}/getFile?file_id=${voice.file_id}`);
+                const fileData = await fileResp.json();
+                const filePath = fileData.result?.file_path;
+                if (!filePath) {
+                    await sendTelegram(chatId, "❌ Could not download voice message.");
+                    return NextResponse.json({ ok: true });
+                }
+                const downloadUrl = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${filePath}`;
+                const audioResponse = await fetch(downloadUrl);
+                const audioBuffer = await audioResponse.arrayBuffer();
+                const mimeType = voice.mime_type || "audio/ogg";
+                const transcription = await transcribeVoice(audioBuffer, mimeType);
+                if (!transcription) {
+                    await sendTelegram(chatId, "❌ Could not transcribe voice message. Please type your command instead.");
+                    return NextResponse.json({ ok: true });
+                }
+                // Show what we heard and use it as the command
+                await sendTelegram(chatId, `🎙️ <i>"${transcription}"</i>`);
+                text = transcription;
+            } catch (err) {
+                console.error("Voice handling error:", err);
+                await sendTelegram(chatId, "❌ Failed to process voice message.");
                 return NextResponse.json({ ok: true });
             }
         }
