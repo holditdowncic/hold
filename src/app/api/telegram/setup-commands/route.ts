@@ -13,8 +13,11 @@ export async function POST(request: NextRequest) {
 
   const commands = [
     { command: "help", description: "Show bot commands and examples" },
+    { command: "sections", description: "List editable sections" },
     { command: "status", description: "Show GitHub/Deploy status" },
     { command: "undo", description: "Undo the last Telegram change" },
+    { command: "revert", description: "Same as /undo" },
+    { command: "reset", description: "Clear pending preview" },
   ];
 
   try {

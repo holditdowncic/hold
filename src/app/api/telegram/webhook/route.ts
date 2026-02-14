@@ -15,6 +15,10 @@ export const runtime = "nodejs";
 const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 const TELEGRAM_FILE_API = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 
+type TelegramInlineButton =
+  | { text: string; callback_data: string; url?: never }
+  | { text: string; url: string; callback_data?: never };
+
 type TelegramPhotoSize = {
   file_id: string;
   file_size?: number;
@@ -42,6 +46,25 @@ function verifyWebhookSecret(req: NextRequest): boolean {
   if (!expected) return true; // allow if not configured
   const got = req.headers.get("x-telegram-bot-api-secret-token");
   return got === expected;
+}
+
+function escapeHtml(input: string): string {
+  return input
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll("\"", "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function codeInline(value: string): string {
+  return `<code>${escapeHtml(value)}</code>`;
+}
+
+function truncate(input: string, max = 140): string {
+  const s = input.trim();
+  if (s.length <= max) return s;
+  return s.slice(0, max - 1) + "…";
 }
 
 function parseMaybeJson(valueText: string): unknown {
@@ -116,7 +139,12 @@ function parseDeterministicCommand(text: string): CMSAction[] | null {
   return null;
 }
 
-async function sendTelegram(chatId: number, text: string, buttons?: { text: string; callback_data: string }[][]) {
+async function sendTelegram(
+  chatId: number,
+  text: string,
+  buttons?: TelegramInlineButton[][],
+  opts?: { disablePreview?: boolean }
+) {
   try {
     if (!process.env.TELEGRAM_BOT_TOKEN) {
       console.error("Telegram sendMessage skipped: TELEGRAM_BOT_TOKEN missing");
@@ -129,6 +157,7 @@ async function sendTelegram(chatId: number, text: string, buttons?: { text: stri
         chat_id: chatId,
         text,
         parse_mode: "HTML",
+        disable_web_page_preview: opts?.disablePreview ?? true,
         ...(buttons ? { reply_markup: { inline_keyboard: buttons } } : {}),
       }),
     });
@@ -228,6 +257,48 @@ function pickLargestPhoto(photos: TelegramPhotoSize[]): TelegramPhotoSize {
   );
 }
 
+type PendingChange = {
+  id: string;
+  chatId: number;
+  fromId: number;
+  createdAt: number;
+  actions: CMSAction[];
+  sourceText: string;
+};
+
+declare global {
+  var __holdTelegramPending: Map<string, PendingChange> | undefined;
+}
+
+const pendingStore: Map<string, PendingChange> =
+  globalThis.__holdTelegramPending ?? (globalThis.__holdTelegramPending = new Map());
+
+const PENDING_TTL_MS = 10 * 60 * 1000;
+
+function pendingCleanup() {
+  const now = Date.now();
+  for (const [id, p] of pendingStore.entries()) {
+    if (now - p.createdAt > PENDING_TTL_MS) pendingStore.delete(id);
+  }
+}
+
+function pendingGet(id: string): PendingChange | null {
+  pendingCleanup();
+  const p = pendingStore.get(id);
+  if (!p) return null;
+  if (Date.now() - p.createdAt > PENDING_TTL_MS) {
+    pendingStore.delete(id);
+    return null;
+  }
+  return p;
+}
+
+function pendingClearChat(chatId: number) {
+  for (const [id, p] of pendingStore.entries()) {
+    if (p.chatId === chatId) pendingStore.delete(id);
+  }
+}
+
 async function getTelegramFileBytes(fileId: string): Promise<{ file_path: string; bytes: ArrayBuffer }> {
   const url = new URL(`${TELEGRAM_API}/getFile`);
   url.searchParams.set("file_id", fileId);
@@ -262,6 +333,57 @@ async function uploadTelegramMediaToGitHub(args: {
   });
 
   return { publicPath: repoPath.replace(/^public/, ""), commitSha: res.commitSha, commitUrl: res.commitUrl };
+}
+
+function summarizeAction(act: CMSAction): string {
+  switch (act.action) {
+    case "update_section_field":
+      return `• Set ${codeInline(`${act.section}.${act.field}`)} = ${codeInline(truncate(JSON.stringify(act.value)))}`;
+    case "update_section":
+      return `• Replace section ${codeInline(act.section)} (object)`;
+    case "add_custom_section":
+      return `• Add custom section ${codeInline(act.section.id || "(auto id)")}: ${escapeHtml(truncate(act.section.heading || "New section"))}`;
+    case "update_custom_section":
+      return `• Update custom section ${codeInline(act.id)}`;
+    case "remove_custom_section":
+      return `• Remove custom section ${codeInline(act.id)}`;
+    case "reorder_custom_sections":
+      return `• Reorder custom sections (${codeInline(String(act.ids.length))})`;
+    case "add_team_member":
+      return `• Add team member: <b>${escapeHtml(act.name)}</b> (${escapeHtml(act.role)})`;
+    case "update_team_member":
+      return `• Update team member: <b>${escapeHtml(act.name)}</b>`;
+    case "remove_team_member":
+      return `• Remove team member: <b>${escapeHtml(act.name)}</b>`;
+    case "add_program":
+      return `• Add programme: <b>${escapeHtml(act.title)}</b>`;
+    case "update_program":
+      return `• Update programme: <b>${escapeHtml(act.title)}</b>`;
+    case "remove_program":
+      return `• Remove programme: <b>${escapeHtml(act.title)}</b>`;
+    case "add_initiative":
+      return `• Add initiative: <b>${escapeHtml(act.title)}</b>`;
+    case "remove_initiative":
+      return `• Remove initiative: <b>${escapeHtml(act.title)}</b>`;
+    case "add_gallery_image":
+      return `• Add gallery image: <b>${escapeHtml(act.caption)}</b>`;
+    case "remove_gallery_image":
+      return `• Remove gallery image: <b>${escapeHtml(act.caption)}</b>`;
+    case "add_event":
+      return `• Add event: <b>${escapeHtml(String(act.event?.title || "event"))}</b>`;
+    case "update_event":
+      return `• Update event: ${codeInline(act.slug)}`;
+    case "update_stat":
+      return `• Update stat: <b>${escapeHtml(act.label)}</b> = ${codeInline(String(act.value))}`;
+    case "undo":
+      return "• Undo last change";
+    case "get_status":
+      return "• Status";
+    case "unknown":
+      return `• Unknown: ${escapeHtml(truncate(act.message))}`;
+    default:
+      return "• (unsupported action)";
+  }
 }
 
 async function applyAction(action: CMSAction): Promise<{ description: string; commitSha: string; commitUrl?: string } | { error: string }> {
@@ -538,26 +660,26 @@ async function applyAction(action: CMSAction): Promise<{ description: string; co
 
 async function handleHelp(chatId: number) {
   const msg = [
-    "<b>Website Editor Bot</b>",
+    "<b>Hold It Down Website Bot</b>",
     "",
-    "Send a message like:",
-    "- “Change the hero subtitle to …”",
-    "- “Update contact email to …”",
-    "- “Add a team member Jane Doe as Programme Lead”",
-    "- (Photo) Send a screenshot + caption like: “Change ‘and’ to ‘&’ in this heading”",
-    "- (Voice) Send a voice note describing the change",
-    "- “Add a new section called ‘Donations’ with an image and a button to /contact”",
+    "📝 <b>Text</b>: “Update hero subtitle to …”",
+    "🖼️ <b>Photo</b>: send image + caption (“use this as hero image” / “add to gallery”)",
+    "📸 <b>Screenshot</b>: send screenshot + caption describing what to change",
+    "🎙️ <b>Voice</b>: send a voice note describing the change",
     "",
-    "Commands:",
-    "- /set <section>.<field> <value>",
-    "- /replace <section> <json-object>",
-    "- /apply <json>",
-    "- /status",
-    "- /undo",
+    "<b>Commands</b>",
+    `• ${codeInline("/sections")} list editable sections`,
+    `• ${codeInline("/status")} recent Telegram commit`,
+    `• ${codeInline("/undo")} undo last Telegram change`,
+    `• ${codeInline("/revert")} same as /undo`,
+    `• ${codeInline("/reset")} clear pending preview`,
     "",
-    "Notes:",
-    "- Changes commit to GitHub. If Vercel is connected to the repo, it auto-deploys from the commit.",
-    "- You will get an <b>Undo</b> button after each change.",
+    "<b>Power commands</b>",
+    `• ${codeInline("/set hero.badge \"...\"")}`,
+    `• ${codeInline("/replace hero {\"badge\":\"...\"}")}`,
+    `• ${codeInline("/apply {\"actions\":[...]}")}`,
+    "",
+    "Tip: after you send a request, you’ll get a <b>Preview</b> with ✅ Commit / ❌ Cancel.",
   ].join("\n");
   await sendTelegram(chatId, msg);
 }
@@ -576,7 +698,7 @@ async function handleStatus(chatId: number) {
     await sendTelegram(chatId, msg);
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Unknown error";
-    await sendTelegram(chatId, `Status failed: <code>${msg}</code>`);
+    await sendTelegram(chatId, `Status failed: ${codeInline(msg)}`);
   }
 }
 
@@ -591,11 +713,39 @@ async function handleUndo(chatId: number) {
     const res = await revertCommit(last.sha);
     await sendTelegram(
       chatId,
-      `Reverted <code>${last.sha.slice(0, 7)}</code>.\nFiles: ${res.revertedFiles.map((f) => `<code>${f}</code>`).join(", ")}`
+      `Reverted ${codeInline(last.sha.slice(0, 7))}.\nFiles: ${res.revertedFiles.map((f) => codeInline(f)).join(", ")}`
     );
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Unknown error";
-    await sendTelegram(chatId, `Undo failed: <code>${msg}</code>`);
+    await sendTelegram(chatId, `Undo failed: ${codeInline(msg)}`);
+  }
+}
+
+async function handleSections(chatId: number) {
+  try {
+    const sections = await getGitHubFile("src/data/sections.json");
+    const parsed = JSON.parse(sections.text) as Record<string, unknown>;
+    const keys = Object.keys(parsed).filter((k) => k !== "custom_sections").sort();
+    const custom = Array.isArray(parsed.custom_sections) ? (parsed.custom_sections as Array<{ id?: string; heading?: string }>) : [];
+    const msg = [
+      "📂 <b>Editable Sections</b>",
+      "",
+      keys.map((k) => `• ${codeInline(k)}`).join("\n") || "(none)",
+      "",
+      "🧩 <b>Custom Sections</b>",
+      custom.length
+        ? custom
+            .slice(0, 15)
+            .map((s) => `• ${codeInline(String(s.id || ""))} — ${escapeHtml(truncate(String(s.heading || "")))}`)
+            .join("\n")
+        : "(none yet)",
+      "",
+      "Example: “Add a new section called Donations with a button to /contact”",
+    ].join("\n");
+    await sendTelegram(chatId, msg);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    await sendTelegram(chatId, `Sections failed: ${codeInline(msg)}`);
   }
 }
 
@@ -618,13 +768,73 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ ok: true });
       }
 
+      if (data.startsWith("commit:")) {
+        const id = data.slice("commit:".length).trim();
+        const pending = pendingGet(id);
+        if (!pending) {
+          await answerCallback(cb.id, "Expired. Please resend your request.");
+          await sendTelegram(chatId, "⏱️ Preview expired. Please resend your request.");
+          return NextResponse.json({ ok: true });
+        }
+
+        await answerCallback(cb.id, "Committing...");
+        pendingStore.delete(id);
+
+        const siteUrl = process.env.SITE_URL || "https://www.holditdown.uk";
+
+        for (const act of pending.actions) {
+          if (act.action === "unknown") {
+            await sendTelegram(chatId, `Could not parse: ${escapeHtml((act as { message: string }).message)}`);
+            continue;
+          }
+          const res = await applyAction(act);
+          if ("error" in res) {
+            await sendTelegram(chatId, `Failed: ${codeInline(res.error)}`);
+            continue;
+          }
+
+          const buttons: TelegramInlineButton[][] = [
+            [{ text: "↩️ Undo", callback_data: `undo:${res.commitSha}` }],
+          ];
+          if (res.commitUrl) {
+            buttons.push([{ text: "View Commit", url: res.commitUrl }]);
+          }
+          if (siteUrl) {
+            buttons.push([{ text: "View Live Site", url: siteUrl }]);
+          }
+
+          await sendTelegram(
+            chatId,
+            [
+              "✅ <b>Committed</b>",
+              `• ${escapeHtml(res.description)}`,
+              `• SHA: ${codeInline(res.commitSha.slice(0, 7))}`,
+              "",
+              "⏳ Deploying... (~1–2 min)",
+            ].join("\n"),
+            buttons,
+            { disablePreview: true }
+          );
+        }
+
+        return NextResponse.json({ ok: true });
+      }
+
+      if (data.startsWith("cancel:")) {
+        const id = data.slice("cancel:".length).trim();
+        pendingStore.delete(id);
+        await answerCallback(cb.id, "Cancelled");
+        await sendTelegram(chatId, "❌ Cancelled. Send a new request when ready.");
+        return NextResponse.json({ ok: true });
+      }
+
       if (data.startsWith("undo:")) {
         const sha = data.slice("undo:".length).trim();
         await answerCallback(cb.id, "Reverting...");
         const res = await revertCommit(sha);
         await sendTelegram(
           chatId,
-          `Reverted <code>${sha.slice(0, 7)}</code>.\nFiles: ${res.revertedFiles.map((f) => `<code>${f}</code>`).join(", ")}`
+          `Reverted ${codeInline(sha.slice(0, 7))}.\nFiles: ${res.revertedFiles.map((f) => codeInline(f)).join(", ")}`
         );
         return NextResponse.json({ ok: true });
       }
@@ -679,8 +889,17 @@ export async function POST(request: NextRequest) {
       await handleStatus(chatId);
       return NextResponse.json({ ok: true });
     }
-    if (text === "/undo") {
+    if (text === "/undo" || text === "/revert") {
       await handleUndo(chatId);
+      return NextResponse.json({ ok: true });
+    }
+    if (text === "/sections") {
+      await handleSections(chatId);
+      return NextResponse.json({ ok: true });
+    }
+    if (text === "/reset") {
+      pendingClearChat(chatId);
+      await sendTelegram(chatId, "✅ Cleared pending previews.");
       return NextResponse.json({ ok: true });
     }
 
@@ -753,35 +972,56 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    const results: Array<{ description: string; commitSha: string; commitUrl?: string }> = [];
-    for (const act of actions) {
-      if (act.action === "unknown") {
-        await sendTelegram(chatId, `Could not parse: ${(act as { message: string }).message}`);
-        continue;
-      }
-      const res = await applyAction(act);
-      if ("error" in res) {
-        await sendTelegram(chatId, `Failed: ${res.error}`);
-        continue;
-      }
-      results.push(res);
+    // Preview + confirm
+    if (actions.length === 0) {
+      await sendTelegram(chatId, "No changes found.");
+      return NextResponse.json({ ok: true });
+    }
 
+    if (actions.some((a) => a.action === "unknown")) {
+      const first = actions.find((a) => a.action === "unknown") as { action: "unknown"; message: string } | undefined;
       await sendTelegram(
         chatId,
         [
-          `<b>Committed</b>: ${res.description}`,
-          `SHA: <code>${res.commitSha.slice(0, 7)}</code>`,
-          res.commitUrl ? `Commit: ${res.commitUrl}` : "",
+          "🤔 I’m not sure what to change.",
+          first?.message ? `\n${escapeHtml(first.message)}` : "",
           "",
-          "Vercel will deploy after GitHub receives the commit (if linked).",
-        ].filter(Boolean).join("\n"),
-        [[{ text: "↩️ Undo", callback_data: `undo:${res.commitSha}` }]]
+          `Try ${codeInline("/sections")} or send a screenshot + caption.`,
+        ].join("\n")
       );
+      return NextResponse.json({ ok: true });
     }
 
-    if (results.length === 0 && actions.length > 0) {
-      await sendTelegram(chatId, "No changes applied.");
-    }
+    await sendChatAction(chatId, "typing");
+
+    const previewId = crypto.randomUUID().slice(0, 12);
+    pendingStore.set(previewId, {
+      id: previewId,
+      chatId,
+      fromId,
+      createdAt: Date.now(),
+      actions,
+      sourceText: text,
+    });
+
+    const previewMsg = [
+      "📝 <b>Preview</b>",
+      "",
+      actions.map(summarizeAction).join("\n"),
+      "",
+      "<b>Ready to commit?</b>",
+    ].join("\n");
+
+    await sendTelegram(
+      chatId,
+      previewMsg,
+      [
+        [
+          { text: "✅ Yes, Commit", callback_data: `commit:${previewId}` },
+          { text: "❌ No, Cancel", callback_data: `cancel:${previewId}` },
+        ],
+      ]
+    );
 
     return NextResponse.json({ ok: true });
   } catch (e) {
