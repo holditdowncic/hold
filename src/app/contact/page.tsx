@@ -64,7 +64,7 @@ function ContactIcon({ name }: { name: string }) {
 
 /* ─── Page ─── */
 export default function ContactPage() {
-    const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+    const [form, setForm] = useState({ name: "", email: "", phone: "", subject: "", message: "" });
     const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
     const [errorMsg, setErrorMsg] = useState("");
 
@@ -88,7 +88,7 @@ export default function ContactPage() {
 
             if (res.ok && data.success) {
                 setStatus("success");
-                setForm({ name: "", email: "", subject: "", message: "" });
+                setForm({ name: "", email: "", phone: "", subject: "", message: "" });
             } else {
                 setStatus("error");
                 setErrorMsg(data.error || "Something went wrong.");
@@ -182,6 +182,21 @@ export default function ContactPage() {
                                             className={inputClasses}
                                         />
                                     </div>
+                                </div>
+
+                                <div className="mt-4">
+                                    <label htmlFor="contact-phone" className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-text-tertiary">
+                                        Phone Number
+                                    </label>
+                                    <input
+                                        id="contact-phone"
+                                        name="phone"
+                                        type="tel"
+                                        placeholder="Your contact number (optional)"
+                                        value={form.phone}
+                                        onChange={handleChange}
+                                        className={inputClasses}
+                                    />
                                 </div>
 
                                 <div className="mt-4">

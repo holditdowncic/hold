@@ -21,7 +21,7 @@ function isValidEmail(email: string): boolean {
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { name, email, subject, message } = body;
+        const { name, email, phone, subject, message } = body;
 
         // Validate
         if (!name?.trim() || !email?.trim() || !subject?.trim() || !message?.trim()) {
@@ -44,14 +44,15 @@ export async function POST(request: NextRequest) {
             ``,
             `<b>Name:</b> ${name.trim()}`,
             `<b>Email:</b> ${email.trim()}`,
+            phone?.trim() ? `<b>Phone:</b> ${phone.trim()}` : null,
             `<b>Subject:</b> ${subject.trim()}`,
             ``,
             `<b>Message:</b>`,
             message.trim(),
             ``,
             `—`,
-            `<i>Sent from holditdowncic.co.uk contact form</i>`,
-        ].join("\n");
+            `<i>Sent from holditdown.uk contact form</i>`,
+        ].filter(Boolean).join("\n");
 
         // Send to all admin IDs
         const adminIds = (process.env.TELEGRAM_ADMIN_IDS || "")
