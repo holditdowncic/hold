@@ -4,6 +4,11 @@ type OpenRouterResponse = {
   choices?: Array<{ message?: { content?: string } }>;
 };
 
+type ContentPart =
+  | { type: "text"; text: string }
+  | { type: "image_url"; image_url: { url: string } }
+  | { type: "input_audio"; input_audio: { data: string; format: string } };
+
 function extractFirstJsonObject(text: string): string | null {
   const start = text.indexOf("{");
   if (start === -1) return null;
@@ -22,15 +27,8 @@ function extractFirstJsonObject(text: string): string | null {
   return null;
 }
 
-export async function parseCommand(text: string): Promise<CMSAction[]> {
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    return [{ action: "unknown", message: "OPENROUTER_API_KEY not configured. Use /set commands instead." }];
-  }
-
-  const model = process.env.OPENROUTER_MODEL || "google/gemini-3-flash-preview";
-
-  const system = [
+function systemPrompt(): string {
+  return [
     "You are a command parser for a Telegram bot that edits a website by changing JSON files in a GitHub repo.",
     "Return ONLY valid JSON.",
     "Output shape: {\"actions\": CMSAction[]}.",
@@ -53,33 +51,45 @@ export async function parseCommand(text: string): Promise<CMSAction[]> {
     "- undo (user asked to revert the last change)",
     "- get_status",
     "- unknown {message}",
-    "Allowed section keys: hero, about, programs, gallery, cta, support, contact, cookie_banner.",
+    "Allowed section keys: hero, about, mission, programs, gallery, cta, support, contact, cookie_banner.",
+    "If the user provides an image (screenshot/photo), use it only to disambiguate what text/section they mean.",
     "If the user request is ambiguous or unsafe, return unknown with a brief message asking for clarification.",
   ].join("\n");
+}
 
-  const user = [
-    "User message:",
-    text,
-  ].join("\n");
+async function parseWithUserContent(userContent: string | ContentPart[]): Promise<CMSAction[]> {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    return [{ action: "unknown", message: "OPENROUTER_API_KEY not configured. Use /set commands instead." }];
+  }
+
+  const model = process.env.OPENROUTER_MODEL || "google/gemini-3-flash-preview";
+
+  const system = systemPrompt();
 
   const payloadBase = {
     model,
     temperature: 0.2,
     messages: [
       { role: "system", content: system },
-      { role: "user", content: user },
+      { role: "user", content: userContent },
     ],
   };
 
-  async function call(payload: any) {
-    return fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+  async function call(payload: unknown) {
+    try {
+      return await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Unknown network error";
+      return new Response(JSON.stringify({ error: msg }), { status: 599 });
+    }
   }
 
   // Some models reject response_format; try with it first, then retry without.
@@ -108,4 +118,31 @@ export async function parseCommand(text: string): Promise<CMSAction[]> {
   } catch {
     return [{ action: "unknown", message: "Failed to parse OpenRouter response JSON. Try again." }];
   }
+}
+
+export async function parseCommand(text: string): Promise<CMSAction[]> {
+  const user = ["User message:", text].join("\n");
+  return parseWithUserContent(user);
+}
+
+export async function parseCommandWithMedia(args: {
+  text: string;
+  imageDataUrl?: string;
+  audioBase64?: string;
+  audioFormat?: string;
+}): Promise<CMSAction[]> {
+  const parts: ContentPart[] = [{ type: "text", text: ["User message:", args.text].join("\n") }];
+
+  if (args.imageDataUrl) {
+    parts.push({ type: "image_url", image_url: { url: args.imageDataUrl } });
+  }
+
+  if (args.audioBase64) {
+    parts.push({
+      type: "input_audio",
+      input_audio: { data: args.audioBase64, format: args.audioFormat || "ogg" },
+    });
+  }
+
+  return parseWithUserContent(parts);
 }

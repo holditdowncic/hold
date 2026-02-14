@@ -65,6 +65,39 @@
     "flagship_image_alt": "Families and children at the Roots & Wings Family Fun Day",
     "flagship_tags": ["Fatherhood", "Intergenerational", "Family Unity", "Wellbeing"]
   },
+  "mission": {
+    "pill": "Our Mission",
+    "heading_line1": "I can because you can",
+    "heading_line2_prefix": "and together",
+    "heading_line2_highlight": "we can",
+    "description": "We meet young people where they are — not to control behaviour, but to heal the root causes of disconnection by affirming identity, restoring dignity, and creating spaces of belonging.",
+    "values": [
+      {
+        "num": "01",
+        "title": "Who We Serve",
+        "desc": "Young people aged 12–25, particularly those who have experienced the justice system, exclusion from school, or systemic disadvantage. We also work closely with families — mothers, fathers and carers — recognising that long-term transformation requires intergenerational healing.",
+        "icon": "users"
+      },
+      {
+        "num": "02",
+        "title": "Strategic Aim",
+        "desc": "To reduce disconnection and exclusion by co-producing emotionally intelligent, culturally relevant support with young people, equipping them with the tools, networks, and healing spaces they need to re-engage with their families, communities, and futures.",
+        "icon": "clock"
+      },
+      {
+        "num": "03",
+        "title": "Our Vision",
+        "desc": "A world where young people, no matter their past, are empowered to lead their healing and shape their communities. We believe when young people recognise their potential and build resilience, they can transform their lives.",
+        "icon": "eye"
+      },
+      {
+        "num": "04",
+        "title": "Why It Matters",
+        "desc": "Founded in direct response to the unmet needs of young people in Croydon navigating exclusion, broken systems, and deep emotional wounds. Our programmes heal the root causes of disconnection by affirming identity, restoring dignity, and creating spaces of belonging.",
+        "icon": "heart"
+      }
+    ]
+  },
   "cookie_banner": {
     "enabled": true,
     "message": "We use essential cookies to enhance your browsing experience and remember your preferences.",

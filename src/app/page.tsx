@@ -30,7 +30,7 @@ export default async function Home() {
         <Hero content={content.hero} />
         <Stats stats={content.stats} />
         <About content={content.about} />
-        <Mission />
+        <Mission content={content.mission} />
         <Programs
           programs={content.programs}
           initiatives={content.initiatives}

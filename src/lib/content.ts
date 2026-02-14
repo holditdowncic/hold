@@ -8,6 +8,7 @@ import type {
   GalleryImage,
   HeroContent,
   Initiative,
+  MissionContent,
   Program,
   ProgramsSectionContent,
   Stat,
@@ -69,6 +70,10 @@ export async function getProgramsMeta(): Promise<ProgramsSectionContent | null> 
   return getSection<Partial<ProgramsSectionContent>>("programs") as ProgramsSectionContent | null;
 }
 
+export async function getMissionContent(): Promise<MissionContent | null> {
+  return getSection<Partial<MissionContent>>("mission") as MissionContent | null;
+}
+
 export async function getCookieBannerContent(): Promise<CookieBannerContent | null> {
   return getSection<Partial<CookieBannerContent>>("cookie_banner") as CookieBannerContent | null;
 }
@@ -119,6 +124,7 @@ export async function getAllContent() {
     support,
     galleryMeta,
     programsMeta,
+    mission,
     teamMembers,
     galleryImages,
     programs,
@@ -133,6 +139,7 @@ export async function getAllContent() {
     getSupportContent(),
     getGalleryMeta(),
     getProgramsMeta(),
+    getMissionContent(),
     getTeamMembers(),
     getGalleryImages(),
     getPrograms(),
@@ -149,6 +156,7 @@ export async function getAllContent() {
     support,
     galleryMeta,
     programsMeta,
+    mission,
     teamMembers,
     galleryImages,
     programs,

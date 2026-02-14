@@ -1,9 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { CMSAction, EventData, GalleryImage, Initiative, Program, Stat, TeamMember } from "@/lib/types";
-import { parseCommand } from "@/lib/openrouter";
-import { getGitHubFile, putGitHubFile, listRecentCommits, revertCommit } from "@/lib/github";
+import { parseCommand, parseCommandWithMedia } from "@/lib/openrouter";
+import {
+  getGitHubFile,
+  listRecentCommits,
+  putGitHubBinaryFile,
+  putGitHubFile,
+  revertCommit,
+} from "@/lib/github";
 
 const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
+const TELEGRAM_FILE_API = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}`;
+
+type TelegramPhotoSize = {
+  file_id: string;
+  file_size?: number;
+  width?: number;
+  height?: number;
+};
+
+type TelegramAudioLike = {
+  file_id: string;
+  file_size?: number;
+  mime_type?: string;
+  duration?: number;
+};
 
 function isAdmin(userId: number): boolean {
   const adminIds = (process.env.TELEGRAM_ADMIN_IDS || "")
@@ -105,6 +126,14 @@ async function sendTelegram(chatId: number, text: string, buttons?: { text: stri
   });
 }
 
+async function sendChatAction(chatId: number, action: "typing" | "upload_photo" | "upload_document" = "typing") {
+  await fetch(`${TELEGRAM_API}/sendChatAction`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: chatId, action }),
+  });
+}
+
 async function answerCallback(callbackId: string, text?: string) {
   await fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
     method: "POST",
@@ -144,6 +173,69 @@ async function updateJsonFile<T>(path: string, mutate: (data: T) => { data: T; d
     message: `telegram: ${description}`,
   });
   return { description, ...res };
+}
+
+function guessMimeFromPath(filePath: string): string {
+  const p = filePath.toLowerCase();
+  if (p.endsWith(".jpg") || p.endsWith(".jpeg")) return "image/jpeg";
+  if (p.endsWith(".png")) return "image/png";
+  if (p.endsWith(".webp")) return "image/webp";
+  if (p.endsWith(".gif")) return "image/gif";
+  if (p.endsWith(".mp3")) return "audio/mpeg";
+  if (p.endsWith(".wav")) return "audio/wav";
+  if (p.endsWith(".ogg") || p.endsWith(".oga")) return "audio/ogg";
+  if (p.endsWith(".m4a")) return "audio/mp4";
+  if (p.endsWith(".mp4")) return "video/mp4";
+  return "application/octet-stream";
+}
+
+function extFromPath(filePath: string): string {
+  const idx = filePath.lastIndexOf(".");
+  if (idx === -1) return "";
+  return filePath.slice(idx + 1).toLowerCase().slice(0, 10);
+}
+
+function pickLargestPhoto(photos: TelegramPhotoSize[]): TelegramPhotoSize {
+  return photos.reduce(
+    (best, p) => ((p.file_size ?? 0) > (best.file_size ?? 0) ? p : best),
+    photos[0]
+  );
+}
+
+async function getTelegramFileBytes(fileId: string): Promise<{ file_path: string; bytes: ArrayBuffer }> {
+  const url = new URL(`${TELEGRAM_API}/getFile`);
+  url.searchParams.set("file_id", fileId);
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error(`Telegram getFile failed (${res.status})`);
+  const json = (await res.json()) as { ok: boolean; result?: { file_path?: string } };
+  const file_path = json.result?.file_path;
+  if (!file_path) throw new Error("Telegram getFile missing file_path");
+
+  const fileRes = await fetch(`${TELEGRAM_FILE_API}/${file_path}`);
+  if (!fileRes.ok) throw new Error(`Telegram file download failed (${fileRes.status})`);
+  const bytes = await fileRes.arrayBuffer();
+  return { file_path, bytes };
+}
+
+async function uploadTelegramMediaToGitHub(args: {
+  fileId: string;
+  caption: string;
+  chatId: number;
+}): Promise<{ publicPath: string; commitSha: string; commitUrl?: string }> {
+  const { file_path, bytes } = await getTelegramFileBytes(args.fileId);
+  const ext = extFromPath(file_path) || "bin";
+  const slug = slugify(args.caption || "upload") || String(Date.now());
+  const ts = new Date().toISOString().slice(0, 10);
+  const repoPath = `public/media/telegram/${ts}-${slug}.${ext}`;
+
+  const base64 = Buffer.from(new Uint8Array(bytes)).toString("base64");
+  const res = await putGitHubBinaryFile({
+    path: repoPath,
+    base64,
+    message: `telegram: upload media (${repoPath})`,
+  });
+
+  return { publicPath: repoPath.replace(/^public/, ""), commitSha: res.commitSha, commitUrl: res.commitUrl };
 }
 
 async function applyAction(action: CMSAction): Promise<{ description: string; commitSha: string; commitUrl?: string } | { error: string }> {
@@ -358,8 +450,13 @@ async function handleHelp(chatId: number) {
     "- “Change the hero subtitle to …”",
     "- “Update contact email to …”",
     "- “Add a team member Jane Doe as Programme Lead”",
+    "- (Photo) Send a screenshot + caption like: “Change ‘and’ to ‘&’ in this heading”",
+    "- (Voice) Send a voice note describing the change",
     "",
     "Commands:",
+    "- /set <section>.<field> <value>",
+    "- /replace <section> <json-object>",
+    "- /apply <json>",
     "- /status",
     "- /undo",
     "",
@@ -431,9 +528,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    // Text messages
+    // Messages (text, captions, photos, voice)
     const message = update.message;
-    if (!message?.text) return NextResponse.json({ ok: true });
+    if (!message) return NextResponse.json({ ok: true });
 
     const chatId = message.chat?.id as number;
     const fromId = message.from?.id as number;
@@ -442,7 +539,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    const text = String(message.text || "").trim();
+    const text = String(message.text || message.caption || "").trim();
+
+    const photos = (Array.isArray(message.photo) ? message.photo : []) as TelegramPhotoSize[];
+    const voice = (message.voice || message.audio) as TelegramAudioLike | undefined;
+
+    if (!text && photos.length === 0 && !voice) {
+      return NextResponse.json({ ok: true });
+    }
 
     if (text === "/help" || text === "/start") {
       await handleHelp(chatId);
@@ -457,8 +561,66 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    const deterministic = parseDeterministicCommand(text);
-    const actions = deterministic ?? await parseCommand(text);
+    const deterministic = text ? parseDeterministicCommand(text) : null;
+
+    // Media hint: users can send a photo and say "use this as hero image" etc.
+    const wantsUpload =
+      photos.length > 0 &&
+      !!text &&
+      /(use this|use this photo|use this image|set as hero|make.*hero|add to gallery|upload)/i.test(text);
+
+    // If we want to upload, do it first and inject the resulting path into the prompt.
+    let uploadedPath: string | null = null;
+    if (wantsUpload) {
+      await sendChatAction(chatId, "upload_photo");
+      const best = pickLargestPhoto(photos);
+      const uploadRes = await uploadTelegramMediaToGitHub({ fileId: best.file_id, caption: text, chatId });
+      uploadedPath = uploadRes.publicPath;
+      await sendTelegram(
+        chatId,
+        [
+          "<b>Uploaded</b> media to the repo.",
+          `Path: <code>${uploadedPath}</code>`,
+          `SHA: <code>${uploadRes.commitSha.slice(0, 7)}</code>`,
+          uploadRes.commitUrl ? `Commit: ${uploadRes.commitUrl}` : "",
+        ].filter(Boolean).join("\n")
+      );
+    }
+
+    let actions: CMSAction[] = [];
+    if (deterministic) {
+      actions = deterministic;
+    } else if (voice) {
+      await sendChatAction(chatId, "typing");
+      const { file_path, bytes } = await getTelegramFileBytes(String(voice.file_id));
+      const audioBase64 = Buffer.from(new Uint8Array(bytes)).toString("base64");
+      const audioFormat = extFromPath(file_path) || "ogg";
+      actions = await parseCommandWithMedia({
+        text: uploadedPath ? `${text}\n\nUploaded media path you may reference: ${uploadedPath}` : (text || "Voice note"),
+        audioBase64,
+        audioFormat,
+      });
+    } else if (photos.length > 0) {
+      if (!text) {
+        await sendTelegram(chatId, "Send a caption with your screenshot/photo describing what to change.");
+        return NextResponse.json({ ok: true });
+      }
+
+      await sendChatAction(chatId, "typing");
+      const best = pickLargestPhoto(photos);
+      const { file_path, bytes } = await getTelegramFileBytes(String(best.file_id));
+      const mime = guessMimeFromPath(file_path);
+      const b64 = Buffer.from(new Uint8Array(bytes)).toString("base64");
+      const imageDataUrl = `data:${mime};base64,${b64}`;
+
+      actions = await parseCommandWithMedia({
+        text: uploadedPath ? `${text}\n\nUploaded media path you may reference: ${uploadedPath}` : text,
+        imageDataUrl,
+      });
+    } else {
+      actions = await parseCommand(text);
+    }
+
     if (actions.length === 1 && actions[0].action === "undo") {
       await handleUndo(chatId);
       return NextResponse.json({ ok: true });

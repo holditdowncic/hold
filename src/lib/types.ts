@@ -102,6 +102,22 @@ export interface ProgramsSectionContent {
     flagship_tags: string[];
 }
 
+export interface MissionValue {
+    num: string;
+    title: string;
+    desc: string;
+    icon: string;
+}
+
+export interface MissionContent {
+    pill: string;
+    heading_line1: string;
+    heading_line2_prefix: string;
+    heading_line2_highlight: string;
+    description: string;
+    values: MissionValue[];
+}
+
 // --- Structured tables ---
 
 export interface TeamMember {
