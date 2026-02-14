@@ -563,30 +563,40 @@ async function handleHelp(chatId: number) {
 }
 
 async function handleStatus(chatId: number) {
-  const commits = await listRecentCommits(10);
-  const last = commits.find((c) => c.commit.message.startsWith("telegram:"));
-  const msg = [
-    "<b>Status</b>",
-    `GitHub branch edits: <code>${process.env.GITHUB_OWNER || "holditdowncic"}/${process.env.GITHUB_REPO || "hold"}:${process.env.GITHUB_BRANCH || "main"}</code>`,
-    last ? `Last Telegram commit: <code>${last.sha.slice(0, 7)}</code>` : "Last Telegram commit: (none found)",
-    "",
-    "Vercel: should auto-deploy when GitHub receives the commit (if the project is linked).",
-  ].join("\n");
-  await sendTelegram(chatId, msg);
+  try {
+    const commits = await listRecentCommits(10);
+    const last = commits.find((c) => c.commit.message.startsWith("telegram:"));
+    const msg = [
+      "<b>Status</b>",
+      `GitHub branch edits: <code>${process.env.GITHUB_OWNER || "holditdowncic"}/${process.env.GITHUB_REPO || "hold"}:${process.env.GITHUB_BRANCH || "main"}</code>`,
+      last ? `Last Telegram commit: <code>${last.sha.slice(0, 7)}</code>` : "Last Telegram commit: (none found)",
+      "",
+      "Vercel: should auto-deploy when GitHub receives the commit (if the project is linked).",
+    ].join("\n");
+    await sendTelegram(chatId, msg);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    await sendTelegram(chatId, `Status failed: <code>${msg}</code>`);
+  }
 }
 
 async function handleUndo(chatId: number) {
-  const commits = await listRecentCommits(20);
-  const last = commits.find((c) => c.commit.message.startsWith("telegram:") && !c.commit.message.startsWith("telegram: revert"));
-  if (!last) {
-    await sendTelegram(chatId, "No recent Telegram commit found to undo.");
-    return;
+  try {
+    const commits = await listRecentCommits(20);
+    const last = commits.find((c) => c.commit.message.startsWith("telegram:") && !c.commit.message.startsWith("telegram: revert"));
+    if (!last) {
+      await sendTelegram(chatId, "No recent Telegram commit found to undo.");
+      return;
+    }
+    const res = await revertCommit(last.sha);
+    await sendTelegram(
+      chatId,
+      `Reverted <code>${last.sha.slice(0, 7)}</code>.\nFiles: ${res.revertedFiles.map((f) => `<code>${f}</code>`).join(", ")}`
+    );
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    await sendTelegram(chatId, `Undo failed: <code>${msg}</code>`);
   }
-  const res = await revertCommit(last.sha);
-  await sendTelegram(
-    chatId,
-    `Reverted <code>${last.sha.slice(0, 7)}</code>.\nFiles: ${res.revertedFiles.map((f) => `<code>${f}</code>`).join(", ")}`
-  );
 }
 
 export async function POST(request: NextRequest) {
@@ -629,8 +639,26 @@ export async function POST(request: NextRequest) {
 
     const chatId = message.chat?.id as number;
     const fromId = message.from?.id as number;
+    const chatType = message.chat?.type as string | undefined;
+
+    const adminConfigured = (process.env.TELEGRAM_ADMIN_IDS || "").split(",").map((s) => s.trim()).filter(Boolean).length > 0;
 
     if (!isAdmin(fromId)) {
+      // Helpful error in private chat so you can configure the correct ID in Vercel env vars.
+      if (chatType === "private") {
+        const reason = adminConfigured
+          ? "Not authorized."
+          : "Admin IDs not configured on the server.";
+        await sendTelegram(
+          chatId,
+          [
+            reason,
+            "",
+            `Your Telegram user id: <code>${String(fromId)}</code>`,
+            "Set <code>TELEGRAM_ADMIN_IDS</code> in Vercel to include this id (comma-separated).",
+          ].join("\n")
+        );
+      }
       return NextResponse.json({ ok: true });
     }
 
@@ -759,6 +787,7 @@ export async function POST(request: NextRequest) {
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Unknown error";
     console.error("Telegram webhook error:", msg);
-    return NextResponse.json({ ok: false, error: msg }, { status: 500 });
+    // Always return 200 to Telegram to avoid repeated retries piling up.
+    return NextResponse.json({ ok: false, error: msg }, { status: 200 });
   }
 }
