@@ -14,20 +14,45 @@
       "Our work is rooted in trust, co-production, and accessibility. We activate familiar community spaces to make engagement feel safe, inclusive, and relevant — designing projects with and for the people we serve, particularly young people from Black and minoritised backgrounds."
     ],
     "focus_areas": [
-      { "icon": "🧠", "text": "Emotional literacy & wellbeing" },
-      { "icon": "💪", "text": "Positive masculinity & male role modelling" },
-      { "icon": "🤝", "text": "Intergenerational connection & cohesion" },
-      { "icon": "🏠", "text": "Safe, inclusive spaces for healing" }
+      {
+        "icon": "🧠",
+        "text": "Emotional literacy & wellbeing"
+      },
+      {
+        "icon": "💪",
+        "text": "Positive masculinity & male role modelling"
+      },
+      {
+        "icon": "🤝",
+        "text": "Intergenerational connection & cohesion"
+      },
+      {
+        "icon": "🏠",
+        "text": "Safe, inclusive spaces for healing"
+      }
     ]
   },
   "cta": {
     "heading": "Ready to be part of the movement?",
     "description": "Whether you’re a young person looking for a safe space, a family seeking community, or someone who wants to support grassroots change — we want to hear from you.",
     "buttons": [
-      { "text": "Join a Programme", "link": "#programs" },
-      { "text": "Volunteer With Us", "link": "/contact" },
-      { "text": "Partner With Us", "link": "/contact" },
-      { "text": "Support Our Work", "link": "#support", "primary": true }
+      {
+        "text": "Join a Programme",
+        "link": "#programs"
+      },
+      {
+        "text": "Volunteer With Us",
+        "link": "/contact"
+      },
+      {
+        "text": "Partner With Us",
+        "link": "/contact"
+      },
+      {
+        "text": "Support Our Work",
+        "link": "#support",
+        "primary": true
+      }
     ]
   },
   "support": {
@@ -35,10 +60,26 @@
     "heading": "Support Hold It Down",
     "description": "Your support helps us deliver free and accessible creative, wellbeing and intergenerational programmes across South London.",
     "ways": [
-      { "icon": "heart", "title": "Donate", "desc": "Support workshops, materials and safe spaces for young people and families." },
-      { "icon": "people", "title": "Partner With Us", "desc": "Collaborate with Hold It Down to strengthen impact across South London communities." },
-      { "icon": "flag", "title": "Volunteer", "desc": "Share your time, skills or lived experience to support our programmes." },
-      { "icon": "briefcase", "title": "In-kind Support", "desc": "Contribute space, equipment or professional expertise to empower our work." }
+      {
+        "icon": "heart",
+        "title": "Donate",
+        "desc": "Support workshops, materials and safe spaces for young people and families."
+      },
+      {
+        "icon": "people",
+        "title": "Partner With Us",
+        "desc": "Collaborate with Hold It Down to strengthen impact across South London communities."
+      },
+      {
+        "icon": "flag",
+        "title": "Volunteer",
+        "desc": "Share your time, skills or lived experience to support our programmes."
+      },
+      {
+        "icon": "briefcase",
+        "title": "In-kind Support",
+        "desc": "Contribute space, equipment or professional expertise to empower our work."
+      }
     ],
     "cta_text": "Get in touch to support our work"
   },
@@ -63,7 +104,12 @@
     "flagship_desc2": "It’s about planting roots of love and giving wings of confidence to future generations. The programme now forms the foundation for longer-term intergenerational and male mentorship work across Croydon.",
     "flagship_image": "/media/roots/roots-23.jpeg",
     "flagship_image_alt": "Families and children at the Roots & Wings Family Fun Day",
-    "flagship_tags": ["Fatherhood", "Intergenerational", "Family Unity", "Wellbeing"]
+    "flagship_tags": [
+      "Fatherhood",
+      "Intergenerational",
+      "Family Unity",
+      "Wellbeing"
+    ]
   },
   "mission": {
     "pill": "Our Mission",
@@ -96,7 +142,8 @@
         "desc": "Founded in direct response to the unmet needs of young people in Croydon navigating exclusion, broken systems, and deep emotional wounds. Our programmes heal the root causes of disconnection by affirming identity, restoring dignity, and creating spaces of belonging.",
         "icon": "heart"
       }
-    ]
+    ],
+    "title": "I can because you can & together we can"
   },
   "cookie_banner": {
     "enabled": true,
@@ -109,9 +156,24 @@
     "heading": "Let’s connect",
     "description": "We’d love to hear from you. Whether you want to join a programme, volunteer, partner with us, or just learn more — reach out.",
     "items": [
-      { "label": "Email", "value": "hollditdownuk@hotmail.com", "href": "mailto:hollditdownuk@hotmail.com", "icon": "email" },
-      { "label": "Instagram", "value": "@holditdowncic", "href": "https://www.instagram.com/holditdowncic", "icon": "instagram" },
-      { "label": "Location", "value": "Thornton Heath, Croydon CR7 8QY", "href": null, "icon": "location" }
+      {
+        "label": "Email",
+        "value": "hollditdownuk@hotmail.com",
+        "href": "mailto:hollditdownuk@hotmail.com",
+        "icon": "email"
+      },
+      {
+        "label": "Instagram",
+        "value": "@holditdowncic",
+        "href": "https://www.instagram.com/holditdowncic",
+        "icon": "instagram"
+      },
+      {
+        "label": "Location",
+        "value": "Thornton Heath, Croydon CR7 8QY",
+        "href": null,
+        "icon": "location"
+      }
     ]
   },
   "hero": {
@@ -140,7 +202,11 @@
       "image": null,
       "image_alt": "",
       "buttons": [
-        { "text": "Get In Touch", "href": "/contact", "variant": "secondary" }
+        {
+          "text": "Get In Touch",
+          "href": "/contact",
+          "variant": "secondary"
+        }
       ],
       "layout": "no_image",
       "bg": "elevated",
