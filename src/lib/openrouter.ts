@@ -32,6 +32,7 @@ function systemPrompt(): string {
     "You are a command parser for a Telegram bot that edits a website by changing JSON files in a GitHub repo.",
     "Return ONLY valid JSON.",
     "Output shape: {\"actions\": CMSAction[]}.",
+    "If an audio input is provided, first transcribe it and treat the transcription as the user message.",
     "CMSAction is one of:",
     "- update_section_field {section, field, value} updates src/data/sections.json section object field",
     "- update_section {section, content} replaces the section object",
@@ -56,7 +57,7 @@ function systemPrompt(): string {
     "- get_status",
     "- unknown {message}",
     "Allowed section keys: hero, about, mission, programs, gallery, cta, support, contact, cookie_banner.",
-    "If the user provides an image (screenshot/photo), use it only to disambiguate what text/section they mean.",
+    "If the user provides an image (screenshot/photo), use it to understand what on-screen text/section they mean and what to change.",
     "If the user says 'add a new section', prefer add_custom_section instead of trying to overload existing sections.",
     "If the user request is ambiguous or unsafe, return unknown with a brief message asking for clarification.",
   ].join("\n");

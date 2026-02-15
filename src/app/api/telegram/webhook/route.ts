@@ -296,6 +296,23 @@ function pickLargestPhoto(photos: TelegramPhotoSize[]): TelegramPhotoSize {
   );
 }
 
+function pickPhotoForVision(photos: TelegramPhotoSize[], maxBytes = 900_000): TelegramPhotoSize {
+  // For vision parsing, prefer a reasonably-sized image to avoid huge base64 payloads.
+  // Telegram provides multiple sizes in message.photo; pick the largest under maxBytes, else the smallest.
+  const sorted = [...photos].sort((a, b) => (a.file_size ?? 0) - (b.file_size ?? 0));
+  const within = sorted.filter((p) => (p.file_size ?? 0) <= maxBytes);
+  return (within.length ? within[within.length - 1] : sorted[0]) || photos[0];
+}
+
+function normalizeAudioFormat(ext: string): string {
+  const e = (ext || "").toLowerCase();
+  if (e === "oga") return "ogg";
+  if (e === "opus") return "ogg";
+  if (e === "jpeg") return "jpg";
+  // Common values: ogg, mp3, wav, mp4
+  return e || "ogg";
+}
+
 type PendingChange = {
   id: string;
   chatId: number;
@@ -1035,7 +1052,7 @@ export async function POST(request: NextRequest) {
       await sendChatAction(chatId, "typing");
       const { file_path, bytes } = await getTelegramFileBytes(String(voice.file_id));
       const audioBase64 = Buffer.from(new Uint8Array(bytes)).toString("base64");
-      const audioFormat = extFromPath(file_path) || "ogg";
+      const audioFormat = normalizeAudioFormat(extFromPath(file_path) || "ogg");
       actions = await parseCommandWithMedia({
         text: uploadedPath ? `${text}\n\nUploaded media path you may reference: ${uploadedPath}` : (text || "Voice note"),
         audioBase64,
@@ -1048,7 +1065,7 @@ export async function POST(request: NextRequest) {
       }
 
       await sendChatAction(chatId, "typing");
-      const best = pickLargestPhoto(photos);
+      const best = pickPhotoForVision(photos);
       const { file_path, bytes } = await getTelegramFileBytes(String(best.file_id));
       const mime = guessMimeFromPath(file_path);
       const b64 = Buffer.from(new Uint8Array(bytes)).toString("base64");
