@@ -30,6 +30,18 @@ function ghHeaders(token: string) {
   };
 }
 
+export type GitHubCommitStatusSummary = {
+  sha: string;
+  state: "error" | "failure" | "pending" | "success";
+  statuses: Array<{
+    context: string;
+    state: "error" | "failure" | "pending" | "success";
+    description?: string | null;
+    target_url?: string | null;
+    updated_at?: string;
+  }>;
+};
+
 export async function getGitHubFile(path: string, ref?: string): Promise<{ sha: string; text: string }> {
   const { owner, repo, branch, token } = getRepoConfig();
   if (!token) throw new Error("GITHUB_TOKEN not configured");
@@ -150,6 +162,36 @@ export async function listRecentCommits(perPage = 20) {
     throw new Error(`GitHub list commits failed (${res.status}): ${bodyText}`);
   }
   return (await res.json()) as Array<{ sha: string; commit: { message: string } }>;
+}
+
+export async function getCommitStatus(sha: string): Promise<GitHubCommitStatusSummary> {
+  const { owner, repo, token } = getRepoConfig();
+  if (!token) throw new Error("GITHUB_TOKEN not configured");
+
+  const url = `https://api.github.com/repos/${owner}/${repo}/commits/${sha}/status`;
+  const res = await fetch(url, { headers: ghHeaders(token) });
+  if (!res.ok) {
+    const bodyText = await res.text();
+    throw new Error(`GitHub commit status failed (${res.status}): ${bodyText}`);
+  }
+
+  const json = (await res.json()) as {
+    sha: string;
+    state: "error" | "failure" | "pending" | "success";
+    statuses?: Array<{
+      context: string;
+      state: "error" | "failure" | "pending" | "success";
+      description?: string | null;
+      target_url?: string | null;
+      updated_at?: string;
+    }>;
+  };
+
+  return {
+    sha: json.sha,
+    state: json.state,
+    statuses: Array.isArray(json.statuses) ? json.statuses : [],
+  };
 }
 
 export async function getCommitDetails(sha: string) {

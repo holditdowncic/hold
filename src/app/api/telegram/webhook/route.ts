@@ -3,6 +3,7 @@ import type { CMSAction, CustomSection, EventData, GalleryImage, Initiative, Pro
 import { parseCommand, parseCommandWithMedia } from "@/lib/openrouter";
 import {
   getGitHubFile,
+  getCommitStatus,
   listRecentCommits,
   putGitHubBinaryFile,
   putGitHubFile,
@@ -65,6 +66,28 @@ function truncate(input: string, max = 140): string {
   const s = input.trim();
   if (s.length <= max) return s;
   return s.slice(0, max - 1) + "…";
+}
+
+function fmtState(state: string): string {
+  switch (state) {
+    case "success":
+      return "✅ Ready";
+    case "pending":
+      return "⏳ Deploying";
+    case "failure":
+      return "❌ Failed";
+    case "error":
+      return "⚠️ Error";
+    default:
+      return escapeHtml(state);
+  }
+}
+
+function pickVercelStatus(
+  statuses: Array<{ context: string; state: string; target_url?: string | null; description?: string | null }>
+) {
+  const preferred = statuses.find((s) => /vercel/i.test(s.context));
+  return preferred || statuses[0] || null;
 }
 
 function parseMaybeJson(valueText: string): unknown {
@@ -688,14 +711,32 @@ async function handleStatus(chatId: number) {
   try {
     const commits = await listRecentCommits(10);
     const last = commits.find((c) => c.commit.message.startsWith("telegram:"));
+    let deployLine = "";
+    let deployUrl: string | null = null;
+    if (last) {
+      try {
+        const st = await getCommitStatus(last.sha);
+        const vercel = pickVercelStatus(st.statuses);
+        deployLine = `Deploy: <b>${fmtState(vercel?.state || st.state)}</b>`;
+        deployUrl = vercel?.target_url || null;
+      } catch {
+        // ignore
+      }
+    }
     const msg = [
       "<b>Status</b>",
       `GitHub branch edits: <code>${process.env.GITHUB_OWNER || "holditdowncic"}/${process.env.GITHUB_REPO || "hold"}:${process.env.GITHUB_BRANCH || "main"}</code>`,
       last ? `Last Telegram commit: <code>${last.sha.slice(0, 7)}</code>` : "Last Telegram commit: (none found)",
+      deployLine,
       "",
       "Vercel: should auto-deploy when GitHub receives the commit (if the project is linked).",
     ].join("\n");
-    await sendTelegram(chatId, msg);
+    const buttons: TelegramInlineButton[][] = [];
+    if (last) buttons.push([{ text: "🔎 Deploy status", callback_data: `deploy:${last.sha}` }]);
+    if (deployUrl) buttons.push([{ text: "View Deploy", url: deployUrl }]);
+    const siteUrl = process.env.SITE_URL || "https://www.holditdown.uk";
+    if (siteUrl) buttons.push([{ text: "View Live Site", url: siteUrl }]);
+    await sendTelegram(chatId, msg, buttons.length ? buttons : undefined, { disablePreview: true });
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Unknown error";
     await sendTelegram(chatId, `Status failed: ${codeInline(msg)}`);
@@ -768,6 +809,35 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ ok: true });
       }
 
+      if (data.startsWith("deploy:")) {
+        const sha = data.slice("deploy:".length).trim();
+        await answerCallback(cb.id, "Checking deploy status...");
+        try {
+          const summary = await getCommitStatus(sha);
+          const vercel = pickVercelStatus(summary.statuses);
+          const state = vercel?.state || summary.state;
+
+          const msg = [
+            "🚀 <b>Deployment</b>",
+            `SHA: ${codeInline(sha.slice(0, 7))}`,
+            `Status: <b>${fmtState(state)}</b>`,
+            vercel?.description ? `Note: ${escapeHtml(truncate(vercel.description, 220))}` : "",
+          ].filter(Boolean).join("\n");
+
+          const buttons: TelegramInlineButton[][] = [];
+          if (vercel?.target_url) buttons.push([{ text: "View Deploy", url: vercel.target_url }]);
+          const siteUrl = process.env.SITE_URL || "https://www.holditdown.uk";
+          if (siteUrl) buttons.push([{ text: "View Live Site", url: siteUrl }]);
+          buttons.push([{ text: "🔄 Refresh", callback_data: `deploy:${sha}` }]);
+
+          await sendTelegram(chatId, msg, buttons, { disablePreview: true });
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : "Unknown error";
+          await sendTelegram(chatId, `Deploy status failed: ${codeInline(msg)}`);
+        }
+        return NextResponse.json({ ok: true });
+      }
+
       if (data.startsWith("commit:")) {
         const id = data.slice("commit:".length).trim();
         const pending = pendingGet(id);
@@ -802,6 +872,7 @@ export async function POST(request: NextRequest) {
           if (siteUrl) {
             buttons.push([{ text: "View Live Site", url: siteUrl }]);
           }
+          buttons.push([{ text: "🔎 Deploy status", callback_data: `deploy:${res.commitSha}` }]);
 
           await sendTelegram(
             chatId,
@@ -811,6 +882,7 @@ export async function POST(request: NextRequest) {
               `• SHA: ${codeInline(res.commitSha.slice(0, 7))}`,
               "",
               "⏳ Deploying... (~1–2 min)",
+              "Tip: tap <b>Deploy status</b> to check progress.",
             ].join("\n"),
             buttons,
             { disablePreview: true }
@@ -886,6 +958,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true });
     }
     if (text === "/status") {
+      await handleStatus(chatId);
+      return NextResponse.json({ ok: true });
+    }
+    if (text === "/deploy") {
       await handleStatus(chatId);
       return NextResponse.json({ ok: true });
     }
