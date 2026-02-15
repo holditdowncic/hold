@@ -68,6 +68,18 @@ function truncate(input: string, max = 140): string {
   return s.slice(0, max - 1) + "…";
 }
 
+type CommitMeta = {
+  fromId?: number;
+  requestText?: string;
+};
+
+function buildTelegramCommitMessage(description: string, meta?: CommitMeta): string {
+  const bits: string[] = [`telegram: ${description}`];
+  if (meta?.fromId) bits.push(`by tg:${meta.fromId}`);
+  if (meta?.requestText) bits.push(truncate(meta.requestText, 90));
+  return bits.join(" | ");
+}
+
 function fmtState(state: string): string {
   switch (state) {
     case "success":
@@ -240,7 +252,11 @@ function slugify(input: string): string {
     .slice(0, 80);
 }
 
-async function updateJsonFile<T>(path: string, mutate: (data: T) => { data: T; description: string }) {
+async function updateJsonFile<T>(
+  path: string,
+  mutate: (data: T) => { data: T; description: string },
+  meta?: CommitMeta
+) {
   const current = await getGitHubFile(path);
   const parsed = JSON.parse(current.text) as T;
   const { data, description } = mutate(parsed);
@@ -248,7 +264,7 @@ async function updateJsonFile<T>(path: string, mutate: (data: T) => { data: T; d
     path,
     sha: current.sha,
     text: jsonPretty(data),
-    message: `telegram: ${description}`,
+    message: buildTelegramCommitMessage(description, meta),
   });
   return { description, ...res };
 }
@@ -341,6 +357,7 @@ async function uploadTelegramMediaToGitHub(args: {
   fileId: string;
   caption: string;
   chatId: number;
+  fromId?: number;
 }): Promise<{ publicPath: string; commitSha: string; commitUrl?: string }> {
   const { file_path, bytes } = await getTelegramFileBytes(args.fileId);
   const ext = extFromPath(file_path) || "bin";
@@ -352,7 +369,10 @@ async function uploadTelegramMediaToGitHub(args: {
   const res = await putGitHubBinaryFile({
     path: repoPath,
     base64,
-    message: `telegram: upload media (${repoPath})`,
+    message: buildTelegramCommitMessage(`upload media (${repoPath})`, {
+      fromId: args.fromId,
+      requestText: args.caption,
+    }),
   });
 
   return { publicPath: repoPath.replace(/^public/, ""), commitSha: res.commitSha, commitUrl: res.commitUrl };
@@ -409,7 +429,10 @@ function summarizeAction(act: CMSAction): string {
   }
 }
 
-async function applyAction(action: CMSAction): Promise<{ description: string; commitSha: string; commitUrl?: string } | { error: string }> {
+async function applyAction(
+  action: CMSAction,
+  meta?: CommitMeta
+): Promise<{ description: string; commitSha: string; commitUrl?: string } | { error: string }> {
   try {
     switch (action.action) {
       case "update_section_field": {
@@ -418,14 +441,14 @@ async function applyAction(action: CMSAction): Promise<{ description: string; co
           const obj = (data[section] as Record<string, unknown>) || {};
           data[section] = { ...obj, [field]: value };
           return { data, description: `set ${section}.${field}` };
-        });
+        }, meta);
       }
       case "update_section": {
         const { section, content } = action;
         return await updateJsonFile<Record<string, unknown>>("src/data/sections.json", (data) => {
           data[section] = content;
           return { data, description: `replace section ${section}` };
-        });
+        }, meta);
       }
 
       case "add_custom_section": {
@@ -449,7 +472,7 @@ async function applyAction(action: CMSAction): Promise<{ description: string; co
           const next = [...arr, item].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
           data["custom_sections"] = next;
           return { data, description: `custom: add ${id}` };
-        });
+        }, meta);
       }
 
       case "update_custom_section": {
@@ -463,7 +486,7 @@ async function applyAction(action: CMSAction): Promise<{ description: string; co
           next[idx] = { ...next[idx], ...updates };
           data["custom_sections"] = next;
           return { data, description: `custom: update ${id}` };
-        });
+        }, meta);
       }
 
       case "remove_custom_section": {
@@ -473,7 +496,7 @@ async function applyAction(action: CMSAction): Promise<{ description: string; co
           const arr = (Array.isArray(raw) ? raw : []) as CustomSection[];
           data["custom_sections"] = arr.filter((s) => s.id !== id);
           return { data, description: `custom: remove ${id}` };
-        });
+        }, meta);
       }
 
       case "reorder_custom_sections": {
@@ -493,7 +516,7 @@ async function applyAction(action: CMSAction): Promise<{ description: string; co
           const next = reordered.map((s, i) => ({ ...s, sort_order: i + 1 }));
           data["custom_sections"] = next;
           return { data, description: `custom: reorder (${next.length})` };
-        });
+        }, meta);
       }
 
       case "add_team_member": {
@@ -511,7 +534,7 @@ async function applyAction(action: CMSAction): Promise<{ description: string; co
             sort_order: nextSortOrder(data),
           };
           return { data: [...data, item], description: `team: add ${name}` };
-        });
+        }, meta);
       }
       case "update_team_member": {
         const { name, updates } = action;
@@ -521,14 +544,14 @@ async function applyAction(action: CMSAction): Promise<{ description: string; co
           const next = [...data];
           next[idx] = { ...next[idx], ...updates };
           return { data: next, description: `team: update ${name}` };
-        });
+        }, meta);
       }
       case "remove_team_member": {
         const { name } = action;
         return await updateJsonFile<TeamMember[]>("src/data/team.json", (data) => {
           const next = data.filter((m) => normalize(m.name) !== normalize(name));
           return { data: next, description: `team: remove ${name}` };
-        });
+        }, meta);
       }
 
       case "add_program": {
@@ -547,7 +570,7 @@ async function applyAction(action: CMSAction): Promise<{ description: string; co
             sort_order: nextSortOrder(data),
           };
           return { data: [...data, item], description: `programs: add ${title}` };
-        });
+        }, meta);
       }
       case "update_program": {
         const { title, updates } = action;
@@ -557,14 +580,14 @@ async function applyAction(action: CMSAction): Promise<{ description: string; co
           const next = [...data];
           next[idx] = { ...next[idx], ...updates };
           return { data: next, description: `programs: update ${title}` };
-        });
+        }, meta);
       }
       case "remove_program": {
         const { title } = action;
         return await updateJsonFile<Program[]>("src/data/programs.json", (data) => {
           const next = data.filter((p) => normalize(p.title) !== normalize(title));
           return { data: next, description: `programs: remove ${title}` };
-        });
+        }, meta);
       }
 
       case "add_initiative": {
@@ -579,14 +602,14 @@ async function applyAction(action: CMSAction): Promise<{ description: string; co
             sort_order: nextSortOrder(data),
           };
           return { data: [...data, item], description: `initiatives: add ${title}` };
-        });
+        }, meta);
       }
       case "remove_initiative": {
         const { title } = action;
         return await updateJsonFile<Initiative[]>("src/data/initiatives.json", (data) => {
           const next = data.filter((i) => normalize(i.title) !== normalize(title));
           return { data: next, description: `initiatives: remove ${title}` };
-        });
+        }, meta);
       }
 
       case "add_gallery_image": {
@@ -600,14 +623,14 @@ async function applyAction(action: CMSAction): Promise<{ description: string; co
             sort_order: nextSortOrder(data),
           };
           return { data: [...data, item], description: `gallery: add '${caption}'` };
-        });
+        }, meta);
       }
       case "remove_gallery_image": {
         const { caption } = action;
         return await updateJsonFile<GalleryImage[]>("src/data/gallery.json", (data) => {
           const next = data.filter((g) => normalize(g.caption) !== normalize(caption));
           return { data: next, description: `gallery: remove '${caption}'` };
-        });
+        }, meta);
       }
 
       case "add_event": {
@@ -633,7 +656,7 @@ async function applyAction(action: CMSAction): Promise<{ description: string; co
             sort_order: nextSortOrder(data),
           };
           return { data: [...data, item], description: `events: add ${slug}` };
-        });
+        }, meta);
       }
       case "update_event": {
         const { slug, updates } = action;
@@ -643,7 +666,7 @@ async function applyAction(action: CMSAction): Promise<{ description: string; co
           const next = [...data];
           next[idx] = { ...next[idx], ...updates } as EventData;
           return { data: next, description: `events: update ${slug}` };
-        });
+        }, meta);
       }
 
       case "update_stat": {
@@ -670,7 +693,7 @@ async function applyAction(action: CMSAction): Promise<{ description: string; co
             prefix: prefix ?? next[idx].prefix,
           };
           return { data: next, description: `stats: update ${label}` };
-        });
+        }, meta);
       }
 
       default:
@@ -857,7 +880,7 @@ export async function POST(request: NextRequest) {
             await sendTelegram(chatId, `Could not parse: ${escapeHtml((act as { message: string }).message)}`);
             continue;
           }
-          const res = await applyAction(act);
+          const res = await applyAction(act, { fromId: pending.fromId, requestText: pending.sourceText });
           if ("error" in res) {
             await sendTelegram(chatId, `Failed: ${codeInline(res.error)}`);
             continue;
@@ -992,7 +1015,7 @@ export async function POST(request: NextRequest) {
     if (wantsUpload) {
       await sendChatAction(chatId, "upload_photo");
       const best = pickLargestPhoto(photos);
-      const uploadRes = await uploadTelegramMediaToGitHub({ fileId: best.file_id, caption: text, chatId });
+      const uploadRes = await uploadTelegramMediaToGitHub({ fileId: best.file_id, caption: text, chatId, fromId });
       uploadedPath = uploadRes.publicPath;
       await sendTelegram(
         chatId,
