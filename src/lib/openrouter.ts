@@ -9,6 +9,40 @@ type ContentPart =
   | { type: "image_url"; image_url: { url: string } }
   | { type: "input_audio"; input_audio: { data: string; format: string } };
 
+function coerceActions(raw: unknown): CMSAction[] {
+  if (!Array.isArray(raw)) {
+    return [{ action: "unknown", message: "Parser returned invalid actions. Try again." }];
+  }
+
+  const out: CMSAction[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object") {
+      out.push({ action: "unknown", message: "Parser returned an invalid action. Try again." });
+      continue;
+    }
+
+    const obj = item as Record<string, unknown>;
+    const a = obj["action"];
+    if (typeof a === "string") {
+      out.push(obj as unknown as CMSAction);
+      continue;
+    }
+
+    // Common model mistake: forgets `action` and returns just `{ event: {...} }`.
+    if (obj["event"] && typeof obj["event"] === "object") {
+      out.push({ action: "add_event", event: obj["event"] } as unknown as CMSAction);
+      continue;
+    }
+
+    out.push({ action: "unknown", message: "Parser returned an invalid action shape. Try again." });
+  }
+
+  // If any unknown appears, surface it as the single response (reduces accidental commits).
+  const firstUnknown = out.find((x) => x.action === "unknown") as { action: "unknown"; message: string } | undefined;
+  if (firstUnknown) return [firstUnknown];
+  return out;
+}
+
 function extractFirstJsonObject(text: string): string | null {
   const start = text.indexOf("{");
   if (start === -1) return null;
@@ -32,6 +66,7 @@ function systemPrompt(): string {
     "You are a command parser for a Telegram bot that edits a website by changing JSON files in a GitHub repo.",
     "Return ONLY valid JSON.",
     "Output shape: {\"actions\": CMSAction[]}.",
+    "Each action must include an `action` field with the exact action name.",
     "If an audio input is provided, first transcribe it and treat the transcription as the user message.",
     "CMSAction is one of:",
     "- update_section_field {section, field, value} updates src/data/sections.json section object field",
@@ -120,7 +155,7 @@ async function parseWithUserContent(userContent: string | ContentPart[]): Promis
     if (!parsed.actions || !Array.isArray(parsed.actions)) {
       return [{ action: "unknown", message: "Parser returned invalid JSON shape. Try again." }];
     }
-    return parsed.actions;
+    return coerceActions(parsed.actions);
   } catch {
     return [{ action: "unknown", message: "Failed to parse OpenRouter response JSON. Try again." }];
   }

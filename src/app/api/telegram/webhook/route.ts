@@ -446,6 +446,37 @@ function summarizeAction(act: CMSAction): string {
   }
 }
 
+function isSupportedAction(act: unknown): act is CMSAction {
+  if (!act || typeof act !== "object") return false;
+  const a = (act as { action?: unknown }).action;
+  if (typeof a !== "string") return false;
+  // Keep in sync with applyAction() cases.
+  return [
+    "update_section_field",
+    "update_section",
+    "add_custom_section",
+    "update_custom_section",
+    "remove_custom_section",
+    "reorder_custom_sections",
+    "add_team_member",
+    "update_team_member",
+    "remove_team_member",
+    "add_program",
+    "update_program",
+    "remove_program",
+    "add_initiative",
+    "remove_initiative",
+    "add_gallery_image",
+    "remove_gallery_image",
+    "add_event",
+    "update_event",
+    "update_stat",
+    "get_status",
+    "undo",
+    "unknown",
+  ].includes(a);
+}
+
 async function applyAction(
   action: CMSAction,
   meta?: CommitMeta
@@ -1091,6 +1122,18 @@ export async function POST(request: NextRequest) {
     // Preview + confirm
     if (actions.length === 0) {
       await sendTelegram(chatId, "No changes found.");
+      return NextResponse.json({ ok: true });
+    }
+
+    if (!actions.every(isSupportedAction)) {
+      await sendTelegram(
+        chatId,
+        [
+          "🤔 I couldn’t understand that request (parser returned an invalid action).",
+          "",
+          "Try again with a bit more detail, or use /sections.",
+        ].join("\n")
+      );
       return NextResponse.json({ ok: true });
     }
 
