@@ -1,5 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { CMSAction, CustomSection, EventData, GalleryImage, Initiative, Program, Stat, TeamMember } from "@/lib/types";
+import type {
+  CMSAction,
+  CustomSection,
+  EventData,
+  EventGalleryItem,
+  GalleryImage,
+  Initiative,
+  Program,
+  Stat,
+  TeamMember,
+} from "@/lib/types";
 import { parseCommand, parseCommandWithMedia } from "@/lib/openrouter";
 import {
   getGitHubFile,
@@ -174,6 +184,15 @@ function parseDeterministicCommand(text: string): CMSAction[] | null {
   return null;
 }
 
+function normalizeSlashCommandText(text: string): string {
+  const t = text.trim();
+  if (!t.startsWith("/")) return t;
+  const parts = t.split(/\s+/);
+  // Support group chats where Telegram sends /cmd@BotName
+  parts[0] = parts[0].split("@")[0] || parts[0];
+  return parts.join(" ");
+}
+
 async function sendTelegram(
   chatId: number,
   text: string,
@@ -320,10 +339,13 @@ type PendingChange = {
   createdAt: number;
   actions: CMSAction[];
   sourceText: string;
+  // Optional: clear an in-memory draft after commit completes.
+  clearEventDraftChatId?: number;
 };
 
 declare global {
   var __holdTelegramPending: Map<string, PendingChange> | undefined;
+  var __holdTelegramEventDrafts: Map<number, EventDraft> | undefined;
 }
 
 const pendingStore: Map<string, PendingChange> =
@@ -331,10 +353,32 @@ const pendingStore: Map<string, PendingChange> =
 
 const PENDING_TTL_MS = 10 * 60 * 1000;
 
+type EventDraft = {
+  chatId: number;
+  fromId: number;
+  createdAt: number;
+  title: string;
+  notes: string;
+  event: Partial<EventData>;
+  gallery: EventGalleryItem[];
+};
+
+const eventDrafts: Map<number, EventDraft> =
+  globalThis.__holdTelegramEventDrafts ?? (globalThis.__holdTelegramEventDrafts = new Map());
+
+const EVENT_DRAFT_TTL_MS = 24 * 60 * 60 * 1000;
+
 function pendingCleanup() {
   const now = Date.now();
   for (const [id, p] of pendingStore.entries()) {
     if (now - p.createdAt > PENDING_TTL_MS) pendingStore.delete(id);
+  }
+}
+
+function eventDraftCleanup() {
+  const now = Date.now();
+  for (const [chatId, d] of eventDrafts.entries()) {
+    if (now - d.createdAt > EVENT_DRAFT_TTL_MS) eventDrafts.delete(chatId);
   }
 }
 
@@ -353,6 +397,26 @@ function pendingClearChat(chatId: number) {
   for (const [id, p] of pendingStore.entries()) {
     if (p.chatId === chatId) pendingStore.delete(id);
   }
+}
+
+function eventDraftGet(chatId: number): EventDraft | null {
+  eventDraftCleanup();
+  const d = eventDrafts.get(chatId) || null;
+  if (!d) return null;
+  if (Date.now() - d.createdAt > EVENT_DRAFT_TTL_MS) {
+    eventDrafts.delete(chatId);
+    return null;
+  }
+  return d;
+}
+
+function eventDraftSet(draft: EventDraft) {
+  eventDraftCleanup();
+  eventDrafts.set(draft.chatId, draft);
+}
+
+function eventDraftClear(chatId: number) {
+  eventDrafts.delete(chatId);
 }
 
 async function getTelegramFileBytes(fileId: string): Promise<{ file_path: string; bytes: ArrayBuffer }> {
@@ -380,7 +444,9 @@ async function uploadTelegramMediaToGitHub(args: {
   const ext = extFromPath(file_path) || "bin";
   const slug = slugify(args.caption || "upload") || String(Date.now());
   const ts = new Date().toISOString().slice(0, 10);
-  const repoPath = `public/media/telegram/${ts}-${slug}.${ext}`;
+  // Avoid collisions for repeated uploads with similar/empty captions.
+  const unique = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+  const repoPath = `public/media/telegram/${ts}-${slug}-${unique}.${ext}`;
 
   const base64 = Buffer.from(new Uint8Array(bytes)).toString("base64");
   const res = await putGitHubBinaryFile({
@@ -761,12 +827,15 @@ async function handleHelp(chatId: number) {
     "📸 <b>Screenshot</b>: send screenshot + caption describing what to change",
     "🎙️ <b>Voice</b>: send a voice note describing the change",
     "",
+    `Tip: use ${codeInline("/helper")} for event drafting + more examples.`,
+    "",
     "<b>Commands</b>",
     `• ${codeInline("/sections")} list editable sections`,
     `• ${codeInline("/status")} recent Telegram commit`,
     `• ${codeInline("/undo")} undo last Telegram change`,
     `• ${codeInline("/revert")} same as /undo`,
     `• ${codeInline("/reset")} clear pending preview`,
+    `• ${codeInline("/event")} create an event draft (then add photos)`,
     "",
     "<b>Power commands</b>",
     `• ${codeInline("/set hero.badge \"...\"")}`,
@@ -778,12 +847,285 @@ async function handleHelp(chatId: number) {
   await sendTelegram(chatId, msg);
 }
 
+async function handleStart(chatId: number) {
+  const msg = [
+    "👋 <b>Welcome</b>",
+    "",
+    "Send me a message describing what you want to change on the site. I’ll show a <b>Preview</b> and you can ✅ Commit or ❌ Cancel.",
+    "",
+    "<b>Event workflow (write the article first, add photos after)</b>",
+    `1) ${codeInline("/event start Marcus | Date: 2026-03-10. Location: Croydon. Notes: family fun day.")}`,
+    "2) Send photos (no caption needed) to attach them to the draft",
+    `3) ${codeInline("/event status")} to review`,
+    `4) ${codeInline("/event publish")} to create the event`,
+    `5) ${codeInline("/event cancel")} to discard the draft`,
+    "",
+    "<b>Other inputs</b>",
+    "📝 Text: “Change hero headline to …”",
+    "📸 Screenshot + caption: “Change this heading to …”",
+    "🎙️ Voice note: describe the change",
+    "🖼️ Photo + caption: “use this as hero image” / “add to gallery”",
+    "",
+    `More examples: ${codeInline("/helper")}`,
+  ].join("\n");
+  await sendTelegram(chatId, msg);
+}
+
+async function handleHelper(chatId: number) {
+  const msg = [
+    "🧰 <b>Helper</b>",
+    "",
+    "<b>Create an event (article text)</b>",
+    `• ${codeInline("/event start <title> | optional notes")}`,
+    "Example:",
+    `• ${codeInline("/event start Marcus | A youth sports day celebrating teamwork. Date: 2026-06-14. Location: Croydon.")}`,
+    "",
+    "<b>Add photos to that event</b>",
+    "• After starting a draft, just send photos (caption optional). I’ll upload them and attach them to the draft gallery.",
+    "",
+    "<b>Publish / check</b>",
+    `• ${codeInline("/event status")}`,
+    `• ${codeInline("/event publish")}`,
+    `• ${codeInline("/event cancel")}`,
+    "",
+    "<b>Edit the rest of the website</b>",
+    `• ${codeInline("/sections")} then message: “Update mission title to …”`,
+    "• Or send a screenshot + caption so I can find the right section.",
+  ].join("\n");
+  await sendTelegram(chatId, msg);
+}
+
+function formatEventDraft(d: EventDraft): string {
+  const slug = String(d.event.slug || slugify(d.title) || "");
+  const date = String(d.event.date || "");
+  const location = String(d.event.location || "");
+  const highlights = Array.isArray(d.event.highlights) ? d.event.highlights : [];
+  const impact = Array.isArray(d.event.impact) ? d.event.impact : [];
+  return [
+    "🗓️ <b>Event Draft</b>",
+    `Title: <b>${escapeHtml(d.title)}</b>`,
+    slug ? `Slug: ${codeInline(slug)}` : "",
+    date ? `Date: ${escapeHtml(date)}` : "Date: (not set)",
+    location ? `Location: ${escapeHtml(location)}` : "Location: (not set)",
+    `Photos attached: <b>${String(d.gallery.length)}</b>`,
+    `Highlights: <b>${String(highlights.length)}</b>`,
+    `Impact: <b>${String(impact.length)}</b>`,
+  ].filter(Boolean).join("\n");
+}
+
+async function handleEventStatus(chatId: number) {
+  const d = eventDraftGet(chatId);
+  if (!d) {
+    await sendTelegram(chatId, `No active event draft. Start one with ${codeInline("/event start <title>")}.`);
+    return;
+  }
+  await sendTelegram(
+    chatId,
+    [
+      formatEventDraft(d),
+      "",
+      `Next: send photos, then ${codeInline("/event publish")}.`,
+    ].join("\n"),
+    [[
+      { text: "✅ Publish", callback_data: "event:publish" },
+      { text: "📋 Status", callback_data: "event:status" },
+      { text: "🗑️ Cancel", callback_data: "event:cancel" },
+    ]]
+  );
+}
+
+async function handleEventCancel(chatId: number) {
+  const d = eventDraftGet(chatId);
+  if (!d) {
+    await sendTelegram(chatId, "No active event draft to cancel.");
+    return;
+  }
+  eventDraftClear(chatId);
+  await sendTelegram(chatId, `🗑️ Cancelled event draft: <b>${escapeHtml(d.title)}</b>.`);
+}
+
+async function handleEventStart(chatId: number, fromId: number, argText: string) {
+  const raw = argText.trim();
+  if (!raw) {
+    await sendTelegram(chatId, `Usage: ${codeInline("/event start <title> | optional notes")}`);
+    return;
+  }
+
+  const pipe = raw.indexOf("|");
+  const title = (pipe === -1 ? raw : raw.slice(0, pipe)).trim();
+  const notes = (pipe === -1 ? "" : raw.slice(pipe + 1)).trim();
+  if (!title) {
+    await sendTelegram(chatId, `Usage: ${codeInline("/event start <title> | optional notes")}`);
+    return;
+  }
+
+  await sendChatAction(chatId, "typing");
+
+  const prompt = [
+    `Create a new event titled "${title}".`,
+    notes ? `Notes: ${notes}` : "",
+    "Write a warm description (2-4 sentences).",
+    "Provide 4-6 highlights and 2-4 impact bullets.",
+    "If date/location are NOT explicitly provided, leave date and location as empty strings.",
+    "Set a short badge (1-3 words).",
+    "Do NOT set image/image_alt. Do NOT set gallery.",
+    "Return an add_event action.",
+  ].filter(Boolean).join("\n");
+
+  const actions = await parseCommand(prompt);
+  const add = actions.find((a) => a.action === "add_event") as { action: "add_event"; event: Partial<EventData> } | undefined;
+  const unk = actions.find((a) => a.action === "unknown") as { action: "unknown"; message: string } | undefined;
+
+  if (!add) {
+    await sendTelegram(
+      chatId,
+      [
+        "🤔 I couldn’t generate an event draft from that.",
+        unk?.message ? `\n${escapeHtml(unk.message)}` : "",
+        "",
+        `Try: ${codeInline("/event start Marcus | Date: 2026-06-14. Location: Croydon. Notes: ...")}`,
+      ].join("\n")
+    );
+    return;
+  }
+
+  const slug = (add.event.slug ? String(add.event.slug) : slugify(title)) || `event-${Date.now()}`;
+  const draft: EventDraft = {
+    chatId,
+    fromId,
+    createdAt: Date.now(),
+    title,
+    notes,
+    event: {
+      ...add.event,
+      title,
+      slug,
+      image: "",
+      image_alt: "",
+      gallery: [],
+      highlights: Array.isArray(add.event.highlights) ? add.event.highlights : [],
+      impact: Array.isArray(add.event.impact) ? add.event.impact : [],
+    },
+    gallery: [],
+  };
+  eventDraftSet(draft);
+
+  await sendTelegram(
+    chatId,
+    [
+      "✅ <b>Draft created</b>",
+      "",
+      formatEventDraft(draft),
+      "",
+      "Now send photos (caption optional) to attach them to this event.",
+      `When ready: ${codeInline("/event publish")}`,
+    ].join("\n"),
+    [[
+      { text: "📋 Status", callback_data: "event:status" },
+      { text: "✅ Publish", callback_data: "event:publish" },
+      { text: "🗑️ Cancel", callback_data: "event:cancel" },
+    ]]
+  );
+}
+
+async function handleEventPublish(chatId: number, fromId: number) {
+  const d = eventDraftGet(chatId);
+  if (!d) {
+    await sendTelegram(chatId, `No active event draft. Start one with ${codeInline("/event start <title>")}.`);
+    return;
+  }
+  if (d.fromId !== fromId) {
+    await sendTelegram(chatId, "This draft was created by a different user. Start a new draft in this chat.");
+    return;
+  }
+
+  const firstPhoto = d.gallery[0];
+  const event: Partial<EventData> = {
+    ...d.event,
+    title: d.title,
+    slug: String(d.event.slug || slugify(d.title) || `event-${Date.now()}`),
+    gallery: d.gallery,
+    image: String(d.event.image || firstPhoto?.src || ""),
+    image_alt: String(d.event.image_alt || firstPhoto?.alt || ""),
+  };
+
+  const previewId = crypto.randomUUID().slice(0, 12);
+  pendingStore.set(previewId, {
+    id: previewId,
+    chatId,
+    fromId,
+    createdAt: Date.now(),
+    actions: [{ action: "add_event", event }],
+    sourceText: `event publish: ${d.title}`,
+    clearEventDraftChatId: chatId,
+  });
+
+  const previewMsg = [
+    "📝 <b>Preview</b>",
+    "",
+    summarizeAction({ action: "add_event", event }),
+    "",
+    "<b>Ready to commit?</b>",
+  ].join("\n");
+
+  await sendTelegram(
+    chatId,
+    previewMsg,
+    [[
+      { text: "✅ Yes, Commit", callback_data: `commit:${previewId}` },
+      { text: "❌ No, Cancel", callback_data: `cancel:${previewId}` },
+    ]]
+  );
+}
+
+async function handleEventCommand(chatId: number, fromId: number, normalizedText: string) {
+  const parts = normalizedText.trim().split(/\s+/);
+  const base = (parts[0] || "").toLowerCase();
+  if (base !== "/event") return;
+
+  const sub = (parts[1] || "help").toLowerCase();
+  const rest = parts.slice(2).join(" ").trim();
+
+  switch (sub) {
+    case "start":
+    case "draft":
+      await handleEventStart(chatId, fromId, rest);
+      return;
+    case "status":
+      await handleEventStatus(chatId);
+      return;
+    case "publish":
+      await handleEventPublish(chatId, fromId);
+      return;
+    case "cancel":
+      await handleEventCancel(chatId);
+      return;
+    case "help":
+    default:
+      await sendTelegram(
+        chatId,
+        [
+          "<b>/event</b> commands",
+          `• ${codeInline("/event start <title> | optional notes")}`,
+          `• ${codeInline("/event status")}`,
+          `• ${codeInline("/event publish")}`,
+          `• ${codeInline("/event cancel")}`,
+          "",
+          `Tip: ${codeInline("/helper")}`,
+        ].join("\n")
+      );
+      return;
+  }
+}
+
 async function handleStatus(chatId: number) {
   try {
+    const siteUrl = (process.env.SITE_URL || "https://www.holditdown.uk").replace(/\/$/, "");
     const commits = await listRecentCommits(10);
     const last = commits.find((c) => c.commit.message.startsWith("telegram:"));
     let deployLine = "";
     let deployUrl: string | null = null;
+    let liveLine = "";
     if (last) {
       try {
         const st = await getCommitStatus(last.sha);
@@ -794,18 +1136,46 @@ async function handleStatus(chatId: number) {
         // ignore
       }
     }
+
+    // Also show what commit is actually live on the production site.
+    if (siteUrl) {
+      try {
+        const ac = new AbortController();
+        const t = setTimeout(() => ac.abort(), 3000);
+        const res = await fetch(`${siteUrl}/api/deploy-info`, { signal: ac.signal, cache: "no-store" });
+        clearTimeout(t);
+        if (res.ok) {
+          const info = (await res.json()) as {
+            vercel?: { git?: { sha?: string | null; message?: string | null } | null } | null;
+          };
+          const liveSha = info?.vercel?.git?.sha || null;
+          const liveMsg = info?.vercel?.git?.message || null;
+          if (liveSha) {
+            liveLine = `Live site SHA: <code>${liveSha.slice(0, 7)}</code>`;
+            if (last && liveSha !== last.sha) {
+              liveLine += `\n⚠️ Live site is on a different commit than your last Telegram change. Wait ~2 min, then tap Deploy status.`;
+            } else if (liveMsg) {
+              liveLine += `\nLive message: ${escapeHtml(truncate(liveMsg, 160))}`;
+            }
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+
     const msg = [
       "<b>Status</b>",
       `GitHub branch edits: <code>${process.env.GITHUB_OWNER || "holditdowncic"}/${process.env.GITHUB_REPO || "hold"}:${process.env.GITHUB_BRANCH || "main"}</code>`,
       last ? `Last Telegram commit: <code>${last.sha.slice(0, 7)}</code>` : "Last Telegram commit: (none found)",
       deployLine,
+      liveLine,
       "",
       "Vercel: should auto-deploy when GitHub receives the commit (if the project is linked).",
     ].join("\n");
     const buttons: TelegramInlineButton[][] = [];
     if (last) buttons.push([{ text: "🔎 Deploy status", callback_data: `deploy:${last.sha}` }]);
     if (deployUrl) buttons.push([{ text: "View Deploy", url: deployUrl }]);
-    const siteUrl = process.env.SITE_URL || "https://www.holditdown.uk";
     if (siteUrl) buttons.push([{ text: "View Live Site", url: siteUrl }]);
     await sendTelegram(chatId, msg, buttons.length ? buttons : undefined, { disablePreview: true });
   } catch (e) {
@@ -877,6 +1247,22 @@ export async function POST(request: NextRequest) {
       const fromId = cb.from?.id as number | undefined;
       if (!chatId || !fromId || !isAdmin(fromId)) {
         // Ignore non-admin callbacks. Responding to arbitrary callback IDs can cause noisy failures.
+        return NextResponse.json({ ok: true });
+      }
+
+      if (data === "event:status") {
+        await answerCallback(cb.id, "Opening draft...");
+        await handleEventStatus(chatId);
+        return NextResponse.json({ ok: true });
+      }
+      if (data === "event:cancel") {
+        await answerCallback(cb.id, "Cancelling...");
+        await handleEventCancel(chatId);
+        return NextResponse.json({ ok: true });
+      }
+      if (data === "event:publish") {
+        await answerCallback(cb.id, "Preparing preview...");
+        await handleEventPublish(chatId, fromId);
         return NextResponse.json({ ok: true });
       }
 
@@ -960,6 +1346,10 @@ export async function POST(request: NextRequest) {
           );
         }
 
+        if (pending.clearEventDraftChatId) {
+          eventDraftClear(pending.clearEventDraftChatId);
+        }
+
         return NextResponse.json({ ok: true });
       }
 
@@ -1016,6 +1406,7 @@ export async function POST(request: NextRequest) {
     }
 
     const text = String(message.text || message.caption || "").trim();
+    const normalizedText = normalizeSlashCommandText(text);
 
     const photos = (Array.isArray(message.photo) ? message.photo : []) as TelegramPhotoSize[];
     const voice = (message.voice || message.audio) as TelegramAudioLike | undefined;
@@ -1024,39 +1415,100 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    if (text === "/help" || text === "/start") {
+    if (normalizedText === "/start") {
+      await handleStart(chatId);
+      return NextResponse.json({ ok: true });
+    }
+    if (normalizedText === "/help") {
       await handleHelp(chatId);
       return NextResponse.json({ ok: true });
     }
-    if (text === "/status") {
+    if (normalizedText === "/helper") {
+      await handleHelper(chatId);
+      return NextResponse.json({ ok: true });
+    }
+    if (normalizedText.startsWith("/event")) {
+      await handleEventCommand(chatId, fromId, normalizedText);
+      return NextResponse.json({ ok: true });
+    }
+    if (normalizedText === "/status") {
       await handleStatus(chatId);
       return NextResponse.json({ ok: true });
     }
-    if (text === "/deploy") {
+    if (normalizedText === "/deploy") {
       await handleStatus(chatId);
       return NextResponse.json({ ok: true });
     }
-    if (text === "/undo" || text === "/revert") {
+    if (normalizedText === "/undo" || normalizedText === "/revert") {
       await handleUndo(chatId);
       return NextResponse.json({ ok: true });
     }
-    if (text === "/sections") {
+    if (normalizedText === "/sections") {
       await handleSections(chatId);
       return NextResponse.json({ ok: true });
     }
-    if (text === "/reset") {
+    if (normalizedText === "/reset") {
       pendingClearChat(chatId);
       await sendTelegram(chatId, "✅ Cleared pending previews.");
       return NextResponse.json({ ok: true });
     }
 
-    const deterministic = text ? parseDeterministicCommand(text) : null;
+    const deterministic = normalizedText ? parseDeterministicCommand(normalizedText) : null;
 
     // Media hint: users can send a photo and say "use this as hero image" etc.
     const wantsUpload =
       photos.length > 0 &&
       !!text &&
       /(use this|use this photo|use this image|set as hero|make.*hero|add to gallery|upload)/i.test(text);
+
+    // Event draft: if a draft exists, photos can be attached without any caption.
+    const draft = eventDraftGet(chatId);
+    const captionLooksLikeEventPhoto = !text || /(event|draft|for the event|for this event)/i.test(text);
+    if (photos.length > 0 && draft && captionLooksLikeEventPhoto && !wantsUpload) {
+      await sendChatAction(chatId, "upload_photo");
+      const best = pickLargestPhoto(photos);
+      const captionForUpload = text ? `event:${draft.title} | ${text}` : `event:${draft.title}`;
+      const uploadRes = await uploadTelegramMediaToGitHub({
+        fileId: best.file_id,
+        caption: captionForUpload,
+        chatId,
+        fromId,
+      });
+
+      const nextDraft: EventDraft = {
+        ...draft,
+        createdAt: Date.now(), // bump TTL on activity
+        gallery: [
+          ...draft.gallery,
+          {
+            src: uploadRes.publicPath,
+            alt: text ? truncate(text, 90) : `${draft.title} photo`,
+          },
+        ],
+        event: {
+          ...draft.event,
+          image: draft.event.image || uploadRes.publicPath,
+          image_alt: draft.event.image_alt || (text ? truncate(text, 90) : `${draft.title} photo`),
+        },
+      };
+      eventDraftSet(nextDraft);
+
+      await sendTelegram(
+        chatId,
+        [
+          "📷 <b>Added photo to event draft</b>",
+          `Event: <b>${escapeHtml(nextDraft.title)}</b>`,
+          `Total photos: <b>${String(nextDraft.gallery.length)}</b>`,
+          "",
+          `Next: ${codeInline("/event publish")} (or send more photos)`,
+        ].join("\n"),
+        [[
+          { text: "📋 Draft Status", callback_data: "event:status" },
+          { text: "✅ Publish", callback_data: "event:publish" },
+        ]]
+      );
+      return NextResponse.json({ ok: true });
+    }
 
     // If we want to upload, do it first and inject the resulting path into the prompt.
     let uploadedPath: string | null = null;

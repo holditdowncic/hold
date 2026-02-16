@@ -13,6 +13,8 @@ export async function POST(request: NextRequest) {
 
   const commands = [
     { command: "help", description: "Show bot commands and examples" },
+    { command: "helper", description: "Event drafting + examples" },
+    { command: "event", description: "Create an event draft (then add photos)" },
     { command: "sections", description: "List editable sections" },
     { command: "status", description: "Show GitHub/Deploy status" },
     { command: "deploy", description: "Show deploy status for last change" },

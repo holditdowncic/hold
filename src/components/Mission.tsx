@@ -87,6 +87,30 @@ export default function Mission({ content }: { content: MissionContent | null })
   const c = content || fallback;
   const values = safeValues(c.values).length ? safeValues(c.values) : fallback.values;
 
+  // If a simple/legacy `title` is present, prefer it so updates to `mission.title` are visible on the website.
+  const legacyTitle = typeof c.title === "string" ? c.title.trim() : "";
+  const parsedTitle = (() => {
+    if (!legacyTitle) return null;
+    // Try to preserve the existing 2-line layout and highlight "we can" when the title matches the common pattern.
+    const m = legacyTitle.match(/^(.+?)\s+(and together|& together)\s+(we can\.?)$/i);
+    if (m) {
+      return {
+        line1: m[1].trim(),
+        prefix: m[2].trim(),
+        highlight: m[3].replace(/\.$/, "").trim(),
+      };
+    }
+    return {
+      line1: legacyTitle,
+      prefix: "",
+      highlight: "",
+    };
+  })();
+
+  const headingLine1 = parsedTitle?.line1 || c.heading_line1 || fallback.heading_line1;
+  const headingLine2Prefix = parsedTitle?.prefix || c.heading_line2_prefix || fallback.heading_line2_prefix;
+  const headingLine2Highlight = parsedTitle?.highlight || c.heading_line2_highlight || fallback.heading_line2_highlight;
+
   return (
     <section id="mission" className="py-12 sm:py-16 md:py-20">
       <div className="mx-auto max-w-[1200px] px-5 sm:px-6">
@@ -99,10 +123,10 @@ export default function Mission({ content }: { content: MissionContent | null })
           </Reveal>
           <Reveal>
             <h2 className="mx-auto max-w-[700px] font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3rem)] font-bold leading-tight tracking-tight">
-              {c.heading_line1 || fallback.heading_line1}
+              {headingLine1}
               <br />
-              {(c.heading_line2_prefix || fallback.heading_line2_prefix) + " "}
-              <span className="text-gradient">{c.heading_line2_highlight || fallback.heading_line2_highlight}</span>
+              {headingLine2Prefix ? headingLine2Prefix + " " : ""}
+              <span className="text-gradient">{headingLine2Highlight}</span>
             </h2>
           </Reveal>
           <Reveal>
@@ -142,4 +166,3 @@ export default function Mission({ content }: { content: MissionContent | null })
     </section>
   );
 }
-

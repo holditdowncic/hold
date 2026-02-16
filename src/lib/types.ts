@@ -111,6 +111,8 @@ export interface MissionValue {
 
 export interface MissionContent {
     pill: string;
+    // Optional legacy/simple heading; if provided it can be used as the visible title.
+    title?: string;
     heading_line1: string;
     heading_line2_prefix: string;
     heading_line2_highlight: string;
