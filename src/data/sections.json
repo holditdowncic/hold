@@ -111,6 +111,9 @@
       "Wellbeing"
     ]
   },
+  "site": {
+    "hidden_sections": []
+  },
   "nav": {
     "logo_src": "/logos/holdlogo.png",
     "logo_alt": "HOLD IT DOWN",

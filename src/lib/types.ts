@@ -4,6 +4,13 @@
 
 // --- Site Content (JSONB sections) ---
 
+export interface SiteConfig {
+    // If a section id is listed here, the homepage will not render it.
+    // Valid ids are the component ids used on the homepage: hero, stats, about, mission, programs, events, impact,
+    // custom_sections, team, support, gallery, cta, contact.
+    hidden_sections?: string[];
+}
+
 export interface HeroContent {
     badge: string;
     heading_line1: string;

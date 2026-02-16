@@ -20,6 +20,7 @@ import { getAllContent } from "@/lib/content";
 
 export default async function Home() {
   const content = await getAllContent();
+  const hidden = new Set((content.site?.hidden_sections || []).map((s) => String(s).trim()).filter(Boolean));
 
   return (
     <>
@@ -28,23 +29,25 @@ export default async function Home() {
 
       <Navbar />
       <main>
-        <Hero content={content.hero} />
-        <Stats stats={content.stats} />
-        <About content={content.about} />
-        <Mission content={content.mission} />
-        <Programs
-          programs={content.programs}
-          initiatives={content.initiatives}
-          meta={content.programsMeta}
-        />
-        <Events events={content.events} meta={content.eventsMeta} />
-        <Impact content={content.impact} />
-        <CustomSections sections={content.customSections} />
-        <Team members={content.teamMembers} />
-        <Support content={content.support} />
-        <Gallery images={content.galleryImages} meta={content.galleryMeta} />
-        <CTA content={content.cta} />
-        <Contact content={content.contact} />
+        {!hidden.has("hero") && <Hero content={content.hero} />}
+        {!hidden.has("stats") && <Stats stats={content.stats} />}
+        {!hidden.has("about") && <About content={content.about} />}
+        {!hidden.has("mission") && <Mission content={content.mission} />}
+        {!hidden.has("programs") && (
+          <Programs
+            programs={content.programs}
+            initiatives={content.initiatives}
+            meta={content.programsMeta}
+          />
+        )}
+        {!hidden.has("events") && <Events events={content.events} meta={content.eventsMeta} />}
+        {!hidden.has("impact") && <Impact content={content.impact} />}
+        {!hidden.has("custom_sections") && <CustomSections sections={content.customSections} />}
+        {!hidden.has("team") && <Team members={content.teamMembers} />}
+        {!hidden.has("support") && <Support content={content.support} />}
+        {!hidden.has("gallery") && <Gallery images={content.galleryImages} meta={content.galleryMeta} />}
+        {!hidden.has("cta") && <CTA content={content.cta} />}
+        {!hidden.has("contact") && <Contact content={content.contact} />}
       </main>
       <Footer />
     </>

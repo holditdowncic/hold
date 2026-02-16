@@ -14,6 +14,7 @@ import type {
   MissionContent,
   Program,
   ProgramsSectionContent,
+  SiteConfig,
   Stat,
   SupportContent,
   TeamMember,
@@ -95,6 +96,10 @@ export async function getCookieBannerContent(): Promise<CookieBannerContent | nu
   return getSection<Partial<CookieBannerContent>>("cookie_banner") as CookieBannerContent | null;
 }
 
+export async function getSiteConfig(): Promise<SiteConfig | null> {
+  return getSection<Partial<SiteConfig>>("site") as SiteConfig | null;
+}
+
 export async function getCustomSections(): Promise<CustomSection[]> {
   return sortByOrder(getSectionArray<CustomSection>("custom_sections"));
 }
@@ -138,6 +143,7 @@ export async function getStats(): Promise<Stat[]> {
 
 export async function getAllContent() {
   const [
+    site,
     hero,
     about,
     cta,
@@ -156,6 +162,7 @@ export async function getAllContent() {
     events,
     stats,
   ] = await Promise.all([
+    getSiteConfig(),
     getHeroContent(),
     getAboutContent(),
     getCTAContent(),
@@ -176,6 +183,7 @@ export async function getAllContent() {
   ]);
 
   return {
+    site,
     hero,
     about,
     cta,
