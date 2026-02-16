@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { Reveal, fadeUp, staggerContainer } from "@/lib/motion";
-import type { EventData } from "@/lib/types";
+import type { EventData, EventsSectionContent } from "@/lib/types";
 
 // Default events shown when Supabase table is empty
 const defaultEvents: EventData[] = [
@@ -58,12 +58,24 @@ const defaultEvents: EventData[] = [
 // Show only the first 2 events as a preview
 interface EventsProps {
   events: EventData[];
+  meta?: EventsSectionContent | null;
 }
 
-export default function Events({ events }: EventsProps) {
+const fallbackMeta: EventsSectionContent = {
+  pill: "Events",
+  heading_prefix: "Where",
+  heading_highlight1: "community",
+  heading_mid: "comes",
+  heading_highlight2: "alive",
+  description:
+    "From family fun days to youth-led podcast sessions, our events bring people together to connect, heal, and celebrate.",
+};
+
+export default function Events({ events, meta }: EventsProps) {
   const eventsData = events.length > 0 ? events : defaultEvents;
   const previewEvents = eventsData.slice(0, 2);
   const totalEvents = eventsData.length;
+  const m = meta || fallbackMeta;
 
   return (
     <section id="events" className="py-12 sm:py-16 md:py-20">
@@ -72,19 +84,20 @@ export default function Events({ events }: EventsProps) {
         <div className="mb-10 text-center sm:mb-14 md:mb-16">
           <Reveal>
             <span className="mb-5 inline-block rounded-full border border-accent/15 bg-accent-glow px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-accent">
-              Events
+              {m.pill || fallbackMeta.pill}
             </span>
           </Reveal>
           <Reveal>
             <h2 className="mx-auto max-w-[700px] font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3rem)] font-bold leading-tight tracking-tight">
-              Where community{" "}
-              <span className="text-gradient">comes alive</span>
+              {m.heading_prefix || fallbackMeta.heading_prefix}{" "}
+              <span className="text-gradient">{m.heading_highlight1 || fallbackMeta.heading_highlight1}</span>{" "}
+              {m.heading_mid || fallbackMeta.heading_mid}{" "}
+              <span className="text-gradient">{m.heading_highlight2 || fallbackMeta.heading_highlight2}</span>
             </h2>
           </Reveal>
           <Reveal>
             <p className="mx-auto mt-5 max-w-[600px] text-base leading-relaxed text-text-secondary md:text-lg">
-              From family fun days to youth-led podcast sessions, our events
-              bring people together to connect, heal, and celebrate.
+              {m.description || fallbackMeta.description}
             </p>
           </Reveal>
         </div>

@@ -111,6 +111,14 @@
       "Wellbeing"
     ]
   },
+  "events": {
+    "pill": "Our Events",
+    "heading_prefix": "Where",
+    "heading_highlight1": "community",
+    "heading_mid": "comes",
+    "heading_highlight2": "alive",
+    "description": "From family fun days to youth-led podcast sessions, our events bring people together to connect, heal, and celebrate. Here's what we've been up to."
+  },
   "mission": {
     "pill": "Our Mission",
     "heading_line1": "I can because you can",

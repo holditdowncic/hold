@@ -102,6 +102,15 @@ export interface ProgramsSectionContent {
     flagship_tags: string[];
 }
 
+export interface EventsSectionContent {
+    pill: string;
+    heading_prefix: string;
+    heading_highlight1: string;
+    heading_mid: string;
+    heading_highlight2: string;
+    description: string;
+}
+
 export interface MissionValue {
     num: string;
     title: string;

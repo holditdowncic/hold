@@ -37,7 +37,7 @@ export default async function Home() {
           initiatives={content.initiatives}
           meta={content.programsMeta}
         />
-        <Events events={content.events} />
+        <Events events={content.events} meta={content.eventsMeta} />
         <Impact />
         <CustomSections sections={content.customSections} />
         <Team members={content.teamMembers} />

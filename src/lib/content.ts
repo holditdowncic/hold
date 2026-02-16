@@ -5,6 +5,7 @@ import type {
   CTAContent,
   CustomSection,
   EventData,
+  EventsSectionContent,
   GalleryContent,
   GalleryImage,
   HeroContent,
@@ -77,6 +78,10 @@ export async function getProgramsMeta(): Promise<ProgramsSectionContent | null> 
   return getSection<Partial<ProgramsSectionContent>>("programs") as ProgramsSectionContent | null;
 }
 
+export async function getEventsMeta(): Promise<EventsSectionContent | null> {
+  return getSection<Partial<EventsSectionContent>>("events") as EventsSectionContent | null;
+}
+
 export async function getMissionContent(): Promise<MissionContent | null> {
   return getSection<Partial<MissionContent>>("mission") as MissionContent | null;
 }
@@ -135,6 +140,7 @@ export async function getAllContent() {
     support,
     galleryMeta,
     programsMeta,
+    eventsMeta,
     mission,
     customSections,
     teamMembers,
@@ -151,6 +157,7 @@ export async function getAllContent() {
     getSupportContent(),
     getGalleryMeta(),
     getProgramsMeta(),
+    getEventsMeta(),
     getMissionContent(),
     getCustomSections(),
     getTeamMembers(),
@@ -169,6 +176,7 @@ export async function getAllContent() {
     support,
     galleryMeta,
     programsMeta,
+    eventsMeta,
     mission,
     customSections,
     teamMembers,
