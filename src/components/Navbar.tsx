@@ -6,8 +6,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/lib/theme";
+import sectionsJson from "@/data/sections.json";
 
-const links: { label: string; href: string; isPage?: boolean }[] = [
+type NavLink = { label: string; href: string; isPage?: boolean };
+
+const defaultLinks: NavLink[] = [
   { label: "About", href: "#about" },
   { label: "Mission", href: "#mission" },
   { label: "Programmes", href: "#programs" },
@@ -16,6 +19,15 @@ const links: { label: string; href: string; isPage?: boolean }[] = [
   { label: "Gallery", href: "#gallery" },
   { label: "Contact", href: "/contact", isPage: true },
 ];
+
+function safeLinks(raw: unknown): NavLink[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((l) => l && typeof l === "object")
+    .map((l) => l as NavLink)
+    .filter((l) => typeof l.label === "string" && typeof l.href === "string")
+    .map((l) => ({ label: l.label, href: l.href, isPage: !!l.isPage }));
+}
 
 function ThemeToggle() {
   const { theme, toggle } = useTheme();
@@ -83,6 +95,10 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const nav = (sectionsJson as unknown as Record<string, unknown>)["nav"] as Record<string, unknown> | undefined;
+  const links = safeLinks(nav?.links).length ? safeLinks(nav?.links) : defaultLinks;
+  const logoSrc = typeof nav?.logo_src === "string" ? nav.logo_src : "/logos/holdlogo.png";
+  const logoAlt = typeof nav?.logo_alt === "string" ? nav.logo_alt : "HOLD IT DOWN";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -128,8 +144,8 @@ export default function Navbar() {
         >
           <div className="relative h-8 w-[120px] sm:h-10 sm:w-[140px]">
             <Image
-              src="/logos/holdlogo.png"
-              alt="HOLD IT DOWN"
+              src={logoSrc}
+              alt={logoAlt}
               fill
               className="object-contain object-left"
               sizes="140px"

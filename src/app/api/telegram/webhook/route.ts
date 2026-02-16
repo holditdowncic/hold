@@ -499,8 +499,12 @@ function summarizeAction(act: CMSAction): string {
       return `• Add event: <b>${escapeHtml(String(act.event?.title || "event"))}</b>`;
     case "update_event":
       return `• Update event: ${codeInline(act.slug)}`;
+    case "remove_event":
+      return `• Remove event: ${codeInline(act.slug)}`;
     case "update_stat":
       return `• Update stat: <b>${escapeHtml(act.label)}</b> = ${codeInline(String(act.value))}`;
+    case "remove_stat":
+      return `• Remove stat: <b>${escapeHtml(act.label)}</b>`;
     case "undo":
       return "• Undo last change";
     case "get_status":
@@ -536,7 +540,9 @@ function isSupportedAction(act: unknown): act is CMSAction {
     "remove_gallery_image",
     "add_event",
     "update_event",
+    "remove_event",
     "update_stat",
+    "remove_stat",
     "get_status",
     "undo",
     "unknown",
@@ -782,6 +788,13 @@ async function applyAction(
           return { data: next, description: `events: update ${slug}` };
         }, meta);
       }
+      case "remove_event": {
+        const { slug } = action;
+        return await updateJsonFile<EventData[]>("src/data/events.json", (data) => {
+          const next = data.filter((e) => e.slug !== slug);
+          return { data: next, description: `events: remove ${slug}` };
+        }, meta);
+      }
 
       case "update_stat": {
         const { label, value, suffix, prefix } = action;
@@ -807,6 +820,13 @@ async function applyAction(
             prefix: prefix ?? next[idx].prefix,
           };
           return { data: next, description: `stats: update ${label}` };
+        }, meta);
+      }
+      case "remove_stat": {
+        const { label } = action;
+        return await updateJsonFile<Stat[]>("src/data/stats.json", (data) => {
+          const next = data.filter((s) => normalize(s.label) !== normalize(label));
+          return { data: next, description: `stats: remove ${label}` };
         }, meta);
       }
 

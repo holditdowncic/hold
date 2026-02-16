@@ -111,6 +111,19 @@
       "Wellbeing"
     ]
   },
+  "nav": {
+    "logo_src": "/logos/holdlogo.png",
+    "logo_alt": "HOLD IT DOWN",
+    "links": [
+      { "label": "About", "href": "#about" },
+      { "label": "Mission", "href": "#mission" },
+      { "label": "Programmes", "href": "#programs" },
+      { "label": "Events", "href": "/events", "isPage": true },
+      { "label": "Impact", "href": "#impact" },
+      { "label": "Gallery", "href": "#gallery" },
+      { "label": "Contact", "href": "/contact", "isPage": true }
+    ]
+  },
   "events": {
     "pill": "Our Events",
     "heading_prefix": "Where",
@@ -118,6 +131,52 @@
     "heading_mid": "comes",
     "heading_highlight2": "alive",
     "description": "From family fun days to youth-led podcast sessions, our events bring people together to connect, heal, and celebrate. Here's what we've been up to."
+  },
+  "footer": {
+    "logo_src": "/logos/holdlogo.png",
+    "logo_alt": "HOLD IT DOWN",
+    "lines": [
+      "Community Interest Company",
+      "Registered in England & Wales",
+      "Company No. 14377702"
+    ],
+    "links": [
+      { "label": "About", "href": "#about" },
+      { "label": "Mission", "href": "#mission" },
+      { "label": "Programmes", "href": "#programs" },
+      { "label": "Events", "href": "/events", "isPage": true },
+      { "label": "Impact", "href": "#impact" },
+      { "label": "Team", "href": "#team" },
+      { "label": "Support", "href": "#support" },
+      { "label": "Gallery", "href": "#gallery" },
+      { "label": "Contact", "href": "/contact", "isPage": true }
+    ]
+  },
+  "impact": {
+    "pill": "Our Impact",
+    "heading_line1": "Every story matters.",
+    "heading_line2_prefix": "Every voice",
+    "heading_line2_highlight": "counts",
+    "testimonials": [
+      {
+        "quote": "Hold It Down gave my family a space where we could just be ourselves. My son found his voice through the workshops, and I found a community that truly understands us.",
+        "name": "Community Parent",
+        "role": "Roots & Wings Participant",
+        "avatar": "/media/image-5.jpeg"
+      },
+      {
+        "quote": "For the first time, I felt like someone actually cared about what I had to say. The mentors here don’t just talk at you — they listen, they understand, and they push you to believe in yourself.",
+        "name": "Young Person",
+        "role": "Youth Programme Member",
+        "avatar": "/media/image-7.jpeg"
+      },
+      {
+        "quote": "This isn’t charity — it’s community. Hold It Down is built by people who’ve lived it. That’s what makes it real. That’s what makes it work.",
+        "name": "Local Volunteer",
+        "role": "Community Member",
+        "avatar": "/media/image-1.jpeg"
+      }
+    ]
   },
   "mission": {
     "pill": "Our Mission",

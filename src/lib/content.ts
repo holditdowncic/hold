@@ -9,6 +9,7 @@ import type {
   GalleryContent,
   GalleryImage,
   HeroContent,
+  ImpactContent,
   Initiative,
   MissionContent,
   Program,
@@ -82,6 +83,10 @@ export async function getEventsMeta(): Promise<EventsSectionContent | null> {
   return getSection<Partial<EventsSectionContent>>("events") as EventsSectionContent | null;
 }
 
+export async function getImpactContent(): Promise<ImpactContent | null> {
+  return getSection<Partial<ImpactContent>>("impact") as ImpactContent | null;
+}
+
 export async function getMissionContent(): Promise<MissionContent | null> {
   return getSection<Partial<MissionContent>>("mission") as MissionContent | null;
 }
@@ -141,6 +146,7 @@ export async function getAllContent() {
     galleryMeta,
     programsMeta,
     eventsMeta,
+    impact,
     mission,
     customSections,
     teamMembers,
@@ -158,6 +164,7 @@ export async function getAllContent() {
     getGalleryMeta(),
     getProgramsMeta(),
     getEventsMeta(),
+    getImpactContent(),
     getMissionContent(),
     getCustomSections(),
     getTeamMembers(),
@@ -177,6 +184,7 @@ export async function getAllContent() {
     galleryMeta,
     programsMeta,
     eventsMeta,
+    impact,
     mission,
     customSections,
     teamMembers,

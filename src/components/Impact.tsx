@@ -3,8 +3,9 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Reveal, staggerContainer, TiltCard } from "@/lib/motion";
+import type { ImpactContent, ImpactTestimonial } from "@/lib/types";
 
-const testimonials = [
+const fallbackTestimonials: ImpactTestimonial[] = [
   {
     quote:
       "Hold It Down gave my family a space where we could just be ourselves. My son found his voice through the workshops, and I found a community that truly understands us.",
@@ -31,7 +32,31 @@ const testimonials = [
   },
 ];
 
-export default function Impact() {
+const fallback: ImpactContent = {
+  pill: "Our Impact",
+  heading_line1: "Every story matters.",
+  heading_line2_prefix: "Every voice",
+  heading_line2_highlight: "counts",
+  testimonials: fallbackTestimonials,
+};
+
+function safeTestimonials(raw: unknown): ImpactTestimonial[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((t) => t && typeof t === "object")
+    .map((t) => t as ImpactTestimonial)
+    .filter(
+      (t) =>
+        typeof t.quote === "string" &&
+        typeof t.name === "string" &&
+        typeof t.role === "string" &&
+        typeof t.avatar === "string"
+    );
+}
+
+export default function Impact({ content }: { content: ImpactContent | null }) {
+  const c = content || fallback;
+  const testimonials = safeTestimonials(c.testimonials).length ? safeTestimonials(c.testimonials) : fallbackTestimonials;
   return (
     <section id="impact" className="py-12 sm:py-16 md:py-20">
       <div className="mx-auto max-w-[1200px] px-5 sm:px-6">
@@ -39,14 +64,15 @@ export default function Impact() {
         <div className="mb-10 text-center sm:mb-12 md:mb-16">
           <Reveal>
             <span className="mb-5 inline-block rounded-full border border-accent/15 bg-accent-glow px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-accent">
-              Our Impact
+              {c.pill || fallback.pill}
             </span>
           </Reveal>
           <Reveal>
             <h2 className="mx-auto max-w-[700px] font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3rem)] font-bold leading-tight tracking-tight">
-              Every story matters.
+              {c.heading_line1 || fallback.heading_line1}
               <br />
-              Every voice <span className="text-gradient">counts</span>.
+              {(c.heading_line2_prefix || fallback.heading_line2_prefix) + " "}
+              <span className="text-gradient">{c.heading_line2_highlight || fallback.heading_line2_highlight}</span>.
             </h2>
           </Reveal>
         </div>

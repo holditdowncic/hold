@@ -111,6 +111,21 @@ export interface EventsSectionContent {
     description: string;
 }
 
+export interface ImpactTestimonial {
+    quote: string;
+    name: string;
+    role: string;
+    avatar: string;
+}
+
+export interface ImpactContent {
+    pill: string;
+    heading_line1: string;
+    heading_line2_prefix: string;
+    heading_line2_highlight: string;
+    testimonials: ImpactTestimonial[];
+}
+
 export interface MissionValue {
     num: string;
     title: string;
@@ -242,7 +257,9 @@ export type CMSAction =
     | { action: "remove_program"; title: string }
     | { action: "add_event"; event: Partial<EventData> }
     | { action: "update_event"; slug: string; updates: Partial<EventData> }
+    | { action: "remove_event"; slug: string }
     | { action: "update_stat"; label: string; value: number; suffix?: string; prefix?: string }
+    | { action: "remove_stat"; label: string }
     | { action: "add_initiative"; title: string; detail: string }
     | { action: "remove_initiative"; title: string }
     | { action: "add_custom_section"; section: Omit<CustomSection, "id" | "sort_order"> & { id?: string; sort_order?: number } }
