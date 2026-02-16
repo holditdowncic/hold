@@ -188,7 +188,8 @@
     "cta_primary_text": "Explore Our Programmes",
     "cta_primary_link": "#programs",
     "cta_secondary_text": "Support Our Work",
-    "cta_secondary_link": "/contact"
+    "cta_secondary_link": "/contact",
+    "title": "Where <span class=\"text-gradient\">community</span> comes <span class=\"text-gradient\">alive</span>"
   },
   "custom_sections": [
     {
