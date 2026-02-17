@@ -24,18 +24,54 @@
     "image_alt": "Volunteers and families at the Roots & Wings Family Fun Day",
     "badge": "300+ Attendees",
     "gallery": [
-      { "src": "/media/roots/roots-1.jpeg", "alt": "Roots & Wings team group photo" },
-      { "src": "/media/roots/roots-11.jpeg", "alt": "Families enjoying the fun day activities" },
-      { "src": "/media/roots/roots-3.jpeg", "alt": "Young person with medal" },
-      { "src": "/media/roots/roots-13.jpeg", "alt": "Fathers at outdoor discussion" },
-      { "src": "/media/roots/roots-7.jpeg", "alt": "Face painting at the event" },
-      { "src": "/media/roots/roots-17.jpeg", "alt": "Dancing and performing" },
-      { "src": "/media/image-5.jpeg", "alt": "Family at the fun day" },
-      { "src": "/media/image-6.jpeg", "alt": "Youth activities" },
-      { "src": "/media/image-7.jpeg", "alt": "Child showing medal" },
-      { "src": "/media/image-9.jpeg", "alt": "Award ceremony" },
-      { "src": "/media/image-8.jpeg", "alt": "Community support" },
-      { "src": "/media/image-3.jpeg", "alt": "Community partners" }
+      {
+        "src": "/media/roots/roots-1.jpeg",
+        "alt": "Roots & Wings team group photo"
+      },
+      {
+        "src": "/media/roots/roots-11.jpeg",
+        "alt": "Families enjoying the fun day activities"
+      },
+      {
+        "src": "/media/roots/roots-3.jpeg",
+        "alt": "Young person with medal"
+      },
+      {
+        "src": "/media/roots/roots-13.jpeg",
+        "alt": "Fathers at outdoor discussion"
+      },
+      {
+        "src": "/media/roots/roots-7.jpeg",
+        "alt": "Face painting at the event"
+      },
+      {
+        "src": "/media/roots/roots-17.jpeg",
+        "alt": "Dancing and performing"
+      },
+      {
+        "src": "/media/image-5.jpeg",
+        "alt": "Family at the fun day"
+      },
+      {
+        "src": "/media/image-6.jpeg",
+        "alt": "Youth activities"
+      },
+      {
+        "src": "/media/image-7.jpeg",
+        "alt": "Child showing medal"
+      },
+      {
+        "src": "/media/image-9.jpeg",
+        "alt": "Award ceremony"
+      },
+      {
+        "src": "/media/image-8.jpeg",
+        "alt": "Community support"
+      },
+      {
+        "src": "/media/image-3.jpeg",
+        "alt": "Community partners"
+      }
     ],
     "sort_order": 1
   },
@@ -56,7 +92,12 @@
     "image": "/media/talkdi/talkdi-1.jpeg",
     "image_alt": "Talk Di TingZ youth podcast team out in the community",
     "badge": "Youth-Led",
-    "gallery": [{ "src": "/media/talkdi/talkdi-1.jpeg", "alt": "Talk Di TingZ team" }],
+    "gallery": [
+      {
+        "src": "/media/talkdi/talkdi-1.jpeg",
+        "alt": "Talk Di TingZ team"
+      }
+    ],
     "sort_order": 2
   },
   {
@@ -82,9 +123,18 @@
     "image_alt": "Young person on high ropes adventure course",
     "badge": "Youth Adventure",
     "gallery": [
-      { "src": "/media/roots/roots-20.jpeg", "alt": "High ropes adventure" },
-      { "src": "/media/roots/roots-18.jpeg", "alt": "River crossing activity" },
-      { "src": "/media/roots/roots-12.jpeg", "alt": "Football in the park" }
+      {
+        "src": "/media/roots/roots-20.jpeg",
+        "alt": "High ropes adventure"
+      },
+      {
+        "src": "/media/roots/roots-18.jpeg",
+        "alt": "River crossing activity"
+      },
+      {
+        "src": "/media/roots/roots-12.jpeg",
+        "alt": "Football in the park"
+      }
     ],
     "sort_order": 3
   },
@@ -109,7 +159,12 @@
     "image": "/media/roots/roots-15.jpeg",
     "image_alt": "Community members gathered for networking evening",
     "badge": "Community",
-    "gallery": [{ "src": "/media/roots/roots-15.jpeg", "alt": "Community gathering" }],
+    "gallery": [
+      {
+        "src": "/media/roots/roots-15.jpeg",
+        "alt": "Community gathering"
+      }
+    ],
     "sort_order": 4
   },
   {
@@ -133,7 +188,12 @@
     "image": "/media/roots/roots-22.jpeg",
     "image_alt": "Creative crafts and activities made by participants",
     "badge": "Wellbeing",
-    "gallery": [{ "src": "/media/roots/roots-22.jpeg", "alt": "Creative workshop outputs" }],
+    "gallery": [
+      {
+        "src": "/media/roots/roots-22.jpeg",
+        "alt": "Creative workshop outputs"
+      }
+    ],
     "sort_order": 5
   }
 ]
