@@ -15,6 +15,10 @@ type GitHubCommitFile = {
   previous_filename?: string;
 };
 
+type GitRefResponse = {
+  object: { sha: string };
+};
+
 function getRepoConfig() {
   const owner = process.env.GITHUB_OWNER || "holditdowncic";
   const repo = process.env.GITHUB_REPO || "hold";
@@ -28,6 +32,15 @@ function ghHeaders(token: string) {
     Authorization: `Bearer ${token}`,
     Accept: "application/vnd.github+json",
   };
+}
+
+async function ghJson<T>(url: string, init: RequestInit): Promise<T> {
+  const res = await fetch(url, init);
+  if (!res.ok) {
+    const bodyText = await res.text();
+    throw new Error(`GitHub API failed (${res.status}): ${bodyText}`);
+  }
+  return (await res.json()) as T;
 }
 
 export type GitHubCommitStatusSummary = {
@@ -293,4 +306,151 @@ export async function revertCommit(sha: string): Promise<{ revertedFiles: string
   }
 
   return { revertedFiles, revertCommitShas };
+}
+
+// ============================================================
+// PR-based "code edit flow" helpers
+// ============================================================
+
+export async function getHeadSha(ref?: string): Promise<string> {
+  const { owner, repo, branch, token } = getRepoConfig();
+  if (!token) throw new Error("GITHUB_TOKEN not configured");
+  const b = ref || branch;
+  const url = `https://api.github.com/repos/${owner}/${repo}/git/ref/heads/${encodeURIComponent(b)}`;
+  const json = await ghJson<GitRefResponse>(url, { headers: ghHeaders(token) });
+  return json.object.sha;
+}
+
+export async function createBranch(args: { branch: string; fromSha: string }) {
+  const { owner, repo, token } = getRepoConfig();
+  if (!token) throw new Error("GITHUB_TOKEN not configured");
+  const url = `https://api.github.com/repos/${owner}/${repo}/git/refs`;
+  await ghJson(url, {
+    method: "POST",
+    headers: { ...ghHeaders(token), "Content-Type": "application/json" },
+    body: JSON.stringify({ ref: `refs/heads/${args.branch}`, sha: args.fromSha }),
+  });
+}
+
+export async function createCommitWithFiles(args: {
+  branch: string;
+  message: string;
+  files: Array<{ path: string; content?: string; delete?: boolean }>;
+}): Promise<{ commitSha: string; commitUrl: string }> {
+  const { owner, repo, token } = getRepoConfig();
+  if (!token) throw new Error("GITHUB_TOKEN not configured");
+
+  const baseCommitSha = await getHeadSha(args.branch);
+  const baseCommit = await ghJson<{ tree: { sha: string } }>(
+    `https://api.github.com/repos/${owner}/${repo}/git/commits/${baseCommitSha}`,
+    { headers: ghHeaders(token) }
+  );
+  const baseTreeSha = baseCommit.tree.sha;
+
+  const blobs = new Map<string, string>();
+  for (const f of args.files) {
+    if (f.delete) continue;
+    if (typeof f.content !== "string") throw new Error(`Missing content for ${f.path}`);
+    const blob = await ghJson<{ sha: string }>(
+      `https://api.github.com/repos/${owner}/${repo}/git/blobs`,
+      {
+        method: "POST",
+        headers: { ...ghHeaders(token), "Content-Type": "application/json" },
+        body: JSON.stringify({ content: f.content, encoding: "utf-8" }),
+      }
+    );
+    blobs.set(f.path, blob.sha);
+  }
+
+  const tree = args.files.map((f) => {
+    if (f.delete) {
+      return { path: f.path, mode: "100644", type: "blob", sha: null as unknown as string };
+    }
+    const sha = blobs.get(f.path);
+    if (!sha) throw new Error(`Missing blob sha for ${f.path}`);
+    return { path: f.path, mode: "100644", type: "blob", sha };
+  });
+
+  const newTree = await ghJson<{ sha: string }>(
+    `https://api.github.com/repos/${owner}/${repo}/git/trees`,
+    {
+      method: "POST",
+      headers: { ...ghHeaders(token), "Content-Type": "application/json" },
+      body: JSON.stringify({ base_tree: baseTreeSha, tree }),
+    }
+  );
+
+  const newCommit = await ghJson<{ sha: string }>(
+    `https://api.github.com/repos/${owner}/${repo}/git/commits`,
+    {
+      method: "POST",
+      headers: { ...ghHeaders(token), "Content-Type": "application/json" },
+      body: JSON.stringify({ message: args.message, tree: newTree.sha, parents: [baseCommitSha] }),
+    }
+  );
+
+  await ghJson(
+    `https://api.github.com/repos/${owner}/${repo}/git/refs/heads/${encodeURIComponent(args.branch)}`,
+    {
+      method: "PATCH",
+      headers: { ...ghHeaders(token), "Content-Type": "application/json" },
+      body: JSON.stringify({ sha: newCommit.sha, force: false }),
+    }
+  );
+
+  return { commitSha: newCommit.sha, commitUrl: `https://github.com/${owner}/${repo}/commit/${newCommit.sha}` };
+}
+
+export async function createPullRequest(args: {
+  title: string;
+  body: string;
+  head: string;
+  base?: string;
+}): Promise<{ number: number; html_url: string }> {
+  const { owner, repo, branch, token } = getRepoConfig();
+  if (!token) throw new Error("GITHUB_TOKEN not configured");
+  const url = `https://api.github.com/repos/${owner}/${repo}/pulls`;
+  return await ghJson(url, {
+    method: "POST",
+    headers: { ...ghHeaders(token), "Content-Type": "application/json" },
+    body: JSON.stringify({ title: args.title, body: args.body, head: args.head, base: args.base || branch }),
+  });
+}
+
+export async function getPullRequest(args: { number: number }): Promise<{ number: number; html_url: string; head: { ref: string } }> {
+  const { owner, repo, token } = getRepoConfig();
+  if (!token) throw new Error("GITHUB_TOKEN not configured");
+  const url = `https://api.github.com/repos/${owner}/${repo}/pulls/${args.number}`;
+  return await ghJson(url, { headers: ghHeaders(token) });
+}
+
+export async function closePullRequest(args: { number: number }) {
+  const { owner, repo, token } = getRepoConfig();
+  if (!token) throw new Error("GITHUB_TOKEN not configured");
+  const url = `https://api.github.com/repos/${owner}/${repo}/pulls/${args.number}`;
+  await ghJson(url, {
+    method: "PATCH",
+    headers: { ...ghHeaders(token), "Content-Type": "application/json" },
+    body: JSON.stringify({ state: "closed" }),
+  });
+}
+
+export async function mergePullRequest(args: {
+  number: number;
+  title: string;
+  message: string;
+  method?: "merge" | "squash" | "rebase";
+}): Promise<{ sha: string; merged: boolean; message?: string }> {
+  const { owner, repo, token } = getRepoConfig();
+  if (!token) throw new Error("GITHUB_TOKEN not configured");
+  const url = `https://api.github.com/repos/${owner}/${repo}/pulls/${args.number}/merge`;
+  return await ghJson(url, {
+    method: "PUT",
+    headers: { ...ghHeaders(token), "Content-Type": "application/json" },
+    body: JSON.stringify({
+      merge_method: args.method || "squash",
+      commit_title: args.title,
+      commit_message: args.message,
+    }),
+  });
 }

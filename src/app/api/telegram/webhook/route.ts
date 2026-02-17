@@ -11,10 +11,18 @@ import type {
   TeamMember,
 } from "@/lib/types";
 import { parseCommand, parseCommandWithMedia } from "@/lib/openrouter";
+import { generateFileContent, planCodeEdit } from "@/lib/openrouter-code";
 import {
   getGitHubFile,
   getCommitStatus,
   listRecentCommits,
+  createBranch,
+  createCommitWithFiles,
+  createPullRequest,
+  closePullRequest,
+  getHeadSha,
+  getPullRequest,
+  mergePullRequest,
   putGitHubBinaryFile,
   putGitHubFile,
   revertCommit,
@@ -191,6 +199,35 @@ function normalizeSlashCommandText(text: string): string {
   // Support group chats where Telegram sends /cmd@BotName
   parts[0] = parts[0].split("@")[0] || parts[0];
   return parts.join(" ");
+}
+
+function isAllowedCodePath(path: string): boolean {
+  const p = path.trim();
+  if (!p) return false;
+  if (p.startsWith("/") || p.includes("..")) return false;
+  const deny = [
+    ".env",
+    ".git",
+    "node_modules",
+    "package-lock.json",
+    "pnpm-lock.yaml",
+    "yarn.lock",
+  ];
+  if (deny.some((x) => p === x || p.startsWith(`${x}/`))) return false;
+
+  if (p.startsWith("src/")) return true;
+  if (p.startsWith("public/")) return true;
+
+  return [
+    "package.json",
+    "tsconfig.json",
+    "next.config.js",
+    "next.config.mjs",
+    "postcss.config.js",
+    "tailwind.config.js",
+    "tailwind.config.ts",
+    "README.md",
+  ].includes(p);
 }
 
 async function sendTelegram(
@@ -890,6 +927,8 @@ async function handleStart(chatId: number) {
     "🖼️ Photo + caption: “use this as hero image” / “add to gallery”",
     "",
     `More examples: ${codeInline("/helper")}`,
+    "",
+    `Advanced: ${codeInline("/code <instruction>")} creates a PR for layout/code changes.`,
   ].join("\n");
   await sendTelegram(chatId, msg);
 }
@@ -914,8 +953,185 @@ async function handleHelper(chatId: number) {
     "<b>Edit the rest of the website</b>",
     `• ${codeInline("/sections")} then message: “Update mission title to …”`,
     "• Or send a screenshot + caption so I can find the right section.",
+    "",
+    "<b>Code changes (advanced)</b>",
+    `• ${codeInline("/code <what to change>")} creates a PR you can review and merge`,
   ].join("\n");
   await sendTelegram(chatId, msg);
+}
+
+async function handleCodeHelp(chatId: number) {
+  const msg = [
+    "<b>Code Edit Flow</b>",
+    "",
+    "Use this for layout/styling/component changes that aren't backed by JSON yet.",
+    "It creates a GitHub <b>Pull Request</b> so you can review diffs and get a Vercel preview deploy.",
+    "",
+    "<b>Usage</b>",
+    `• ${codeInline("/code <instruction>")}`,
+    "",
+    "<b>Examples</b>",
+    `• ${codeInline("/code Make the donate button green and add hover shadow")}`,
+    `• ${codeInline("/code On /events, make the title smaller on mobile")}`,
+    `• ${codeInline("/code Add a new section component for Partners and link it in the nav")}`,
+    "",
+    "After the PR is created you'll get buttons to <b>Merge</b> or <b>Close</b> it.",
+  ].join("\n");
+  await sendTelegram(chatId, msg);
+}
+
+async function handleCodeRequest(chatId: number, fromId: number, instruction: string) {
+  const trimmed = instruction.trim();
+  if (!trimmed) {
+    await handleCodeHelp(chatId);
+    return;
+  }
+
+  await sendChatAction(chatId, "typing");
+  const plan = await planCodeEdit(trimmed);
+  if ("error" in plan) {
+    await sendTelegram(chatId, `❌ Code planner failed: ${codeInline(plan.error)}`);
+    return;
+  }
+
+  if (!Array.isArray(plan.files) || plan.files.length === 0) {
+    await sendTelegram(
+      chatId,
+      [
+        "🤔 I couldn’t figure out which files to change.",
+        plan.summary ? `\n${escapeHtml(plan.summary)}` : "",
+        "",
+        `Try again with more detail, or use ${codeInline("/code help")}.`,
+      ].join("\n")
+    );
+    return;
+  }
+
+  const files = plan.files.slice(0, 5);
+  const invalid = files.find((f) => !isAllowedCodePath(String(f.path || "")));
+  if (invalid) {
+    await sendTelegram(
+      chatId,
+      `❌ Refusing to edit disallowed path: ${codeInline(String(invalid.path || ""))}`
+    );
+    return;
+  }
+
+  // Materialize file contents.
+  const materialized: Array<{ path: string; content?: string; delete?: boolean }> = [];
+  for (const f of files) {
+    const op = f.op;
+    const path = String(f.path);
+    if (op === "delete") {
+      materialized.push({ path, delete: true });
+      continue;
+    }
+
+    let existing = "";
+    if (op === "update") {
+      try {
+        const cur = await getGitHubFile(path);
+        existing = cur.text;
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Unknown error";
+        await sendTelegram(chatId, `❌ Could not read ${codeInline(path)}: ${codeInline(msg)}`);
+        return;
+      }
+    }
+
+    const gen = await generateFileContent({
+      instruction: trimmed,
+      path,
+      op,
+      existing,
+    });
+    if ("error" in gen) {
+      await sendTelegram(chatId, `❌ Generator failed for ${codeInline(path)}: ${codeInline(gen.error)}`);
+      return;
+    }
+    if (gen.content.length > 220_000) {
+      await sendTelegram(chatId, `❌ Generated file too large for ${codeInline(path)}. Please narrow the request.`);
+      return;
+    }
+    materialized.push({ path, content: gen.content });
+  }
+
+  // Create PR branch
+  const baseSha = await getHeadSha();
+  const branch = `telegram-code-${String(chatId).replace(/[^0-9]/g, "")}-${Date.now().toString(36)}`;
+  try {
+    await createBranch({ branch, fromSha: baseSha });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    await sendTelegram(chatId, `❌ Failed to create branch: ${codeInline(msg)}`);
+    return;
+  }
+
+  // Commit to branch
+  const commitTitle = plan.title || "Code update";
+  const commitMessage = buildTelegramCommitMessage(`code: ${commitTitle}`, { fromId, requestText: trimmed });
+  let commitSha = "";
+  let commitUrl = "";
+  try {
+    const commit = await createCommitWithFiles({
+      branch,
+      message: commitMessage,
+      files: materialized,
+    });
+    commitSha = commit.commitSha;
+    commitUrl = commit.commitUrl;
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    await sendTelegram(chatId, `❌ Failed to commit code changes: ${codeInline(msg)}`);
+    return;
+  }
+
+  // Open PR
+  const body = [
+    plan.summary ? plan.summary : "Code changes requested from Telegram.",
+    "",
+    `Requested by tg:${fromId}`,
+    "",
+    "Files:",
+    ...materialized.map((m) => `- ${m.delete ? "delete" : "update"} ${m.path}`),
+    "",
+    `Commit: ${commitUrl || commitSha.slice(0, 7)}`,
+  ].join("\n");
+
+  try {
+    const pr = await createPullRequest({
+      title: `telegram: code: ${commitTitle}`,
+      body,
+      head: branch,
+    });
+
+    await sendTelegram(
+      chatId,
+      [
+        "🧩 <b>Code PR created</b>",
+        escapeHtml(plan.summary || ""),
+        "",
+        `PR: ${pr.html_url}`,
+        `Branch: ${codeInline(branch)}`,
+        `SHA: ${codeInline(commitSha.slice(0, 7))}`,
+        "",
+        "Tip: Vercel should create a preview deploy for this PR (if enabled).",
+      ].filter(Boolean).join("\n"),
+      [
+        [
+          { text: "View PR", url: pr.html_url },
+          { text: "✅ Merge", callback_data: `prmerge:${pr.number}` },
+        ],
+        [
+          { text: "❌ Close PR", callback_data: `prclose:${pr.number}` },
+        ],
+      ],
+      { disablePreview: true }
+    );
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    await sendTelegram(chatId, `❌ Failed to open PR: ${codeInline(msg)}\n\nCommit: ${escapeHtml(commitUrl)}`);
+  }
 }
 
 function formatEventDraft(d: EventDraft): string {
@@ -1289,6 +1505,58 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ ok: true });
       }
 
+      if (data.startsWith("prmerge:")) {
+        const num = Number(data.slice("prmerge:".length).trim());
+        await answerCallback(cb.id, "Merging PR...");
+        try {
+          const pr = await getPullRequest({ number: num });
+          const title = `telegram: code: merge PR #${num}`;
+          const message = `Merged PR #${num} via Telegram bot.`;
+          const merged = await mergePullRequest({ number: num, title, message, method: "squash" });
+          const sha = merged.sha || "";
+
+          const buttons: TelegramInlineButton[][] = [];
+          if (pr.html_url) buttons.push([{ text: "View PR", url: pr.html_url }]);
+          if (sha) buttons.push([{ text: "↩️ Undo", callback_data: `undo:${sha}` }]);
+          const siteUrl = process.env.SITE_URL || "https://www.holditdown.uk";
+          if (siteUrl) buttons.push([{ text: "View Live Site", url: siteUrl }]);
+          if (sha) buttons.push([{ text: "🔎 Deploy status", callback_data: `deploy:${sha}` }]);
+
+          await sendTelegram(
+            chatId,
+            [
+              "✅ <b>Merged</b>",
+              `PR #${num}`,
+              sha ? `SHA: ${codeInline(sha.slice(0, 7))}` : "",
+              "",
+              "⏳ Deploying... (~1–2 min)",
+            ].filter(Boolean).join("\n"),
+            buttons.length ? buttons : undefined,
+            { disablePreview: true }
+          );
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : "Unknown error";
+          await sendTelegram(chatId, `❌ Merge failed: ${codeInline(msg)}`);
+        }
+        return NextResponse.json({ ok: true });
+      }
+
+      if (data.startsWith("prclose:")) {
+        const num = Number(data.slice("prclose:".length).trim());
+        await answerCallback(cb.id, "Closing PR...");
+        try {
+          const pr = await getPullRequest({ number: num });
+          await closePullRequest({ number: num });
+          await sendTelegram(chatId, `❌ Closed PR #${num}.\n${pr.html_url ? `PR: ${pr.html_url}` : ""}`.trim(), undefined, {
+            disablePreview: true,
+          });
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : "Unknown error";
+          await sendTelegram(chatId, `❌ Close PR failed: ${codeInline(msg)}`);
+        }
+        return NextResponse.json({ ok: true });
+      }
+
       if (data.startsWith("deploy:")) {
         const sha = data.slice("deploy:".length).trim();
         await answerCallback(cb.id, "Checking deploy status...");
@@ -1448,6 +1716,15 @@ export async function POST(request: NextRequest) {
     }
     if (normalizedText === "/helper") {
       await handleHelper(chatId);
+      return NextResponse.json({ ok: true });
+    }
+    if (normalizedText === "/code" || normalizedText.startsWith("/code ")) {
+      const rest = normalizedText.slice("/code".length).trimStart();
+      if (!rest || rest.toLowerCase() === "help") {
+        await handleCodeHelp(chatId);
+        return NextResponse.json({ ok: true });
+      }
+      await handleCodeRequest(chatId, fromId, rest);
       return NextResponse.json({ ok: true });
     }
     if (normalizedText.startsWith("/event")) {
