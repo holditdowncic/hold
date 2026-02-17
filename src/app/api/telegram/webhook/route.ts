@@ -310,16 +310,29 @@ async function updateJsonFile<T>(
   mutate: (data: T) => { data: T; description: string },
   meta?: CommitMeta
 ) {
-  const current = await getGitHubFile(path);
-  const parsed = JSON.parse(current.text) as T;
-  const { data, description } = mutate(parsed);
-  const res = await putGitHubFile({
-    path,
-    sha: current.sha,
-    text: jsonPretty(data),
-    message: buildTelegramCommitMessage(description, meta),
-  });
-  return { description, ...res };
+  let attempt = 0;
+  while (attempt < 2) {
+    attempt++;
+    const current = await getGitHubFile(path);
+    const parsed = JSON.parse(current.text) as T;
+    const { data, description } = mutate(parsed);
+    try {
+      const res = await putGitHubFile({
+        path,
+        sha: current.sha,
+        text: jsonPretty(data),
+        message: buildTelegramCommitMessage(description, meta),
+      });
+      return { description, ...res };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      // GitHub Contents API: 409 when the provided sha doesn't match the latest.
+      // Retry once by refetching latest sha and reapplying the mutation.
+      if (attempt < 2 && msg.includes("(409)")) continue;
+      throw e;
+    }
+  }
+  throw new Error("Update failed after retry.");
 }
 
 function guessMimeFromPath(filePath: string): string {
@@ -641,6 +654,24 @@ function isSupportedAction(act: unknown): act is CMSAction {
   ].includes(a);
 }
 
+function mapSectionFieldAlias(section: string, field: string): string {
+  const s = String(section || "");
+  const f = String(field || "");
+  if (s === "hero") {
+    const heroMap: Record<string, string> = {
+      // Common older/other-site schemas
+      heading_highlight1: "heading_line1",
+      heading_mid: "heading_line2",
+      heading_highlight2: "heading_line3",
+      title: "heading_line1",
+      subtitle_1: "subtitle",
+      subtitle_2: "subtitle2",
+    };
+    return heroMap[f] || f;
+  }
+  return f;
+}
+
 async function applyAction(
   action: CMSAction,
   meta?: CommitMeta
@@ -648,7 +679,8 @@ async function applyAction(
   try {
     switch (action.action) {
       case "update_section_field": {
-        const { section, field, value } = action;
+        const { section, value } = action;
+        const field = mapSectionFieldAlias(section, action.field);
         return await updateJsonFile<Record<string, unknown>>("src/data/sections.json", (data) => {
           const obj = (data[section] as Record<string, unknown>) || {};
           const next = { ...obj };

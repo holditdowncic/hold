@@ -35,7 +35,7 @@ function ghHeaders(token: string) {
 }
 
 async function ghJson<T>(url: string, init: RequestInit): Promise<T> {
-  const res = await fetch(url, init);
+  const res = await fetch(url, { ...init, cache: "no-store" });
   if (!res.ok) {
     const bodyText = await res.text();
     throw new Error(`GitHub API failed (${res.status}): ${bodyText}`);
@@ -62,7 +62,7 @@ export async function getGitHubFile(path: string, ref?: string): Promise<{ sha: 
   const url = new URL(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`);
   url.searchParams.set("ref", ref || branch);
 
-  const res = await fetch(url.toString(), { headers: ghHeaders(token) });
+  const res = await fetch(url.toString(), { headers: ghHeaders(token), cache: "no-store" });
   if (!res.ok) {
     const body = await res.text();
     throw new Error(`GitHub get file failed (${res.status}): ${body}`);
@@ -94,6 +94,7 @@ export async function putGitHubFile(args: {
     method: "PUT",
     headers: { ...ghHeaders(token), "Content-Type": "application/json" },
     body: JSON.stringify(body),
+    cache: "no-store",
   });
 
   if (!res.ok) {
@@ -126,6 +127,7 @@ export async function putGitHubBinaryFile(args: {
     method: "PUT",
     headers: { ...ghHeaders(token), "Content-Type": "application/json" },
     body: JSON.stringify(body),
+    cache: "no-store",
   });
 
   if (!res.ok) {
@@ -150,6 +152,7 @@ export async function deleteGitHubFile(args: {
     method: "DELETE",
     headers: { ...ghHeaders(token), "Content-Type": "application/json" },
     body: JSON.stringify({ message: args.message, sha: args.sha, branch }),
+    cache: "no-store",
   });
 
   if (!res.ok) {
@@ -169,7 +172,7 @@ export async function listRecentCommits(perPage = 20) {
   url.searchParams.set("sha", branch);
   url.searchParams.set("per_page", String(perPage));
 
-  const res = await fetch(url.toString(), { headers: ghHeaders(token) });
+  const res = await fetch(url.toString(), { headers: ghHeaders(token), cache: "no-store" });
   if (!res.ok) {
     const bodyText = await res.text();
     throw new Error(`GitHub list commits failed (${res.status}): ${bodyText}`);
@@ -182,7 +185,7 @@ export async function getCommitStatus(sha: string): Promise<GitHubCommitStatusSu
   if (!token) throw new Error("GITHUB_TOKEN not configured");
 
   const url = `https://api.github.com/repos/${owner}/${repo}/commits/${sha}/status`;
-  const res = await fetch(url, { headers: ghHeaders(token) });
+  const res = await fetch(url, { headers: ghHeaders(token), cache: "no-store" });
   if (!res.ok) {
     const bodyText = await res.text();
     throw new Error(`GitHub commit status failed (${res.status}): ${bodyText}`);
@@ -212,7 +215,7 @@ export async function getCommitDetails(sha: string) {
   if (!token) throw new Error("GITHUB_TOKEN not configured");
 
   const url = `https://api.github.com/repos/${owner}/${repo}/commits/${sha}`;
-  const res = await fetch(url, { headers: ghHeaders(token) });
+  const res = await fetch(url, { headers: ghHeaders(token), cache: "no-store" });
   if (!res.ok) {
     const bodyText = await res.text();
     throw new Error(`GitHub commit details failed (${res.status}): ${bodyText}`);

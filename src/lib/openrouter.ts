@@ -95,6 +95,7 @@ function systemPrompt(): string {
     "- get_status",
     "- unknown {message}",
     "Allowed section keys: theme, site, hero, about, mission, programs, events, impact, nav, footer, gallery, cta, support, contact, cookie_banner.",
+    "Hero fields: badge, heading_line1, heading_line2, heading_line3, subtitle, subtitle2, image, image_alt, cta_primary_text, cta_primary_link, cta_secondary_text, cta_secondary_link.",
     "Events page header fields live in section `events`: pill, heading_prefix, heading_highlight1, heading_mid, heading_highlight2, description.",
     "Theme fields live in section `theme` (nested): light.accent, light.accent_warm, light.bg, dark.accent, dark.bg, etc. Use update_section_field with `field` like \"light.accent\".",
     "If the user provides an image (screenshot/photo), use it to understand what on-screen text/section they mean and what to change.",
