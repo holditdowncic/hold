@@ -30,7 +30,8 @@
         "icon": "🏠",
         "text": "Safe, inclusive spaces for healing"
       }
-    ]
+    ],
+    "badge": "Est. 2017"
   },
   "cta": {
     "heading": "Ready to be part of the movement?",
@@ -118,13 +119,36 @@
     "logo_src": "/logos/holdlogo.png",
     "logo_alt": "HOLD IT DOWN",
     "links": [
-      { "label": "About", "href": "#about" },
-      { "label": "Mission", "href": "#mission" },
-      { "label": "Programmes", "href": "#programs" },
-      { "label": "Events", "href": "/events", "isPage": true },
-      { "label": "Impact", "href": "#impact" },
-      { "label": "Gallery", "href": "#gallery" },
-      { "label": "Contact", "href": "/contact", "isPage": true }
+      {
+        "label": "About",
+        "href": "#about"
+      },
+      {
+        "label": "Mission",
+        "href": "#mission"
+      },
+      {
+        "label": "Programmes",
+        "href": "#programs"
+      },
+      {
+        "label": "Events",
+        "href": "/events",
+        "isPage": true
+      },
+      {
+        "label": "Impact",
+        "href": "#impact"
+      },
+      {
+        "label": "Gallery",
+        "href": "#gallery"
+      },
+      {
+        "label": "Contact",
+        "href": "/contact",
+        "isPage": true
+      }
     ]
   },
   "events": {
@@ -144,15 +168,44 @@
       "Company No. 14377702"
     ],
     "links": [
-      { "label": "About", "href": "#about" },
-      { "label": "Mission", "href": "#mission" },
-      { "label": "Programmes", "href": "#programs" },
-      { "label": "Events", "href": "/events", "isPage": true },
-      { "label": "Impact", "href": "#impact" },
-      { "label": "Team", "href": "#team" },
-      { "label": "Support", "href": "#support" },
-      { "label": "Gallery", "href": "#gallery" },
-      { "label": "Contact", "href": "/contact", "isPage": true }
+      {
+        "label": "About",
+        "href": "#about"
+      },
+      {
+        "label": "Mission",
+        "href": "#mission"
+      },
+      {
+        "label": "Programmes",
+        "href": "#programs"
+      },
+      {
+        "label": "Events",
+        "href": "/events",
+        "isPage": true
+      },
+      {
+        "label": "Impact",
+        "href": "#impact"
+      },
+      {
+        "label": "Team",
+        "href": "#team"
+      },
+      {
+        "label": "Support",
+        "href": "#support"
+      },
+      {
+        "label": "Gallery",
+        "href": "#gallery"
+      },
+      {
+        "label": "Contact",
+        "href": "/contact",
+        "isPage": true
+      }
     ]
   },
   "impact": {
