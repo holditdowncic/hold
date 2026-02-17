@@ -362,9 +362,8 @@
     "cta_primary_link": "#programs",
     "cta_secondary_text": "Support Our Work",
     "cta_secondary_link": "/contact",
-    "title": "Where <span class=\"text-gradient\">community</span> comes <span class=\"text-gradient\">alive</span>"
+    "title": "Where <span class=\"text-gradient\">community</span> comes <span class=\"text-gradient\">alive</span>",
+    "heading_highlight1": "I Can"
   },
-  "custom_sections": [
-    
-  ]
+  "custom_sections": []
 }
