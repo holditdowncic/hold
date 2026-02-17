@@ -373,6 +373,9 @@ type PendingChange = {
   createdAt: number;
   actions: CMSAction[];
   sourceText: string;
+  // Optional: if the user request couldn't be mapped to a JSON action,
+  // allow a one-tap fallback to the /code flow without retyping.
+  tryCodeInstruction?: string;
   // Optional: clear an in-memory draft after commit completes.
   clearEventDraftChatId?: number;
   // Optional: "code edit flow" preview (committed on approval).
@@ -1690,6 +1693,21 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ ok: true });
       }
 
+      if (data.startsWith("trycode:")) {
+        const id = data.slice("trycode:".length).trim();
+        const pending = pendingGet(id);
+        if (!pending || !pending.tryCodeInstruction) {
+          await answerCallback(cb.id, "Expired. Please resend your request.");
+          await sendTelegram(chatId, "⏱️ That prompt expired. Please resend your request.");
+          return NextResponse.json({ ok: true });
+        }
+
+        await answerCallback(cb.id, "Generating code preview...");
+        pendingStore.delete(id);
+        await handleCodeRequest(chatId, pending.fromId, pending.tryCodeInstruction);
+        return NextResponse.json({ ok: true });
+      }
+
       await answerCallback(cb.id, "Unknown action");
       return NextResponse.json({ ok: true });
     }
@@ -1918,6 +1936,17 @@ export async function POST(request: NextRequest) {
 
     if (actions.some((a) => a.action === "unknown")) {
       const first = actions.find((a) => a.action === "unknown") as { action: "unknown"; message: string } | undefined;
+      const previewId = crypto.randomUUID().slice(0, 12);
+      pendingStore.set(previewId, {
+        id: previewId,
+        chatId,
+        fromId,
+        createdAt: Date.now(),
+        actions: [],
+        sourceText: text,
+        tryCodeInstruction: text,
+      });
+
       await sendTelegram(
         chatId,
         [
@@ -1925,7 +1954,13 @@ export async function POST(request: NextRequest) {
           first?.message ? `\n${escapeHtml(first.message)}` : "",
           "",
           `Try ${codeInline("/sections")} or send a screenshot + caption.`,
-        ].join("\n")
+          "",
+          `If this is a layout/style/code change, tap “Try Code Edit” (no code will be shown).`,
+        ].join("\n"),
+        [[
+          { text: "🧩 Try Code Edit", callback_data: `trycode:${previewId}` },
+          { text: "❌ Cancel", callback_data: `cancel:${previewId}` },
+        ]]
       );
       return NextResponse.json({ ok: true });
     }
