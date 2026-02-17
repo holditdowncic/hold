@@ -193,6 +193,98 @@ function parseHeuristicActions(text: string): CMSAction[] | null {
   const t = (text || "").toLowerCase();
   if (!t) return null;
 
+  function extractColors(raw: string): string[] {
+    const s = raw.toLowerCase();
+    const out: Array<{ idx: number; v: string }> = [];
+
+    // hex
+    for (const m of s.matchAll(/#[0-9a-f]{3,8}\b/g)) {
+      out.push({ idx: m.index ?? 0, v: m[0] });
+    }
+    // rgb/rgba/hsl/hsla
+    for (const m of s.matchAll(/\b(?:rgb|rgba|hsl|hsla)\([^)]+\)/g)) {
+      out.push({ idx: m.index ?? 0, v: m[0] });
+    }
+    // basic named colors (CSS keywords are fine as values)
+    const names = [
+      "green",
+      "red",
+      "blue",
+      "orange",
+      "yellow",
+      "purple",
+      "pink",
+      "black",
+      "white",
+      "gray",
+      "grey",
+      "teal",
+      "cyan",
+    ];
+    for (const name of names) {
+      const re = new RegExp(`\\b${name}\\b`, "g");
+      for (const m of s.matchAll(re)) {
+        out.push({ idx: m.index ?? 0, v: name === "grey" ? "gray" : name });
+      }
+    }
+
+    return out.sort((a, b) => a.idx - b.idx).map((x) => x.v);
+  }
+
+  function wantsDarkMode(s: string) {
+    return /\bdark\b|\bdark mode\b|\bnight\b/.test(s);
+  }
+  function wantsLightMode(s: string) {
+    return /\blight\b|\blight mode\b|\bday\b/.test(s);
+  }
+
+  // Theme: plain English color changes (accent/background/text/border) + gradient.
+  // Examples:
+  // - "make accent green"
+  // - "set background to #ffffff"
+  // - "make the gradient from purple to orange"
+  const colors = extractColors(t);
+  if (colors.length) {
+    const mode: "light" | "dark" | "both" = wantsDarkMode(t) && !wantsLightMode(t) ? "dark" : wantsLightMode(t) && !wantsDarkMode(t) ? "light" : "both";
+
+    const actions: CMSAction[] = [];
+    const pushTheme = (field: string, value: unknown) => {
+      if (mode === "light" || mode === "both") actions.push({ action: "update_section_field", section: "theme", field: `light.${field}`, value });
+      if (mode === "dark" || mode === "both") actions.push({ action: "update_section_field", section: "theme", field: `dark.${field}`, value });
+    };
+
+    // gradient request: set accent + accent_warm if 2 colors mentioned.
+    if (t.includes("gradient") && colors.length >= 2) {
+      pushTheme("accent", colors[0]!);
+      pushTheme("accent_warm", colors[1]!);
+      return actions;
+    }
+
+    // single-color mappings
+    const c = colors[0]!;
+    if (t.includes("accent")) {
+      pushTheme("accent", c);
+      return actions;
+    }
+    if (t.includes("background") || /\bbg\b/.test(t)) {
+      // Try to detect card/background variants
+      if (t.includes("card")) pushTheme("bg_card", c);
+      else if (t.includes("elevated")) pushTheme("bg_elevated", c);
+      else pushTheme("bg", c);
+      return actions;
+    }
+    if (t.includes("border")) {
+      pushTheme("border", c);
+      return actions;
+    }
+    if (t.includes("text")) {
+      if (t.includes("secondary")) pushTheme("text_secondary", c);
+      else if (t.includes("tertiary")) pushTheme("text_tertiary", c);
+      else pushTheme("text_primary", c);
+      return actions;
+    }
+  }
+
   // Hero gradient toggles: users often say "keep gradient on I Can" / "remove gradient from You Can".
   // This should "just work" without relying on the AI outputting the exact JSON schema.
   if (t.includes("gradient") && (t.includes("i can") || t.includes("you can"))) {
@@ -230,6 +322,27 @@ function parseHeuristicActions(text: string): CMSAction[] | null {
     }
 
     if (actions.length) return actions;
+  }
+
+  // Hero copy tweaks: "change i can to X", "change you can to X", "change we can to X".
+  // Also supports "set hero line1 to X".
+  const m1 =
+    t.match(/(?:change|set)\s+i can\s+(?:to|as)\s+["“]?(.+?)["”]?\s*$/i) ||
+    t.match(/(?:hero\s*)?line\s*1\s+(?:to|as)\s+["“]?(.+?)["”]?\s*$/i);
+  if (m1?.[1]) {
+    return [{ action: "update_section_field", section: "hero", field: "heading_line1", value: m1[1].trim() }];
+  }
+  const m2 =
+    t.match(/(?:change|set)\s+you can\s+(?:to|as)\s+["“]?(.+?)["”]?\s*$/i) ||
+    t.match(/(?:hero\s*)?line\s*2\s+(?:to|as)\s+["“]?(.+?)["”]?\s*$/i);
+  if (m2?.[1]) {
+    return [{ action: "update_section_field", section: "hero", field: "heading_line2", value: m2[1].trim() }];
+  }
+  const m3 =
+    t.match(/(?:change|set)\s+we can\s+(?:to|as)\s+["“]?(.+?)["”]?\s*$/i) ||
+    t.match(/(?:hero\s*)?line\s*3\s+(?:to|as)\s+["“]?(.+?)["”]?\s*$/i);
+  if (m3?.[1]) {
+    return [{ action: "update_section_field", section: "hero", field: "heading_line3", value: m3[1].trim() }];
   }
 
   return null;
@@ -2041,6 +2154,42 @@ export async function POST(request: NextRequest) {
       });
     } else {
       actions = await parseCommand(text);
+    }
+
+    // Optional "magic mode" for safe heuristics: auto-commit without a Preview.
+    // This is intentionally limited to heuristics (not AI, not /code) so it stays predictable.
+    const autoCommitSimple = (process.env.TELEGRAM_AUTO_COMMIT_SIMPLE || "").toLowerCase();
+    const shouldAutoCommitSimple =
+      heuristic &&
+      (autoCommitSimple === "1" || autoCommitSimple === "true" || autoCommitSimple === "yes");
+
+    if (shouldAutoCommitSimple && actions.length > 0 && actions.every(isSupportedAction) && !actions.some((a) => a.action === "unknown")) {
+      await sendChatAction(chatId, "typing");
+      const siteUrl = process.env.SITE_URL || "https://www.holditdown.uk";
+      for (const act of actions) {
+        const res = await applyAction(act, { fromId, requestText: text });
+        if ("error" in res) {
+          await sendTelegram(chatId, `Failed: ${codeInline(res.error)}`);
+          continue;
+        }
+        const buttons: TelegramInlineButton[][] = [[{ text: "↩️ Undo", callback_data: `undo:${res.commitSha}` }]];
+        if (res.commitUrl) buttons.push([{ text: "View Commit", url: res.commitUrl }]);
+        if (siteUrl) buttons.push([{ text: "View Live Site", url: siteUrl }]);
+        buttons.push([{ text: "🔎 Deploy status", callback_data: `deploy:${res.commitSha}` }]);
+        await sendTelegram(
+          chatId,
+          [
+            "✅ <b>Committed</b>",
+            `• ${escapeHtml(res.description)}`,
+            `• SHA: ${codeInline(res.commitSha.slice(0, 7))}`,
+            "",
+            "⏳ Deploying... (~1–2 min)",
+          ].join("\n"),
+          buttons,
+          { disablePreview: true }
+        );
+      }
+      return NextResponse.json({ ok: true });
     }
 
     if (actions.length === 1 && actions[0].action === "undo") {
