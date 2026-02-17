@@ -466,7 +466,7 @@ function slugify(input: string): string {
 
 async function updateJsonFile<T>(
   path: string,
-  mutate: (data: T) => { data: T; description: string },
+  mutate: (data: T) => { data: T; description: string } | { error: string },
   meta?: CommitMeta
 ) {
   let attempt = 0;
@@ -474,7 +474,11 @@ async function updateJsonFile<T>(
     attempt++;
     const current = await getGitHubFile(path);
     const parsed = JSON.parse(current.text) as T;
-    const { data, description } = mutate(parsed);
+    const result = mutate(parsed);
+    if ("error" in result) {
+      return { error: result.error } as const;
+    }
+    const { data, description } = result;
     try {
       const res = await putGitHubFile({
         path,
@@ -765,6 +769,10 @@ function summarizeAction(act: CMSAction): string {
       return `• Update event: ${codeInline(act.slug)}`;
     case "remove_event":
       return `• Remove event: ${codeInline(act.slug)}`;
+    case "add_event_gallery_image":
+      return `• Add photo to event gallery: ${codeInline(act.slug)}`;
+    case "remove_event_gallery_image":
+      return `• Remove photo from event gallery: ${codeInline(act.slug)}`;
     case "update_stat":
       return `• Update stat: <b>${escapeHtml(act.label)}</b> = ${codeInline(String(act.value))}`;
     case "remove_stat":
@@ -805,12 +813,45 @@ function isSupportedAction(act: unknown): act is CMSAction {
     "add_event",
     "update_event",
     "remove_event",
+    "add_event_gallery_image",
+    "remove_event_gallery_image",
     "update_stat",
     "remove_stat",
     "get_status",
     "undo",
     "unknown",
   ].includes(a);
+}
+
+function slugifyLoose(input: string): string {
+  return slugify(String(input || ""));
+}
+
+function resolveEventSlug(events: EventData[], slugOrTitle: string): { slug: string } | { error: string } {
+  const raw = String(slugOrTitle || "").trim();
+  const target = normalize(raw);
+  const targetSlug = slugifyLoose(raw);
+  if (!raw) return { error: "Missing event identifier." };
+
+  const exact = events.find((e) => normalize(e.slug) === target);
+  if (exact) return { slug: exact.slug };
+
+  // If user provides partial slug, allow unique prefix matches (e.g. talk-di-tingz -> talk-di-tingz-2025).
+  const prefix = events.filter((e) => normalize(e.slug).startsWith(target + "-") || normalize(e.slug).startsWith(target));
+  if (prefix.length === 1) return { slug: prefix[0]!.slug };
+
+  // Try match by title tokens (or slugified title contains the hint).
+  const byTitle = events.filter((e) => {
+    const titleSlug = slugifyLoose(e.title);
+    return titleSlug.includes(targetSlug) || normalize(e.title).includes(target);
+  });
+  if (byTitle.length === 1) return { slug: byTitle[0]!.slug };
+
+  const candidates = [...new Set([...prefix, ...byTitle].map((e) => e.slug))].slice(0, 8);
+  if (candidates.length) {
+    return { error: `Event not found. Did you mean: ${candidates.map((s) => `"${s}"`).join(", ")}?` };
+  }
+  return { error: "Event not found. Use /event list to see available events." };
 }
 
 function mapSectionFieldAlias(section: string, field: string): string {
@@ -829,6 +870,17 @@ function mapSectionFieldAlias(section: string, field: string): string {
     return heroMap[f] || f;
   }
   return f;
+}
+
+function extractEventHintFromGalleryRequest(text: string): string | null {
+  const s = String(text || "").trim();
+  if (!s) return null;
+  const m =
+    s.match(/gallery\s+(?:in|for|to)\s+(.+?)(?:\s+in\s+events|\s+events|\s+event|\s*$)/i) ||
+    s.match(/add\s+(?:this\s+)?to\s+gallery\s+in\s+(.+?)(?:\s+in\s+events|\s+events|\s+event|\s*$)/i) ||
+    s.match(/\bin\s+(.+?)\s+in\s+events\b/i);
+  const out = (m?.[1] || "").trim();
+  return out || null;
 }
 
 async function applyAction(
@@ -1070,18 +1122,67 @@ async function applyAction(
       case "update_event": {
         const { slug, updates } = action;
         return await updateJsonFile<EventData[]>("src/data/events.json", (data) => {
-          const idx = data.findIndex((e) => e.slug === slug);
-          if (idx === -1) return { data, description: `events: '${slug}' not found (no-op)` };
+          const resolved = resolveEventSlug(data, slug);
+          if ("error" in resolved) return { error: resolved.error };
+          const idx = data.findIndex((e) => e.slug === resolved.slug);
+          if (idx === -1) return { error: `Event '${slug}' not found.` };
           const next = [...data];
           next[idx] = { ...next[idx], ...updates } as EventData;
-          return { data: next, description: `events: update ${slug}` };
+          return { data: next, description: `events: update ${resolved.slug}` };
         }, meta);
       }
       case "remove_event": {
         const { slug } = action;
         return await updateJsonFile<EventData[]>("src/data/events.json", (data) => {
-          const next = data.filter((e) => e.slug !== slug);
-          return { data: next, description: `events: remove ${slug}` };
+          const resolved = resolveEventSlug(data, slug);
+          if ("error" in resolved) return { error: resolved.error };
+          const next = data.filter((e) => e.slug !== resolved.slug);
+          if (next.length === data.length) return { error: `Event '${slug}' not found.` };
+          return { data: next, description: `events: remove ${resolved.slug}` };
+        }, meta);
+      }
+
+      case "add_event_gallery_image": {
+        const { slug, src, alt } = action;
+        return await updateJsonFile<EventData[]>("src/data/events.json", (data) => {
+          const resolved = resolveEventSlug(data, slug);
+          if ("error" in resolved) return { error: resolved.error };
+          const idx = data.findIndex((e) => e.slug === resolved.slug);
+          if (idx === -1) return { error: `Event '${slug}' not found.` };
+          const next = [...data];
+          const cur = next[idx]!;
+          const gallery = Array.isArray(cur.gallery) ? cur.gallery : [];
+          const already = gallery.some((g) => g?.src === src);
+          const appended = already ? gallery : [...gallery, { src, alt: alt || `${cur.title} photo` }];
+          next[idx] = {
+            ...cur,
+            // If the event has no hero image yet, set it to this image.
+            image: cur.image || src,
+            image_alt: cur.image_alt || (alt || `${cur.title} photo`),
+            gallery: appended,
+          } as EventData;
+          return { data: next, description: `events: add photo to ${resolved.slug}` };
+        }, meta);
+      }
+
+      case "remove_event_gallery_image": {
+        const { slug, src, alt } = action;
+        return await updateJsonFile<EventData[]>("src/data/events.json", (data) => {
+          const resolved = resolveEventSlug(data, slug);
+          if ("error" in resolved) return { error: resolved.error };
+          const idx = data.findIndex((e) => e.slug === resolved.slug);
+          if (idx === -1) return { error: `Event '${slug}' not found.` };
+          const next = [...data];
+          const cur = next[idx]!;
+          const gallery = Array.isArray(cur.gallery) ? cur.gallery : [];
+          const nextGallery = gallery.filter((g) => {
+            if (src && g?.src === src) return false;
+            if (alt && normalize(String(g?.alt || "")) === normalize(alt)) return false;
+            return true;
+          });
+          if (nextGallery.length === gallery.length) return { error: "No matching photo found in that event gallery." };
+          next[idx] = { ...cur, gallery: nextGallery } as EventData;
+          return { data: next, description: `events: remove photo from ${resolved.slug}` };
         }, meta);
       }
 
@@ -1563,6 +1664,29 @@ async function handleEventCommand(chatId: number, fromId: number, normalizedText
     case "draft":
       await handleEventStart(chatId, fromId, rest);
       return;
+    case "list": {
+      try {
+        const events = await getGitHubFile("src/data/events.json");
+        const parsed = JSON.parse(events.text) as EventData[];
+        const items = (Array.isArray(parsed) ? parsed : []).slice(0, 15);
+        await sendTelegram(
+          chatId,
+          [
+            "🗓️ <b>Events</b>",
+            "",
+            items.length
+              ? items.map((e) => `• ${codeInline(String(e.slug))} — ${escapeHtml(String(e.title || ""))}`).join("\n")
+              : "(none)",
+            "",
+            "Tip: say “add this to gallery in <event name>” with a photo attached.",
+          ].join("\n")
+        );
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Unknown error";
+        await sendTelegram(chatId, `Failed to list events: ${codeInline(msg)}`);
+      }
+      return;
+    }
     case "status":
       await handleEventStatus(chatId);
       return;
@@ -1579,6 +1703,7 @@ async function handleEventCommand(chatId: number, fromId: number, normalizedText
         [
           "<b>/event</b> commands",
           `• ${codeInline("/event start <title> | optional notes")}`,
+          `• ${codeInline("/event list")} list existing events`,
           `• ${codeInline("/event status")}`,
           `• ${codeInline("/event publish")}`,
           `• ${codeInline("/event cancel")}`,
@@ -2104,6 +2229,7 @@ export async function POST(request: NextRequest) {
 
     // If we want to upload, do it first and inject the resulting path into the prompt.
     let uploadedPath: string | null = null;
+    let forcedActions: CMSAction[] | null = null;
     if (wantsUpload) {
       await sendChatAction(chatId, "upload_photo");
       const best = pickLargestPhoto(photos);
@@ -2118,10 +2244,28 @@ export async function POST(request: NextRequest) {
           uploadRes.commitUrl ? `Commit: ${uploadRes.commitUrl}` : "",
         ].filter(Boolean).join("\n")
       );
+
+      // Deterministic "magic" for event galleries: if user says "add this to gallery in <event> in events"
+      // we can handle it without AI guessing the slug.
+      if (uploadedPath && /(gallery)/i.test(text) && /(event|events)/i.test(text)) {
+        const hint = extractEventHintFromGalleryRequest(text);
+        if (hint) {
+          forcedActions = [
+            {
+              action: "add_event_gallery_image",
+              slug: hint,
+              src: uploadedPath,
+              alt: `${hint} photo`,
+            },
+          ];
+        }
+      }
     }
 
     let actions: CMSAction[] = [];
-    if (deterministic) {
+    if (forcedActions) {
+      actions = forcedActions;
+    } else if (deterministic) {
       actions = deterministic;
     } else if (heuristic) {
       actions = heuristic;

@@ -89,6 +89,8 @@ function systemPrompt(): string {
     "- add_event {event} edits src/data/events.json (event may include title, date, location, description, highlights, impact, image, image_alt, badge, gallery)",
     "- update_event {slug, updates} edits src/data/events.json",
     "- remove_event {slug} edits src/data/events.json",
+    "- add_event_gallery_image {slug, src, alt} appends a photo to an event gallery in src/data/events.json (use this when user says 'add this photo to <event> gallery')",
+    "- remove_event_gallery_image {slug, src? , alt?} removes a photo from an event gallery in src/data/events.json",
     "- update_stat {label, value, suffix?, prefix?} edits src/data/stats.json",
     "- remove_stat {label} edits src/data/stats.json",
     "- undo (user asked to revert the last change)",

@@ -298,6 +298,8 @@ export type CMSAction =
     | { action: "add_event"; event: Partial<EventData> }
     | { action: "update_event"; slug: string; updates: Partial<EventData> }
     | { action: "remove_event"; slug: string }
+    | { action: "add_event_gallery_image"; slug: string; src: string; alt: string }
+    | { action: "remove_event_gallery_image"; slug: string; src?: string; alt?: string }
     | { action: "update_stat"; label: string; value: number; suffix?: string; prefix?: string }
     | { action: "remove_stat"; label: string }
     | { action: "add_initiative"; title: string; detail: string }
