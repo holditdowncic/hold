@@ -931,7 +931,7 @@ async function handleStart(chatId: number) {
     "",
     `More examples: ${codeInline("/helper")}`,
     "",
-    `Advanced: ${codeInline("/code <instruction>")} creates a PR for layout/code changes.`,
+    `Advanced: ${codeInline("/code <instruction>")} makes code/layout changes and (after your approval) commits directly to <b>main</b>.`,
   ].join("\n");
   await sendTelegram(chatId, msg);
 }
@@ -969,6 +969,7 @@ async function handleCodeHelp(chatId: number) {
     "",
     "Use this for layout/styling/component changes that aren't backed by JSON yet.",
     "It shows a preview, then commits directly to <b>main</b> if you approve (and Vercel deploys).",
+    "Note: the preview is summary-only (no code shown).",
     "",
     "<b>Usage</b>",
     `• ${codeInline("/code <instruction>")}`,
@@ -1085,13 +1086,20 @@ async function handleCodeRequest(chatId: number, fromId: number, instruction: st
     },
   });
 
+  const updates = materialized.filter((m) => !m.delete).length;
+  const deletes = materialized.filter((m) => m.delete).length;
+  const fileSummary =
+    deletes > 0
+      ? `${updates} update${updates === 1 ? "" : "s"}, ${deletes} delete${deletes === 1 ? "" : "s"}`
+      : `${updates} update${updates === 1 ? "" : "s"}`;
+
   const previewMsg = [
     "🧩 <b>Preview (Code)</b>",
     plan.title ? `<b>${escapeHtml(plan.title)}</b>` : "",
     plan.summary ? escapeHtml(truncate(plan.summary, 420)) : "",
     "",
-    "<b>Files</b>",
-    ...materialized.map((m) => `• ${m.delete ? "delete" : "update"} ${codeInline(m.path)}`),
+    `<b>Changes</b>: ${escapeHtml(fileSummary)}`,
+    "No code will be shown here.",
     "",
     "⚠️ This will commit directly to <b>main</b> if you approve.",
     "",
