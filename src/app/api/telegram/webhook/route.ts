@@ -1016,11 +1016,16 @@ async function handleCodeRequest(chatId: number, fromId: number, instruction: st
     );
     return;
   }
+  const badOp = files.find((f) => !["update", "create", "delete"].includes(String(f.op)));
+  if (badOp) {
+    await sendTelegram(chatId, "❌ Planner returned an invalid operation. Try again with a simpler request.");
+    return;
+  }
 
   // Materialize file contents.
   const materialized: Array<{ path: string; content?: string; delete?: boolean }> = [];
   for (const f of files) {
-    const op = f.op;
+    const op = f.op as "update" | "create" | "delete";
     const path = String(f.path);
     if (op === "delete") {
       materialized.push({ path, delete: true });
