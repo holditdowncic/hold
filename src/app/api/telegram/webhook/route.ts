@@ -189,6 +189,52 @@ function parseDeterministicCommand(text: string): CMSAction[] | null {
   return null;
 }
 
+function parseHeuristicActions(text: string): CMSAction[] | null {
+  const t = (text || "").toLowerCase();
+  if (!t) return null;
+
+  // Hero gradient toggles: users often say "keep gradient on I Can" / "remove gradient from You Can".
+  // This should "just work" without relying on the AI outputting the exact JSON schema.
+  if (t.includes("gradient") && (t.includes("i can") || t.includes("you can"))) {
+    const actions: CMSAction[] = [];
+
+    const wantsICanGradient =
+      /(keep|add|make|apply|put).{0,20}gradient.{0,20}(to|on|for).{0,20}i can/.test(t) ||
+      /(i can).{0,20}(keep|add|make|apply|put).{0,20}gradient/.test(t);
+    const wantsICanPlain =
+      /(remove|no).{0,20}gradient.{0,20}(from|off).{0,20}i can/.test(t) ||
+      /(i can).{0,20}(remove|no).{0,20}gradient/.test(t);
+
+    const wantsYouCanGradient =
+      /(keep|add|make|apply|put).{0,20}gradient.{0,20}(to|on|for).{0,20}you can/.test(t) ||
+      /(you can).{0,20}(keep|add|make|apply|put).{0,20}gradient/.test(t);
+    const wantsYouCanPlain =
+      /(remove|no).{0,20}gradient.{0,20}(from|off).{0,20}you can/.test(t) ||
+      /(you can).{0,20}(remove|no).{0,20}gradient/.test(t);
+
+    if (wantsICanGradient || wantsICanPlain) {
+      actions.push({
+        action: "update_section_field",
+        section: "hero",
+        field: "heading_line1_gradient",
+        value: Boolean(wantsICanGradient) && !wantsICanPlain,
+      });
+    }
+    if (wantsYouCanGradient || wantsYouCanPlain) {
+      actions.push({
+        action: "update_section_field",
+        section: "hero",
+        field: "heading_line2_gradient",
+        value: Boolean(wantsYouCanGradient) && !wantsYouCanPlain,
+      });
+    }
+
+    if (actions.length) return actions;
+  }
+
+  return null;
+}
+
 function normalizeSlashCommandText(text: string): string {
   const t = text.trim();
   if (!t.startsWith("/")) return t;
@@ -1886,6 +1932,7 @@ export async function POST(request: NextRequest) {
     }
 
     const deterministic = normalizedText ? parseDeterministicCommand(normalizedText) : null;
+    const heuristic = normalizedText ? parseHeuristicActions(normalizedText) : null;
 
     // Media hint: users can send a photo and say "use this as hero image" etc.
     const wantsUpload =
@@ -1963,6 +2010,8 @@ export async function POST(request: NextRequest) {
     let actions: CMSAction[] = [];
     if (deterministic) {
       actions = deterministic;
+    } else if (heuristic) {
+      actions = heuristic;
     } else if (voice) {
       await sendChatAction(chatId, "typing");
       const { file_path, bytes } = await getTelegramFileBytes(String(voice.file_id));
