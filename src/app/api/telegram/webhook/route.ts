@@ -16,12 +16,9 @@ import {
   getGitHubFile,
   getCommitStatus,
   listRecentCommits,
-  createBranch,
-  createCommitWithFiles,
-  createPullRequest,
   closePullRequest,
-  getHeadSha,
   getPullRequest,
+  createCommitWithFiles,
   mergePullRequest,
   putGitHubBinaryFile,
   putGitHubFile,
@@ -378,6 +375,12 @@ type PendingChange = {
   sourceText: string;
   // Optional: clear an in-memory draft after commit completes.
   clearEventDraftChatId?: number;
+  // Optional: "code edit flow" preview (committed on approval).
+  codeEdit?: {
+    title: string;
+    summary: string;
+    files: Array<{ path: string; content?: string; delete?: boolean }>;
+  };
 };
 
 declare global {
@@ -955,7 +958,7 @@ async function handleHelper(chatId: number) {
     "• Or send a screenshot + caption so I can find the right section.",
     "",
     "<b>Code changes (advanced)</b>",
-    `• ${codeInline("/code <what to change>")} creates a PR you can review and merge`,
+    `• ${codeInline("/code <what to change>")} shows a preview, then commits to main if you approve`,
   ].join("\n");
   await sendTelegram(chatId, msg);
 }
@@ -965,7 +968,7 @@ async function handleCodeHelp(chatId: number) {
     "<b>Code Edit Flow</b>",
     "",
     "Use this for layout/styling/component changes that aren't backed by JSON yet.",
-    "It creates a GitHub <b>Pull Request</b> so you can review diffs and get a Vercel preview deploy.",
+    "It shows a preview, then commits directly to <b>main</b> if you approve (and Vercel deploys).",
     "",
     "<b>Usage</b>",
     `• ${codeInline("/code <instruction>")}`,
@@ -975,7 +978,7 @@ async function handleCodeHelp(chatId: number) {
     `• ${codeInline("/code On /events, make the title smaller on mobile")}`,
     `• ${codeInline("/code Add a new section component for Partners and link it in the nav")}`,
     "",
-    "After the PR is created you'll get buttons to <b>Merge</b> or <b>Close</b> it.",
+    "After preview you can ✅ Commit or ❌ Cancel.",
   ].join("\n");
   await sendTelegram(chatId, msg);
 }
@@ -1024,6 +1027,7 @@ async function handleCodeRequest(chatId: number, fromId: number, instruction: st
 
   // Materialize file contents.
   const materialized: Array<{ path: string; content?: string; delete?: boolean }> = [];
+  let totalBytes = 0;
   for (const f of files) {
     const op = f.op as "update" | "create" | "delete";
     const path = String(f.path);
@@ -1058,85 +1062,52 @@ async function handleCodeRequest(chatId: number, fromId: number, instruction: st
       await sendTelegram(chatId, `❌ Generated file too large for ${codeInline(path)}. Please narrow the request.`);
       return;
     }
+    totalBytes += gen.content.length;
+    if (totalBytes > 450_000) {
+      await sendTelegram(chatId, "❌ Generated too much code for a single preview. Please narrow the request.");
+      return;
+    }
     materialized.push({ path, content: gen.content });
   }
 
-  // Create PR branch
-  const baseSha = await getHeadSha();
-  const branch = `telegram-code-${String(chatId).replace(/[^0-9]/g, "")}-${Date.now().toString(36)}`;
-  try {
-    await createBranch({ branch, fromSha: baseSha });
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "Unknown error";
-    await sendTelegram(chatId, `❌ Failed to create branch: ${codeInline(msg)}`);
-    return;
-  }
-
-  // Commit to branch
-  const commitTitle = plan.title || "Code update";
-  const commitMessage = buildTelegramCommitMessage(`code: ${commitTitle}`, { fromId, requestText: trimmed });
-  let commitSha = "";
-  let commitUrl = "";
-  try {
-    const commit = await createCommitWithFiles({
-      branch,
-      message: commitMessage,
+  const previewId = crypto.randomUUID().slice(0, 12);
+  pendingStore.set(previewId, {
+    id: previewId,
+    chatId,
+    fromId,
+    createdAt: Date.now(),
+    actions: [],
+    sourceText: trimmed,
+    codeEdit: {
+      title: plan.title || "Code update",
+      summary: plan.summary || "",
       files: materialized,
-    });
-    commitSha = commit.commitSha;
-    commitUrl = commit.commitUrl;
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "Unknown error";
-    await sendTelegram(chatId, `❌ Failed to commit code changes: ${codeInline(msg)}`);
-    return;
-  }
+    },
+  });
 
-  // Open PR
-  const body = [
-    plan.summary ? plan.summary : "Code changes requested from Telegram.",
+  const previewMsg = [
+    "🧩 <b>Preview (Code)</b>",
+    plan.title ? `<b>${escapeHtml(plan.title)}</b>` : "",
+    plan.summary ? escapeHtml(truncate(plan.summary, 420)) : "",
     "",
-    `Requested by tg:${fromId}`,
+    "<b>Files</b>",
+    ...materialized.map((m) => `• ${m.delete ? "delete" : "update"} ${codeInline(m.path)}`),
     "",
-    "Files:",
-    ...materialized.map((m) => `- ${m.delete ? "delete" : "update"} ${m.path}`),
+    "⚠️ This will commit directly to <b>main</b> if you approve.",
     "",
-    `Commit: ${commitUrl || commitSha.slice(0, 7)}`,
-  ].join("\n");
+    "<b>Ready to commit?</b>",
+  ].filter(Boolean).join("\n");
 
-  try {
-    const pr = await createPullRequest({
-      title: `telegram: code: ${commitTitle}`,
-      body,
-      head: branch,
-    });
-
-    await sendTelegram(
-      chatId,
+  await sendTelegram(
+    chatId,
+    previewMsg,
+    [
       [
-        "🧩 <b>Code PR created</b>",
-        escapeHtml(plan.summary || ""),
-        "",
-        `PR: ${pr.html_url}`,
-        `Branch: ${codeInline(branch)}`,
-        `SHA: ${codeInline(commitSha.slice(0, 7))}`,
-        "",
-        "Tip: Vercel should create a preview deploy for this PR (if enabled).",
-      ].filter(Boolean).join("\n"),
-      [
-        [
-          { text: "View PR", url: pr.html_url },
-          { text: "✅ Merge", callback_data: `prmerge:${pr.number}` },
-        ],
-        [
-          { text: "❌ Close PR", callback_data: `prclose:${pr.number}` },
-        ],
+        { text: "✅ Yes, Commit", callback_data: `commit:${previewId}` },
+        { text: "❌ No, Cancel", callback_data: `cancel:${previewId}` },
       ],
-      { disablePreview: true }
-    );
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "Unknown error";
-    await sendTelegram(chatId, `❌ Failed to open PR: ${codeInline(msg)}\n\nCommit: ${escapeHtml(commitUrl)}`);
-  }
+    ]
+  );
 }
 
 function formatEventDraft(d: EventDraft): string {
@@ -1604,6 +1575,49 @@ export async function POST(request: NextRequest) {
         pendingStore.delete(id);
 
         const siteUrl = process.env.SITE_URL || "https://www.holditdown.uk";
+
+        if (pending.codeEdit) {
+          try {
+            const branch = process.env.GITHUB_BRANCH || "main";
+            const title = pending.codeEdit.title || "Code update";
+            const commitMessage = buildTelegramCommitMessage(`code: ${title}`, {
+              fromId: pending.fromId,
+              requestText: pending.sourceText,
+            });
+
+            const res = await createCommitWithFiles({
+              branch,
+              message: commitMessage,
+              files: pending.codeEdit.files,
+            });
+
+            const buttons: TelegramInlineButton[][] = [
+              [{ text: "↩️ Undo", callback_data: `undo:${res.commitSha}` }],
+            ];
+            if (res.commitUrl) buttons.push([{ text: "View Commit", url: res.commitUrl }]);
+            if (siteUrl) buttons.push([{ text: "View Live Site", url: siteUrl }]);
+            buttons.push([{ text: "🔎 Deploy status", callback_data: `deploy:${res.commitSha}` }]);
+
+            await sendTelegram(
+              chatId,
+              [
+                "✅ <b>Committed (Code)</b>",
+                `• ${escapeHtml(title)}`,
+                `• SHA: ${codeInline(res.commitSha.slice(0, 7))}`,
+                "",
+                "⏳ Deploying... (~1–2 min)",
+                "Tip: tap <b>Deploy status</b> to check progress.",
+              ].join("\n"),
+              buttons,
+              { disablePreview: true }
+            );
+          } catch (e) {
+            const msg = e instanceof Error ? e.message : "Unknown error";
+            await sendTelegram(chatId, `Failed: ${codeInline(msg)}`);
+          }
+
+          return NextResponse.json({ ok: true });
+        }
 
         for (const act of pending.actions) {
           if (act.action === "unknown") {
