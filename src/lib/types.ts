@@ -11,6 +11,36 @@ export interface SiteConfig {
     hidden_sections?: string[];
 }
 
+export interface ThemeTokens {
+    bg?: string;
+    bg_elevated?: string;
+    bg_card?: string;
+    bg_card_hover?: string;
+    bg_alt?: string;
+    surface?: string;
+    border?: string;
+    border_hover?: string;
+    text_primary?: string;
+    text_secondary?: string;
+    text_tertiary?: string;
+    accent?: string;
+    accent_light?: string;
+    accent_warm?: string;
+    accent_glow?: string;
+    hero_glow_1?: string;
+    hero_glow_2?: string;
+    grid_line?: string;
+    cursor_glow?: string;
+    particle_opacity?: number;
+    scrollbar_thumb?: string;
+    scrollbar_thumb_hover?: string;
+}
+
+export interface ThemeContent {
+    light?: ThemeTokens;
+    dark?: ThemeTokens;
+}
+
 export interface HeroContent {
     badge: string;
     heading_line1: string;

@@ -1,9 +1,60 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/lib/theme";
 import CookieBanner from "@/components/CookieBanner";
+import sectionsJson from "@/data/sections.json";
 import "./globals.css";
 
 const SITE_URL = "https://www.holditdowncic.uk";
+
+type SectionsJson = Record<string, unknown>;
+
+function getThemeCss(): string {
+  const raw = (sectionsJson as SectionsJson)["theme"];
+  if (!raw || typeof raw !== "object") return "";
+  const theme = raw as Record<string, unknown>;
+
+  const map: Record<string, string> = {
+    bg: "--t-bg",
+    bg_elevated: "--t-bg-elevated",
+    bg_card: "--t-bg-card",
+    bg_card_hover: "--t-bg-card-hover",
+    bg_alt: "--t-bg-alt",
+    surface: "--t-surface",
+    border: "--t-border",
+    border_hover: "--t-border-hover",
+    text_primary: "--t-text-primary",
+    text_secondary: "--t-text-secondary",
+    text_tertiary: "--t-text-tertiary",
+    accent: "--t-accent",
+    accent_light: "--t-accent-light",
+    accent_warm: "--t-accent-warm",
+    accent_glow: "--t-accent-glow",
+    hero_glow_1: "--hero-glow-1",
+    hero_glow_2: "--hero-glow-2",
+    grid_line: "--grid-line",
+    cursor_glow: "--cursor-glow",
+    particle_opacity: "--particle-opacity",
+    scrollbar_thumb: "--scrollbar-thumb",
+    scrollbar_thumb_hover: "--scrollbar-thumb-hover",
+  };
+
+  function cssBlock(mode: "light" | "dark"): string {
+    const part = theme[mode];
+    if (!part || typeof part !== "object") return "";
+    const tokens = part as Record<string, unknown>;
+    const lines: string[] = [];
+    for (const [k, cssVar] of Object.entries(map)) {
+      const v = tokens[k];
+      if (v === undefined || v === null || v === "") continue;
+      lines.push(`  ${cssVar}: ${String(v)};`);
+    }
+    if (!lines.length) return "";
+    // More specific than globals.css selectors, so it wins even if order changes.
+    return `html[data-theme="${mode}"] {\n${lines.join("\n")}\n}\n`;
+  }
+
+  return `${cssBlock("light")}\n${cssBlock("dark")}`.trim();
+}
 
 export const viewport = {
   width: "device-width",
@@ -216,6 +267,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const themeCss = getThemeCss();
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
@@ -234,6 +286,9 @@ export default function RootLayout({
             __html: `(function(){try{var t=localStorage.getItem('theme');if(t){document.documentElement.setAttribute('data-theme',t)}else if(window.matchMedia('(prefers-color-scheme:dark)').matches){document.documentElement.setAttribute('data-theme','dark')}else{document.documentElement.setAttribute('data-theme','light')}}catch(e){document.documentElement.setAttribute('data-theme','light')}})()`,
           }}
         />
+        {themeCss ? (
+          <style id="site-theme-vars" dangerouslySetInnerHTML={{ __html: themeCss }} />
+        ) : null}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"

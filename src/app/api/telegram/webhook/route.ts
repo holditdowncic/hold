@@ -357,6 +357,55 @@ function pickPhotoForVision(photos: TelegramPhotoSize[], maxBytes = 900_000): Te
   return (within.length ? within[within.length - 1] : sorted[0]) || photos[0];
 }
 
+type JsonContainer = Record<string, unknown> | unknown[];
+
+function setDeepValue(root: JsonContainer, path: string, value: unknown) {
+  const parts = String(path || "").split(".").map((p) => p.trim()).filter(Boolean);
+  if (parts.length === 0) return;
+
+  let cur: JsonContainer = root;
+  for (let i = 0; i < parts.length; i++) {
+    const key = parts[i]!;
+    const last = i === parts.length - 1;
+    const nextKey = parts[i + 1];
+    const nextIsIndex = typeof nextKey === "string" && /^\d+$/.test(nextKey);
+    const thisIsIndex = /^\d+$/.test(key);
+
+    if (last) {
+      if (Array.isArray(cur) && thisIsIndex) {
+        (cur as unknown[])[Number(key)] = value;
+      } else {
+        (cur as Record<string, unknown>)[key] = value;
+      }
+      return;
+    }
+
+    // Traverse / create container.
+    if (Array.isArray(cur) && thisIsIndex) {
+      const idx = Number(key);
+      const arr = cur as unknown[];
+      const existing = arr[idx];
+      if (!existing || typeof existing !== "object") {
+        const created: JsonContainer = nextIsIndex ? [] : {};
+        arr[idx] = created;
+        cur = created;
+      } else {
+        cur = existing as JsonContainer;
+      }
+    } else {
+      const obj = cur as Record<string, unknown>;
+      const existing = obj[key];
+      if (!existing || typeof existing !== "object") {
+        const created: JsonContainer = nextIsIndex ? [] : {};
+        obj[key] = created;
+        cur = created;
+      } else {
+        cur = existing as JsonContainer;
+      }
+    }
+  }
+}
+
 function normalizeAudioFormat(ext: string): string {
   const e = (ext || "").toLowerCase();
   if (e === "oga") return "ogg";
@@ -602,7 +651,13 @@ async function applyAction(
         const { section, field, value } = action;
         return await updateJsonFile<Record<string, unknown>>("src/data/sections.json", (data) => {
           const obj = (data[section] as Record<string, unknown>) || {};
-          data[section] = { ...obj, [field]: value };
+          const next = { ...obj };
+          if (String(field || "").includes(".")) {
+            setDeepValue(next, field, value);
+          } else {
+            next[field] = value;
+          }
+          data[section] = next;
           return { data, description: `set ${section}.${field}` };
         }, meta);
       }

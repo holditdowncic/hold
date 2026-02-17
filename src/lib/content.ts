@@ -18,6 +18,7 @@ import type {
   Stat,
   SupportContent,
   TeamMember,
+  ThemeContent,
 } from "./types";
 
 import sectionsJson from "@/data/sections.json";
@@ -100,6 +101,10 @@ export async function getSiteConfig(): Promise<SiteConfig | null> {
   return getSection<Partial<SiteConfig>>("site") as SiteConfig | null;
 }
 
+export async function getThemeContent(): Promise<ThemeContent | null> {
+  return getSection<Partial<ThemeContent>>("theme") as ThemeContent | null;
+}
+
 export async function getCustomSections(): Promise<CustomSection[]> {
   return sortByOrder(getSectionArray<CustomSection>("custom_sections"));
 }
@@ -144,6 +149,7 @@ export async function getStats(): Promise<Stat[]> {
 export async function getAllContent() {
   const [
     site,
+    theme,
     hero,
     about,
     cta,
@@ -163,6 +169,7 @@ export async function getAllContent() {
     stats,
   ] = await Promise.all([
     getSiteConfig(),
+    getThemeContent(),
     getHeroContent(),
     getAboutContent(),
     getCTAContent(),
@@ -184,6 +191,7 @@ export async function getAllContent() {
 
   return {
     site,
+    theme,
     hero,
     about,
     cta,
