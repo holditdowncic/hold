@@ -46,6 +46,9 @@ export interface HeroContent {
     heading_line1: string;
     heading_line2: string;
     heading_line3: string;
+    // Controls which lines render with the gradient style (defaults: line1 false, line2 true).
+    heading_line1_gradient?: boolean;
+    heading_line2_gradient?: boolean;
     subtitle: string;
     subtitle2: string;
     image: string;

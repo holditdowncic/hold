@@ -38,6 +38,8 @@ export default function Hero({ content }: HeroProps) {
   const line1 = content?.heading_line1 ?? "I Can Because";
   const line2 = content?.heading_line2 ?? "You Can.";
   const line3 = content?.heading_line3 ?? "And Together, We Can.";
+  const line1Gradient = content?.heading_line1_gradient ?? false;
+  const line2Gradient = content?.heading_line2_gradient ?? true;
   const subtitle = content?.subtitle ?? "Hold It Down CIC supports young people aged 12\u201325 and older adults through creative, wellbeing, and intergenerational programmes across South London.";
   const subtitle2 = content?.subtitle2 ?? "We create safe, culturally rooted spaces where people can express themselves, build confidence, and connect across generations.";
   const heroImage = content?.image ?? "/media/roots/roots-24.jpeg";
@@ -91,13 +93,13 @@ export default function Hero({ content }: HeroProps) {
                   className="block overflow-hidden"
                   variants={fadeUp}
                 >
-                  {line1}
+                  {line1Gradient ? <span className="text-gradient">{line1}</span> : line1}
                 </motion.span>
                 <motion.span
                   className="block overflow-hidden"
                   variants={fadeUp}
                 >
-                  <span className="text-gradient">{line2}</span>
+                  {line2Gradient ? <span className="text-gradient">{line2}</span> : line2}
                 </motion.span>
                 <motion.span
                   className="block overflow-hidden"
