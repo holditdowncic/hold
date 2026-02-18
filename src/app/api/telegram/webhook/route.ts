@@ -292,6 +292,28 @@ function parseHeuristicActions(text: string): CMSAction[] | null {
     return [{ action: "update_section_field", section: "contact", field: "email", value: emailMatch[0] }];
   }
 
+  // Contact instagram: "change instagram to @handle" / "set instagram to https://instagram.com/handle"
+  if (/\binstagram\b/i.test(text) && /\b(change|set|update)\b/i.test(text)) {
+    const handle = (text || "").match(/@[a-zA-Z0-9._]+/);
+    const url = (text || "").match(/https?:\/\/(?:www\.)?instagram\.com\/[^\s)]+/i);
+    const v = (url?.[0] || handle?.[0] || "").trim();
+    if (v) return [{ action: "update_section_field", section: "contact", field: "instagram", value: v }];
+  }
+
+  // Contact phone: "change phone to +44 ..." / "set telephone to 07..."
+  if (/\b(phone|telephone|mobile)\b/i.test(text) && /\b(change|set|update)\b/i.test(text)) {
+    const m = (text || "").match(/(\+?\d[\d\s().-]{6,}\d)/);
+    if (m?.[1]) return [{ action: "update_section_field", section: "contact", field: "phone", value: m[1].trim() }];
+  }
+
+  // Contact location: "change location/address to ..."
+  if (/\b(location|address)\b/i.test(text) && /\b(change|set|update)\b/i.test(text)) {
+    const m =
+      (text || "").match(/\b(?:change|set|update)\b.{0,20}\b(?:location|address)\b.{0,20}\b(?:to|as)\b\s+(.+)$/i) ||
+      (text || "").match(/\b(?:location|address)\b\s+(?:to|as)\s+(.+)$/i);
+    if (m?.[1]) return [{ action: "update_section_field", section: "contact", field: "location", value: m[1].trim() }];
+  }
+
   // Hero gradient toggles: users often say "keep gradient on I Can" / "remove gradient from You Can".
   // This should "just work" without relying on the AI outputting the exact JSON schema.
   if (t.includes("gradient") && (t.includes("i can") || t.includes("you can"))) {
@@ -876,6 +898,20 @@ function mapSectionFieldAlias(section: string, field: string): string {
     };
     return heroMap[f] || f;
   }
+  if (s === "contact") {
+    const contactMap: Record<string, string> = {
+      e_mail: "email",
+      mail: "email",
+      insta: "instagram",
+      ig: "instagram",
+      address: "location",
+      addr: "location",
+      telephone: "phone",
+      mobile: "phone",
+      phone_number: "phone",
+    };
+    return contactMap[f] || f;
+  }
   return f;
 }
 
@@ -912,9 +948,48 @@ function toMailto(email: string): string {
   return e ? `mailto:${e}` : "mailto:";
 }
 
+function toTelHref(phone: string): string {
+  const raw = String(phone || "");
+  const cleaned = raw.replace(/[^\d+]/g, "");
+  return cleaned ? `tel:${cleaned}` : "tel:";
+}
+
+function toMapsHref(location: string): string {
+  const raw = String(location || "").trim();
+  if (!raw) return "";
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(raw)}`;
+}
+
 function looksLikeEmail(s: string): boolean {
   const v = String(s || "").trim();
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+}
+
+function parseInstagram(raw: string): { value: string; href: string | null } {
+  const s = String(raw || "").trim();
+  if (!s) return { value: "", href: null };
+
+  // URL form
+  if (s.includes("instagram.com")) {
+    try {
+      const u = new URL(s.startsWith("http") ? s : `https://${s}`);
+      const handle = u.pathname.split("/").filter(Boolean)[0] || "";
+      if (/^[a-zA-Z0-9._]+$/.test(handle)) {
+        return { value: `@${handle}`, href: `https://www.instagram.com/${handle}` };
+      }
+      return { value: s, href: s.startsWith("http") ? s : `https://${s}` };
+    } catch {
+      // fall through
+    }
+  }
+
+  // Handle form
+  const handle = s.startsWith("@") ? s.slice(1) : s;
+  if (/^[a-zA-Z0-9._]+$/.test(handle)) {
+    return { value: `@${handle}`, href: `https://www.instagram.com/${handle}` };
+  }
+
+  return { value: s, href: s.startsWith("http") ? s : null };
 }
 
 async function applyAction(
@@ -945,6 +1020,42 @@ async function applyAction(
             });
             // Keep legacy field too (even though UI uses items[]).
             (updated as Record<string, unknown>)["email"] = email;
+            data[section] = updated;
+            return { data, description: `set ${section}.${field}` };
+          }
+          if (section === "contact" && field === "instagram" && typeof value === "string") {
+            const parsed = parseInstagram(value);
+            if (!parsed.value) return { error: "Please provide an Instagram handle (e.g. @holditdowncic) or URL." };
+            const updated = setOrAddContactItem(next, "Instagram", {
+              value: parsed.value,
+              href: parsed.href,
+              icon: "instagram",
+            });
+            (updated as Record<string, unknown>)["instagram"] = parsed.value;
+            data[section] = updated;
+            return { data, description: `set ${section}.${field}` };
+          }
+          if (section === "contact" && field === "location" && typeof value === "string") {
+            const loc = value.trim();
+            if (!loc) return { error: "Please provide a location/address." };
+            const updated = setOrAddContactItem(next, "Location", {
+              value: loc,
+              href: toMapsHref(loc) || null,
+              icon: "location",
+            });
+            (updated as Record<string, unknown>)["location"] = loc;
+            data[section] = updated;
+            return { data, description: `set ${section}.${field}` };
+          }
+          if (section === "contact" && field === "phone" && typeof value === "string") {
+            const phone = value.trim();
+            if (!phone) return { error: "Please provide a phone number." };
+            const updated = setOrAddContactItem(next, "Phone", {
+              value: phone,
+              href: toTelHref(phone),
+              icon: "phone",
+            });
+            (updated as Record<string, unknown>)["phone"] = phone;
             data[section] = updated;
             return { data, description: `set ${section}.${field}` };
           }

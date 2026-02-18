@@ -10,17 +10,21 @@ import type { ContactContent } from "@/lib/types";
 
 type SectionsJson = Record<string, unknown>;
 
-const defaultContact: ContactContent = {
-    section_label: "Get In Touch",
-    heading: "Let\u2019s connect",
-    description:
-        "We\u2019d love to hear from you. Whether you want to join a programme, volunteer, partner with us, or just learn more \u2014 reach out.",
-    items: [
-        { label: "Email", value: "holditdownuk@hotmail.com", href: "mailto:holditdownuk@hotmail.com", icon: "email" },
-        { label: "Instagram", value: "@holditdowncic", href: "https://www.instagram.com/holditdowncic", icon: "instagram" },
-        { label: "Location", value: "Thornton Heath, Croydon CR7 8QY", href: null, icon: "location" },
-    ],
-};
+const defaultContact: ContactContent = (() => {
+    const raw = (sectionsJson as unknown as SectionsJson)["contact"];
+    if (raw && typeof raw === "object") return raw as ContactContent;
+    return {
+        section_label: "Get In Touch",
+        heading: "Let\u2019s connect",
+        description:
+            "We\u2019d love to hear from you. Whether you want to join a programme, volunteer, partner with us, or just learn more \u2014 reach out.",
+        items: [
+            { label: "Email", value: "holditdownuk@hotmail.com", href: "mailto:holditdownuk@hotmail.com", icon: "email" },
+            { label: "Instagram", value: "@holditdowncic", href: "https://www.instagram.com/holditdowncic", icon: "instagram" },
+            { label: "Location", value: "Thornton Heath, Croydon CR7 8QY", href: null, icon: "location" },
+        ],
+    } as ContactContent;
+})();
 
 /* ─── Icons ─── */
 function ContactIcon({ name }: { name: string }) {
@@ -45,6 +49,12 @@ function ContactIcon({ name }: { name: string }) {
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                     <circle cx="12" cy="10" r="3" />
+                </svg>
+            );
+        case "phone":
+            return (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.86.31 1.7.57 2.5a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.58-1.09a2 2 0 0 1 2.11-.45c.8.26 1.64.45 2.5.57A2 2 0 0 1 22 16.92z" />
                 </svg>
             );
         default:
@@ -113,19 +123,17 @@ export default function ContactPage() {
                 <div className="relative mx-auto max-w-[1200px] text-center">
                     <Reveal>
                         <span className="mb-5 inline-block rounded-full border border-accent/15 bg-accent-glow px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-accent">
-                            Get In Touch
+                            {contactData.section_label}
                         </span>
                     </Reveal>
                     <Reveal>
                         <h1 className="mx-auto max-w-[700px] font-[family-name:var(--font-heading)] text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight tracking-tight">
-                            Let&apos;s{" "}
-                            <span className="text-gradient">connect</span>
+                            {contactData.heading}
                         </h1>
                     </Reveal>
                     <Reveal>
                         <p className="mx-auto mt-5 max-w-[550px] text-base leading-relaxed text-text-secondary md:text-lg">
-                            Whether you want to join a programme, volunteer, partner with us,
-                            or just learn more — we&apos;d love to hear from you.
+                            {contactData.description}
                         </p>
                     </Reveal>
                 </div>

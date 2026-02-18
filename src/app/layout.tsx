@@ -8,16 +8,37 @@ const SITE_URL = "https://www.holditdowncic.uk";
 
 type SectionsJson = Record<string, unknown>;
 
-function getSiteEmail(): string {
+function getContactItem(label: string): { value: string; href: string } | null {
   try {
-    const contact = ((sectionsJson as SectionsJson).contact as { items?: Array<{ label?: string; value?: string }> } | undefined) || undefined;
+    const contact = ((sectionsJson as SectionsJson).contact as { items?: Array<{ label?: string; value?: string; href?: string | null }> } | undefined) || undefined;
     const items = Array.isArray(contact?.items) ? contact!.items! : [];
-    const emailItem = items.find((it) => String(it.label || "").toLowerCase() === "email");
-    const v = String(emailItem?.value || "").trim();
-    return v || "holditdownuk@hotmail.com";
+    const item = items.find((it) => String(it.label || "").trim().toLowerCase() === label.trim().toLowerCase());
+    if (!item) return null;
+    const value = String(item.value || "").trim();
+    const href = String(item.href || "").trim();
+    return { value, href };
   } catch {
-    return "holditdownuk@hotmail.com";
+    return null;
   }
+}
+
+function getSiteEmail(): string {
+  return getContactItem("Email")?.value || "holditdownuk@hotmail.com";
+}
+
+function getSiteInstagramHandle(): string {
+  const v = getContactItem("Instagram")?.value || "";
+  return v.trim() || "@holditdowncic";
+}
+
+function getSiteInstagramUrl(): string {
+  const href = getContactItem("Instagram")?.href || "";
+  return href.trim() || "https://www.instagram.com/holditdowncic";
+}
+
+function getSiteLocationText(): string {
+  const v = getContactItem("Location")?.value || "";
+  return v.trim() || "Thornton Heath, Croydon CR7 8QY";
 }
 
 function getThemeCss(): string {
@@ -197,10 +218,7 @@ const jsonLd = {
   foundingDate: "2022",
   address: {
     "@type": "PostalAddress",
-    streetAddress: "Thornton Heath",
-    addressLocality: "Croydon",
-    addressRegion: "London",
-    postalCode: "CR7 8QY",
+    streetAddress: getSiteLocationText(),
     addressCountry: "GB",
   },
   areaServed: [
@@ -209,7 +227,7 @@ const jsonLd = {
     { "@type": "AdministrativeArea", name: "South London" },
     { "@type": "Country", name: "United Kingdom" },
   ],
-  sameAs: ["https://www.instagram.com/holditdowncic"],
+  sameAs: [getSiteInstagramUrl()],
   contactPoint: {
     "@type": "ContactPoint",
     email: getSiteEmail(),
@@ -244,7 +262,7 @@ const faqJsonLd = {
       name: "Where is Hold It Down CIC located?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Hold It Down CIC is based in Thornton Heath, Croydon CR7 8QY, South London, United Kingdom. They operate across multiple South London boroughs.",
+        text: `Hold It Down CIC is based in ${getSiteLocationText()}, South London, United Kingdom. They operate across multiple South London boroughs.`,
       },
     },
     {
@@ -260,7 +278,7 @@ const faqJsonLd = {
       name: "How can I contact Hold It Down CIC?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: `You can contact Hold It Down CIC by email at ${getSiteEmail()}, through their website at holditdowncic.uk/contact, or via Instagram @holditdowncic.`,
+        text: `You can contact Hold It Down CIC by email at ${getSiteEmail()}, through their website at holditdowncic.uk/contact, or via Instagram ${getSiteInstagramHandle()}.`,
       },
     },
     {

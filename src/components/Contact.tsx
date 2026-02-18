@@ -3,17 +3,22 @@
 import { motion } from "framer-motion";
 import { Reveal, fadeUp, staggerContainer } from "@/lib/motion";
 import type { ContactContent } from "@/lib/types";
+import sectionsJson from "@/data/sections.json";
 
-const defaultContact: ContactContent = {
-  section_label: "Get In Touch",
-  heading: "Let\u2019s connect",
-  description: "We\u2019d love to hear from you. Whether you want to join a programme, volunteer, partner with us, or just learn more \u2014 reach out.",
-  items: [
-    { label: "Email", value: "holditdownuk@hotmail.com", href: "mailto:holditdownuk@hotmail.com", icon: "email" },
-    { label: "Instagram", value: "@holditdowncic", href: "https://www.instagram.com/holditdowncic", icon: "instagram" },
-    { label: "Location", value: "Thornton Heath, Croydon CR7 8QY", href: null, icon: "location" },
-  ],
-};
+const defaultContact: ContactContent = (() => {
+  const raw = (sectionsJson as unknown as Record<string, unknown>)["contact"];
+  if (raw && typeof raw === "object") return raw as ContactContent;
+  return {
+    section_label: "Get In Touch",
+    heading: "Let\u2019s connect",
+    description: "We\u2019d love to hear from you. Whether you want to join a programme, volunteer, partner with us, or just learn more \u2014 reach out.",
+    items: [
+      { label: "Email", value: "holditdownuk@hotmail.com", href: "mailto:holditdownuk@hotmail.com", icon: "email" },
+      { label: "Instagram", value: "@holditdowncic", href: "https://www.instagram.com/holditdowncic", icon: "instagram" },
+      { label: "Location", value: "Thornton Heath, Croydon CR7 8QY", href: null, icon: "location" },
+    ],
+  } as ContactContent;
+})();
 
 function ContactIcon({ name }: { name: string }) {
   switch (name) {
@@ -39,6 +44,12 @@ function ContactIcon({ name }: { name: string }) {
           <circle cx="12" cy="10" r="3" />
         </svg>
       );
+    case "phone":
+      return (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.86.31 1.7.57 2.5a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.58-1.09a2 2 0 0 1 2.11-.45c.8.26 1.64.45 2.5.57A2 2 0 0 1 22 16.92z" />
+        </svg>
+      );
     default:
       return (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -53,7 +64,7 @@ interface ContactProps {
 }
 
 export default function Contact({ content }: ContactProps) {
-  // Merge with defaults — use Supabase content but fall back to defaults for missing/empty fields
+  // Merge with defaults — fall back to defaults for missing/empty fields
   const data: ContactContent = {
     ...defaultContact,
     ...content,
