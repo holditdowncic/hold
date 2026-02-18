@@ -209,5 +209,23 @@
       }
     ],
     "sort_order": 5
+  },
+  {
+    "id": "dc16d45c-a37a-42e2-80b6-3bdcb077bdf3",
+    "slug": "roots-wings",
+    "title": "Roots & Wings",
+    "date": "",
+    "location": "",
+    "description": "A celebration of fatherhood, family, and intergenerational connection. Roots & Wings brings fathers, children, and families together through sports, workshops, and shared experiences that strengthen bonds and create lasting memories.",
+    "highlights": [
+      "Planting roots of love and giving wings of confidence to future generations",
+      "Foundation for longer-term intergenerational and male mentorship work across Croydon"
+    ],
+    "impact": [],
+    "image": "https://holditdown.uk/images/roots-and-wings.jpg",
+    "image_alt": "Roots & Wings workshop activity",
+    "badge": "Event",
+    "gallery": [],
+    "sort_order": 6
   }
 ]
