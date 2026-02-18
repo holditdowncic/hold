@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import type {
   CMSAction,
+  ContactItem,
   CustomSection,
   EventData,
   EventGalleryItem,
@@ -283,6 +284,12 @@ function parseHeuristicActions(text: string): CMSAction[] | null {
       else pushTheme("text_primary", c);
       return actions;
     }
+  }
+
+  // Contact email: "change the email to x@y.com"
+  const emailMatch = (text || "").match(/[^\s@]+@[^\s@]+\.[^\s@]+/);
+  if (emailMatch && /\b(email|e-mail)\b/i.test(text) && /\b(change|set|update)\b/i.test(text)) {
+    return [{ action: "update_section_field", section: "contact", field: "email", value: emailMatch[0] }];
   }
 
   // Hero gradient toggles: users often say "keep gradient on I Can" / "remove gradient from You Can".
@@ -883,6 +890,33 @@ function extractEventHintFromGalleryRequest(text: string): string | null {
   return out || null;
 }
 
+function setOrAddContactItem(contact: Record<string, unknown>, label: string, updates: Partial<ContactItem>): Record<string, unknown> {
+  const curItems = Array.isArray(contact.items) ? (contact.items as ContactItem[]) : [];
+  const idx = curItems.findIndex((it) => normalize(String(it.label || "")) === normalize(label));
+  const nextItems = [...curItems];
+  if (idx === -1) {
+    nextItems.push({
+      label,
+      value: updates.value ?? "",
+      href: updates.href ?? null,
+      icon: updates.icon ?? "",
+    } as ContactItem);
+  } else {
+    nextItems[idx] = { ...nextItems[idx], ...updates } as ContactItem;
+  }
+  return { ...contact, items: nextItems };
+}
+
+function toMailto(email: string): string {
+  const e = String(email || "").trim();
+  return e ? `mailto:${e}` : "mailto:";
+}
+
+function looksLikeEmail(s: string): boolean {
+  const v = String(s || "").trim();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+}
+
 async function applyAction(
   action: CMSAction,
   meta?: CommitMeta
@@ -895,6 +929,26 @@ async function applyAction(
         return await updateJsonFile<Record<string, unknown>>("src/data/sections.json", (data) => {
           const obj = (data[section] as Record<string, unknown>) || {};
           const next = { ...obj };
+
+          // "Magic" aliases for contact updates.
+          // The UI renders contact.items[]; users commonly say "change the email" which the model maps to contact.email.
+          // We keep contact.email in sync but also update the Email item so the site actually changes.
+          if (section === "contact" && field === "email" && typeof value === "string") {
+            const email = value.trim();
+            if (!looksLikeEmail(email)) {
+              return { error: "That doesn't look like a valid email address." };
+            }
+            const updated = setOrAddContactItem(next, "Email", {
+              value: email,
+              href: toMailto(email),
+              icon: "email",
+            });
+            // Keep legacy field too (even though UI uses items[]).
+            (updated as Record<string, unknown>)["email"] = email;
+            data[section] = updated;
+            return { data, description: `set ${section}.${field}` };
+          }
+
           if (String(field || "").includes(".")) {
             setDeepValue(next, field, value);
           } else {

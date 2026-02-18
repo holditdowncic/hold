@@ -9,7 +9,7 @@ const defaultContact: ContactContent = {
   heading: "Let\u2019s connect",
   description: "We\u2019d love to hear from you. Whether you want to join a programme, volunteer, partner with us, or just learn more \u2014 reach out.",
   items: [
-    { label: "Email", value: "hollditdownuk@hotmail.com", href: "mailto:hollditdownuk@hotmail.com", icon: "email" },
+    { label: "Email", value: "holditdownuk@hotmail.com", href: "mailto:holditdownuk@hotmail.com", icon: "email" },
     { label: "Instagram", value: "@holditdowncic", href: "https://www.instagram.com/holditdowncic", icon: "instagram" },
     { label: "Location", value: "Thornton Heath, Croydon CR7 8QY", href: null, icon: "location" },
   ],

@@ -1,9 +1,26 @@
 import type { Metadata } from "next";
+import sectionsJson from "@/data/sections.json";
+
+type SectionsJson = Record<string, unknown>;
+
+function getSiteEmail(): string {
+    try {
+        const contact = ((sectionsJson as SectionsJson).contact as { items?: Array<{ label?: string; value?: string }> } | undefined) || undefined;
+        const items = Array.isArray(contact?.items) ? contact!.items! : [];
+        const emailItem = items.find((it) => String(it.label || "").toLowerCase() === "email");
+        const v = String(emailItem?.value || "").trim();
+        return v || "holditdownuk@hotmail.com";
+    } catch {
+        return "holditdownuk@hotmail.com";
+    }
+}
+
+const SITE_EMAIL = getSiteEmail();
 
 export const metadata: Metadata = {
     title: "Contact — Get In Touch With Us",
     description:
-        "Contact Hold It Down CIC to get involved, volunteer, partner, or learn more about our community programmes in Croydon, South London. Email us at hollditdownuk@hotmail.com.",
+        `Contact Hold It Down CIC to get involved, volunteer, partner, or learn more about our community programmes in Croydon, South London. Email us at ${SITE_EMAIL}.`,
     alternates: {
         canonical: "https://www.holditdowncic.uk/contact",
     },

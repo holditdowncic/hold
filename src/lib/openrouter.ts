@@ -101,6 +101,7 @@ function systemPrompt(): string {
     "Hero gradient controls: heading_line1_gradient (boolean) and heading_line2_gradient (boolean). If the user asks to add/remove the gradient on 'I Can' or 'You Can', update these booleans.",
     "Events page header fields live in section `events`: pill, heading_prefix, heading_highlight1, heading_mid, heading_highlight2, description.",
     "Theme fields live in section `theme` (nested): light.accent, light.accent_warm, light.bg, dark.accent, dark.bg, etc. Use update_section_field with `field` like \"light.accent\".",
+    "Contact fields live in section `contact`: section_label, heading, description, items[]. To change the email shown on the site, update the Email item in contact.items (label \"Email\") value and href (mailto:...).",
     "If the user provides an image (screenshot/photo), use it to understand what on-screen text/section they mean and what to change.",
     "If the user says 'add a new section', prefer add_custom_section instead of trying to overload existing sections.",
     "If the user request is ambiguous or unsafe, return unknown with a brief message asking for clarification.",

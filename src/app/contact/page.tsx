@@ -5,28 +5,22 @@ import { motion } from "framer-motion";
 import { Reveal, fadeUp, staggerContainer } from "@/lib/motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import sectionsJson from "@/data/sections.json";
+import type { ContactContent } from "@/lib/types";
 
-/* ─── Contact info items ─── */
-const contactInfo = [
-    {
-        label: "Email",
-        value: "hollditdownuk@hotmail.com",
-        href: "mailto:hollditdownuk@hotmail.com",
-        icon: "email",
-    },
-    {
-        label: "Instagram",
-        value: "@holditdowncic",
-        href: "https://www.instagram.com/holditdowncic",
-        icon: "instagram",
-    },
-    {
-        label: "Location",
-        value: "Thornton Heath, Croydon CR7 8QY",
-        href: null,
-        icon: "location",
-    },
-];
+type SectionsJson = Record<string, unknown>;
+
+const defaultContact: ContactContent = {
+    section_label: "Get In Touch",
+    heading: "Let\u2019s connect",
+    description:
+        "We\u2019d love to hear from you. Whether you want to join a programme, volunteer, partner with us, or just learn more \u2014 reach out.",
+    items: [
+        { label: "Email", value: "holditdownuk@hotmail.com", href: "mailto:holditdownuk@hotmail.com", icon: "email" },
+        { label: "Instagram", value: "@holditdowncic", href: "https://www.instagram.com/holditdowncic", icon: "instagram" },
+        { label: "Location", value: "Thornton Heath, Croydon CR7 8QY", href: null, icon: "location" },
+    ],
+};
 
 /* ─── Icons ─── */
 function ContactIcon({ name }: { name: string }) {
@@ -67,6 +61,13 @@ export default function ContactPage() {
     const [form, setForm] = useState({ name: "", email: "", phone: "", subject: "", message: "" });
     const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
     const [errorMsg, setErrorMsg] = useState("");
+
+    const contact = ((sectionsJson as SectionsJson).contact as ContactContent) || null;
+    const contactData: ContactContent = {
+        ...defaultContact,
+        ...(contact || {}),
+        items: contact?.items && contact.items.length > 0 ? contact.items : defaultContact.items,
+    };
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
         setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -290,7 +291,7 @@ export default function ContactPage() {
                                 </h2>
                             </motion.div>
 
-                            {contactInfo.map((item) => {
+                            {contactData.items.map((item) => {
                                 const isLink = !!item.href;
                                 const Tag = isLink ? "a" : "div";
 

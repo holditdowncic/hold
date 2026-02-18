@@ -8,6 +8,18 @@ const SITE_URL = "https://www.holditdowncic.uk";
 
 type SectionsJson = Record<string, unknown>;
 
+function getSiteEmail(): string {
+  try {
+    const contact = ((sectionsJson as SectionsJson).contact as { items?: Array<{ label?: string; value?: string }> } | undefined) || undefined;
+    const items = Array.isArray(contact?.items) ? contact!.items! : [];
+    const emailItem = items.find((it) => String(it.label || "").toLowerCase() === "email");
+    const v = String(emailItem?.value || "").trim();
+    return v || "holditdownuk@hotmail.com";
+  } catch {
+    return "holditdownuk@hotmail.com";
+  }
+}
+
 function getThemeCss(): string {
   const raw = (sectionsJson as SectionsJson)["theme"];
   if (!raw || typeof raw !== "object") return "";
@@ -200,7 +212,7 @@ const jsonLd = {
   sameAs: ["https://www.instagram.com/holditdowncic"],
   contactPoint: {
     "@type": "ContactPoint",
-    email: "hollditdownuk@hotmail.com",
+    email: getSiteEmail(),
     contactType: "General Enquiries",
   },
   knowsAbout: [
@@ -248,7 +260,7 @@ const faqJsonLd = {
       name: "How can I contact Hold It Down CIC?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "You can contact Hold It Down CIC by email at hollditdownuk@hotmail.com, through their website at holditdowncic.uk/contact, or via Instagram @holditdowncic.",
+        text: `You can contact Hold It Down CIC by email at ${getSiteEmail()}, through their website at holditdowncic.uk/contact, or via Instagram @holditdowncic.`,
       },
     },
     {
