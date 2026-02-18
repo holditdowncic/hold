@@ -223,6 +223,7 @@ export interface Initiative {
 export interface EventGalleryItem {
     src: string;
     alt: string;
+    type?: "video" | "image";
 }
 
 export interface EventData {

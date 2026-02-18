@@ -75,9 +75,8 @@ export default function EventsClient(props: { events: EventData[]; meta: EventsS
                   <div className="grid md:grid-cols-2">
                     {/* Image */}
                     <div
-                      className={`relative aspect-[16/10] md:aspect-auto md:min-h-[350px] ${
-                        i % 2 === 1 ? "md:order-2" : ""
-                      }`}
+                      className={`relative aspect-[16/10] md:aspect-auto md:min-h-[350px] ${i % 2 === 1 ? "md:order-2" : ""
+                        }`}
                     >
                       <Image
                         src={event.image}
@@ -150,7 +149,7 @@ export default function EventsClient(props: { events: EventData[]; meta: EventsS
 
                       {/* View Gallery Toggle */}
                       <button className="inline-flex items-center gap-2 text-sm font-semibold text-accent transition-colors hover:text-accent-warm">
-                        {selectedEvent === event.slug ? "Hide gallery" : `View gallery (${event.gallery.length} photos)`}
+                        {selectedEvent === event.slug ? "Hide gallery" : `View gallery (${event.gallery.length} media)`}
                         <svg
                           width="16"
                           height="16"
@@ -184,13 +183,24 @@ export default function EventsClient(props: { events: EventData[]; meta: EventsS
                               className="group/img relative aspect-square cursor-pointer overflow-hidden rounded-lg border border-border transition-all hover:border-accent/30"
                               onClick={() => setLightboxImage(idx)}
                             >
-                              <Image
-                                src={img.src}
-                                alt={img.alt}
-                                fill
-                                className="object-cover transition-transform duration-300 group-hover/img:scale-105"
-                                sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-                              />
+                              {img.type === "video" ? (
+                                <video
+                                  src={img.src}
+                                  muted
+                                  playsInline
+                                  loop
+                                  autoPlay
+                                  className="h-full w-full object-cover transition-transform duration-300 group-hover/img:scale-105"
+                                />
+                              ) : (
+                                <Image
+                                  src={img.src}
+                                  alt={img.alt}
+                                  fill
+                                  className="object-cover transition-transform duration-300 group-hover/img:scale-105"
+                                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                                />
+                              )}
                             </div>
                           ))}
                         </div>
@@ -246,13 +256,23 @@ export default function EventsClient(props: { events: EventData[]; meta: EventsS
               onClick={(e) => e.stopPropagation()}
             >
               <div className="relative h-[85vh] w-[90vw] max-w-[1000px]">
-                <Image
-                  src={activeEvent.gallery[lightboxImage]?.src || activeEvent.image}
-                  alt={activeEvent.gallery[lightboxImage]?.alt || activeEvent.image_alt}
-                  fill
-                  className="object-contain bg-bg"
-                  sizes="90vw"
-                />
+                {activeEvent.gallery[lightboxImage]?.type === "video" ? (
+                  <video
+                    src={activeEvent.gallery[lightboxImage]?.src}
+                    controls
+                    autoPlay
+                    playsInline
+                    className="h-full w-full object-contain bg-bg"
+                  />
+                ) : (
+                  <Image
+                    src={activeEvent.gallery[lightboxImage]?.src || activeEvent.image}
+                    alt={activeEvent.gallery[lightboxImage]?.alt || activeEvent.image_alt}
+                    fill
+                    className="object-contain bg-bg"
+                    sizes="90vw"
+                  />
+                )}
               </div>
               <button
                 className="absolute top-3 right-3 rounded-full border border-border bg-bg-card/80 px-3 py-2 text-sm font-semibold text-text-primary backdrop-blur-sm hover:bg-bg-card"

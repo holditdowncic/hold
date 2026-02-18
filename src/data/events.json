@@ -96,6 +96,20 @@
       {
         "src": "/media/talkdi/talkdi-1.jpeg",
         "alt": "Talk Di TingZ team"
+      },
+      {
+        "src": "/media/talkdi/talkdi-2.jpg",
+        "alt": "Talk Di TingZ session photo"
+      },
+      {
+        "src": "/media/talkdi/talkdi-vid-13.mp4",
+        "alt": "Talk Di TingZ session video",
+        "type": "video"
+      },
+      {
+        "src": "/media/talkdi/talkdi-vid-14.mp4",
+        "alt": "Talk Di TingZ session video 2",
+        "type": "video"
       }
     ],
     "sort_order": 2
