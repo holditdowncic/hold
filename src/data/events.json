@@ -227,5 +227,20 @@
     "badge": "Event",
     "gallery": [],
     "sort_order": 6
+  },
+  {
+    "id": "052efa5d-079f-44f3-8573-446a933abd83",
+    "slug": "upcoming-2026",
+    "title": "Upcoming 2026",
+    "date": "2026",
+    "location": "",
+    "description": "Details for the upcoming 2026 event.",
+    "highlights": [],
+    "impact": [],
+    "image": "",
+    "image_alt": "",
+    "badge": "",
+    "gallery": [],
+    "sort_order": 7
   }
 ]
