@@ -237,8 +237,8 @@
     "description": "Details for the upcoming 2026 event.",
     "highlights": [],
     "impact": [],
-    "image": "https://image-url-from-telegram-context.jpg",
-    "image_alt": "Gallery image for Upcoming 2026",
+    "image": "https://api.telegram.org/file/bot{token}/{file_path}",
+    "image_alt": "Roots & Wings Fun Day 2026 Save the Date poster",
     "badge": "",
     "gallery": [
       {
