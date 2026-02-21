@@ -237,10 +237,15 @@
     "description": "Details for the upcoming 2026 event.",
     "highlights": [],
     "impact": [],
-    "image": "",
-    "image_alt": "",
+    "image": "https://image-url-from-telegram-context.jpg",
+    "image_alt": "Gallery image for Upcoming 2026",
     "badge": "",
-    "gallery": [],
+    "gallery": [
+      {
+        "src": "https://image-url-from-telegram-context.jpg",
+        "alt": "Gallery image for Upcoming 2026"
+      }
+    ],
     "sort_order": 7
   }
 ]
