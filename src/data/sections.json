@@ -330,10 +330,22 @@
     "description": "We’d love to hear from you. Whether you want to join a programme, volunteer, partner with us, or just learn more — reach out.",
     "items": [
       {
+        "label": "Email",
+        "value": "info@holditdown.uk",
+        "href": "mailto:info@holditdown.uk",
+        "icon": "email"
+      },
+      {
+        "label": "Instagram",
+        "value": "@holditdowncic",
+        "href": "https://www.instagram.com/holditdowncic",
+        "icon": "instagram"
+      },
+      {
         "label": "Location",
-        "value": "Lagos, Nigeria",
-        "href": "https://maps.apple.com/?q=Lagos,Nigeria",
-        "icon": "MapPin"
+        "value": "Thornton Heath, Croydon CR7 8QY",
+        "href": null,
+        "icon": "location"
       }
     ],
     "email": "info@holditdown.uk"
