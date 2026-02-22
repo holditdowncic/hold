@@ -211,39 +211,6 @@
     "sort_order": 5
   },
   {
-    "id": "dc16d45c-a37a-42e2-80b6-3bdcb077bdf3",
-    "slug": "roots-wings",
-    "title": "Roots & Wings",
-    "date": "",
-    "location": "",
-    "description": "A celebration of fatherhood, family, and intergenerational connection. Roots & Wings brings fathers, children, and families together through sports, workshops, and shared experiences that strengthen bonds and create lasting memories.",
-    "highlights": [
-      "Planting roots of love and giving wings of confidence to future generations",
-      "Foundation for longer-term intergenerational and male mentorship work across Croydon"
-    ],
-    "impact": [],
-    "image": "https://holditdown.uk/images/roots-and-wings.jpg",
-    "image_alt": "Roots & Wings workshop activity",
-    "badge": "Event",
-    "gallery": [],
-    "sort_order": 6
-  },
-  {
-    "id": "052efa5d-079f-44f3-8573-446a933abd83",
-    "slug": "upcoming-2026",
-    "title": "Upcoming 2026",
-    "date": "2026",
-    "location": "",
-    "description": "Details for the upcoming 2026 event.",
-    "highlights": [],
-    "impact": [],
-    "image": "",
-    "image_alt": "",
-    "badge": "",
-    "gallery": [],
-    "sort_order": 7
-  },
-  {
     "id": "c93f3fca-a3f6-4b31-ad1e-5af63c6d5c3e",
     "slug": "roots-wings-fun-day",
     "title": "Roots & Wings Fun Day",
@@ -258,10 +225,10 @@
       "Workshops, Arts & Crafts and more"
     ],
     "impact": [],
-    "image": "https://api.telegram.org/file/bot/photo.jpg",
+    "image": "/media/roots/roots-1.jpeg",
     "image_alt": "Roots & Wings Fun Day Flyer",
     "badge": "Save the Date",
     "gallery": [],
-    "sort_order": 8
+    "sort_order": 0
   }
 ]
