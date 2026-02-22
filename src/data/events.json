@@ -242,5 +242,26 @@
     "badge": "",
     "gallery": [],
     "sort_order": 7
+  },
+  {
+    "id": "c93f3fca-a3f6-4b31-ad1e-5af63c6d5c3e",
+    "slug": "roots-wings-fun-day",
+    "title": "Roots & Wings Fun Day",
+    "date": "Saturday 20th June 2026",
+    "location": "To be confirmed",
+    "description": "Celebrating fathers & Empowering families. A year to year event by Hold it down CIC featuring food, drink, and community activities.",
+    "highlights": [
+      "Food & Drink",
+      "Sports & Games (Competitive segment trophies to be won)",
+      "Live Performances",
+      "Men's Discussion Corner",
+      "Workshops, Arts & Crafts and more"
+    ],
+    "impact": [],
+    "image": "https://api.telegram.org/file/bot/photo.jpg",
+    "image_alt": "Roots & Wings Fun Day Flyer",
+    "badge": "Save the Date",
+    "gallery": [],
+    "sort_order": 8
   }
 ]
