@@ -331,8 +331,8 @@
     "items": [
       {
         "label": "Email",
-        "value": "holditdownuk@hotmail.com",
-        "href": "mailto:holditdownuk@hotmail.com",
+        "value": "info@holditdown.uk",
+        "href": "mailto:info@holditdown.uk",
         "icon": "email"
       },
       {
@@ -348,7 +348,7 @@
         "icon": "location"
       }
     ],
-    "email": "holditdownuk@hotmail.com"
+    "email": "info@holditdown.uk"
   },
   "hero": {
     "badge": "Community Interest Company — Croydon, UK",
