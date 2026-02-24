@@ -62,6 +62,48 @@ export default function EventsClient(props: { events: EventData[]; meta: EventsS
         </div>
       </section>
 
+      {/* Featured Event Banner - Roots & Wings Stall Booking */}
+      <section className="px-5 pb-8 sm:px-6">
+        <div className="mx-auto max-w-[1200px]">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative overflow-hidden rounded-2xl border border-yellow-400/30 bg-gradient-to-r from-blue-900 to-blue-800 p-6 sm:p-8 md:p-10"
+          >
+            <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <span className="mb-2 inline-block rounded-full bg-yellow-400 px-3 py-1 text-xs font-bold text-blue-900">
+                  UPCOMING EVENT
+                </span>
+                <h2 className="mt-2 font-[family-name:var(--font-heading)] text-2xl font-bold text-white sm:text-3xl">
+                  Roots & Wings Fun Day 2026
+                </h2>
+                <p className="mt-2 text-blue-100">
+                  Saturday 20th June • Celebrating fathers & empowering families
+                </p>
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/stall-booking"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-yellow-400 px-6 py-3 text-sm font-bold text-blue-900 transition-all hover:bg-yellow-300 hover:shadow-lg"
+                >
+                  <span>Book a Stall</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </Link>
+                <span className="inline-flex items-center justify-center rounded-full border border-yellow-400/30 bg-blue-900/50 px-4 py-3 text-xs text-yellow-300">
+                  £50 • Deadline: 12th June
+                </span>
+              </div>
+            </div>
+            {/* Decorative circles */}
+            <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-yellow-400/10" />
+            <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-yellow-400/5" />
+          </motion.div>
+        </div>
+      </section>
+
       {/* Events List */}
       <section className="px-5 pb-16 sm:px-6 md:pb-24">
         <div className="mx-auto max-w-[1200px]">
