@@ -163,6 +163,20 @@ export default function StallBookingPage() {
           </div>
         </form>
 
+        {/* QR Code - Share This Page */}
+        <div className="mt-8 bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center">
+          <h3 className="text-lg font-bold text-yellow-400 mb-2">Share This Booking Page</h3>
+          <p className="text-white/80 text-sm mb-4">Know someone who might want a stall? Scan to share</p>
+          <div className="inline-block bg-white p-4 rounded-lg">
+            <img 
+              src="/stall-booking-qr.png" 
+              alt="QR code for stall booking"
+              className="w-40 h-40"
+            />
+          </div>
+          <p className="text-white/60 text-xs mt-3">Scan to open: holditdown.uk/stall-booking</p>
+        </div>
+
         {/* Contact */}
         <div className="text-center mt-8 text-white">
           <p className="mb-2">Questions? Contact us:</p>
