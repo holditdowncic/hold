@@ -75,6 +75,36 @@ export default function StallBookingPage() {
               />
             </div>
 
+            {/* Website/Social Media */}
+            <div>
+              <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-1">
+                Website or Social Media
+              </label>
+              <input
+                type="text"
+                id="website"
+                name="website"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Instagram, Facebook, or website URL"
+              />
+              <p className="text-xs text-gray-500 mt-1">Optional - helps us vet your application</p>
+            </div>
+
+            {/* Product/Service Description */}
+            <div>
+              <label htmlFor="products" className="block text-sm font-medium text-gray-700 mb-1">
+                What will you be selling/displaying? *
+              </label>
+              <textarea
+                id="products"
+                name="products"
+                required
+                rows={3}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Describe your products, services, or what you'll be showcasing at your stall..."
+              />
+            </div>
+
             {/* Stall Type */}
             <div>
               <label htmlFor="stallType" className="block text-sm font-medium text-gray-700 mb-1">
@@ -96,6 +126,64 @@ export default function StallBookingPage() {
                 <option value="other">Other (specify in requirements)</option>
               </select>
               <p className="text-sm text-red-500 mt-1">Food stalls are not permitted</p>
+            </div>
+
+            {/* Electricity */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Do you need electricity? *
+              </label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="electricity"
+                    value="yes"
+                    required
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <span className="text-gray-700">Yes</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="electricity"
+                    value="no"
+                    required
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <span className="text-gray-700">No</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Table */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Will you bring your own table? *
+              </label>
+              <div className="flex flex-wrap gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="table"
+                    value="yes"
+                    required
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <span className="text-gray-700">Yes, I have my own</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="table"
+                    value="no"
+                    required
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <span className="text-gray-700">No, I need one provided</span>
+                </label>
+              </div>
             </div>
 
             {/* Email */}
@@ -131,14 +219,14 @@ export default function StallBookingPage() {
             {/* Special Requirements */}
             <div>
               <label htmlFor="requirements" className="block text-sm font-medium text-gray-700 mb-1">
-                Special Requirements
+                Additional Requirements
               </label>
               <textarea
                 id="requirements"
                 name="requirements"
                 rows={3}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Power supply, table size, or any other needs..."
+                placeholder="Any other needs or special requests..."
               />
             </div>
 
