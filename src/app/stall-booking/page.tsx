@@ -25,7 +25,7 @@ export default function StallBookingPage() {
             </li>
             <li className="flex items-center gap-2">
               <span className="text-yellow-400">✓</span>
-              <span>Booking Deadline: <strong>12th June 2026</strong></span>
+              <span>Booking Deadline: <strong>16th May 2026</strong></span>
             </li>
             <li className="flex items-center gap-2">
               <span className="text-yellow-400">✓</span>
