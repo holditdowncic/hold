@@ -27,8 +27,6 @@ export default function VotePage() {
   useEffect(() => {
     const now = new Date();
     setIsDeadlinePassed(now > VOTING_DEADLINE);
-    
-    // Check if user already voted (localStorage)
     const voted = localStorage.getItem("rootswings_voted");
     if (voted) setAlreadyVoted(true);
   }, []);
@@ -52,7 +50,6 @@ export default function VotePage() {
       return;
     }
 
-    // Validate all categories have votes
     const missingCategories = categories.filter((cat) => !votes[cat.key]?.trim());
     if (missingCategories.length > 0) {
       setMessage(`Please enter a nominee for: ${missingCategories.map(c => c.title).join(", ")}`);
@@ -60,7 +57,6 @@ export default function VotePage() {
       return;
     }
 
-    // Validate email
     if (!email.trim() || !email.includes("@")) {
       setMessage("Please enter a valid email address.");
       setStatus("error");
@@ -122,7 +118,6 @@ export default function VotePage() {
               Recognise the fathers, mentors, and role models who inspire us all.
             </p>
 
-            {/* Deadline Banner */}
             <div className="inline-block bg-yellow-400 text-blue-900 px-6 py-3 rounded-full font-bold">
               Voting closes: 16th May 2026
             </div>
@@ -144,7 +139,6 @@ export default function VotePage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Categories */}
               <div className="bg-bg-card border border-border rounded-2xl p-6 md:p-8">
                 <h2 className="text-xl font-semibold mb-6">Cast Your Votes</h2>
                 <p className="text-sm text-text-secondary mb-6">
@@ -174,7 +168,6 @@ export default function VotePage() {
                 </div>
               </div>
 
-              {/* Email */}
               <div className="bg-bg-card border border-border rounded-2xl p-6 md:p-8">
                 <h2 className="text-xl font-semibold mb-4">Your Details</h2>
                 <div>
@@ -196,7 +189,6 @@ export default function VotePage() {
                 </div>
               </div>
 
-              {/* Submit */}
               {status === "error" && (
                 <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-red-500">
                   {message}
