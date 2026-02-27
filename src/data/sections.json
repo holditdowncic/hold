@@ -187,6 +187,11 @@
         "isPage": true
       },
       {
+        "label": "Vote",
+        "href": "/vote",
+        "isPage": true
+      },
+      {
         "label": "Impact",
         "href": "#impact"
       },
