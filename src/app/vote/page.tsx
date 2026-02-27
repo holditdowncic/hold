@@ -19,6 +19,7 @@ const VOTING_DEADLINE = new Date("2026-05-16T23:59:59");
 export default function VotePage() {
   const [votes, setVotes] = useState<Record<string, string>>({});
   const [email, setEmail] = useState("");
+  const [reason, setReason] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [isDeadlinePassed, setIsDeadlinePassed] = useState(false);
@@ -69,7 +70,7 @@ export default function VotePage() {
       const response = await fetch("/api/vote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ votes, email }),
+        body: JSON.stringify({ votes, email, reason }),
       });
 
       const data = await response.json();
@@ -185,6 +186,26 @@ export default function VotePage() {
                   />
                   <p className="text-xs text-text-secondary mt-2">
                     Your email is used to prevent duplicate voting. We will not share it with third parties.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-bg-card border border-border rounded-2xl p-6 md:p-8">
+                <h2 className="text-xl font-semibold mb-4">Tell Us Why (Optional)</h2>
+                <div>
+                  <label htmlFor="reason" className="block text-sm font-medium text-text-primary mb-2">
+                    Why did you choose these individuals?
+                  </label>
+                  <textarea
+                    id="reason"
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    placeholder="Share 2-3 sentences about why these people deserve recognition. What impact have they made in your community?"
+                    rows={4}
+                    className="w-full px-4 py-3 border border-border rounded-lg bg-bg focus:ring-2 focus:ring-accent focus:border-transparent transition-all resize-none"
+                  />
+                  <p className="text-xs text-text-secondary mt-2">
+                    Optional — but your words help us celebrate these community heroes at the event.
                   </p>
                 </div>
               </div>

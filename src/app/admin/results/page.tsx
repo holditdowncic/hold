@@ -41,7 +41,7 @@ export default function AdminResultsPage() {
       
       const { data: votes, error } = await supabase
         .from("votes")
-        .select("category_key, nominee_name");
+        .select("category_key, nominee_name, reason");
 
       if (error) {
         console.error("Error fetching votes:", error);

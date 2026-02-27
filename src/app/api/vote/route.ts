@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { votes, email } = await request.json();
+    const { votes, email, reason } = await request.json();
     const ip = request.headers.get("x-forwarded-for") || "unknown";
     const userAgent = request.headers.get("user-agent") || "";
 
@@ -103,6 +103,7 @@ export async function POST(request: NextRequest) {
       voter_email: email.toLowerCase(),
       voter_ip: ip,
       voter_user_agent: userAgent,
+      reason: reason || null,
     }));
 
     const { error: voteError } = await supabase
