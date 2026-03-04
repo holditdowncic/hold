@@ -93,7 +93,7 @@ export default function EventsClient(props: { events: EventData[]; meta: EventsS
                   </svg>
                 </Link>
                 <span className="inline-flex items-center justify-center rounded-full border border-yellow-400/30 bg-blue-900/50 px-4 py-3 text-xs text-yellow-300">
-                  £50 • Deadline: 12th June
+                  £60 • Deadline: 16th May
                 </span>
               </div>
             </div>
