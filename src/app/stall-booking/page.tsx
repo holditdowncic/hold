@@ -21,7 +21,11 @@ export default function StallBookingPage() {
           <ul className="space-y-2">
             <li className="flex items-center gap-2">
               <span className="text-yellow-400">✓</span>
-              <span>Stall Fee: <strong>£50</strong> (payable online)</span>
+              <span>Stall Fee: <strong>£60</strong> (payable online)</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-yellow-400">✓</span>
+              <span>Community Stalls: <strong>£20</strong></span>
             </li>
             <li className="flex items-center gap-2">
               <span className="text-yellow-400">✓</span>
@@ -39,8 +43,8 @@ export default function StallBookingPage() {
         </div>
 
         {/* Booking Form */}
-        <form 
-          action="https://formspree.io/f/YOUR_FORM_ID" 
+        <form
+          action="https://formspree.io/f/YOUR_FORM_ID"
           method="POST"
           className="bg-white rounded-lg p-6 md:p-8 shadow-xl"
         >
@@ -237,7 +241,7 @@ export default function StallBookingPage() {
                 After submitting this form, you will receive an email with payment instructions.
               </p>
               <p className="text-sm text-blue-800">
-                <strong>Amount: £50</strong> — Payment required to confirm your booking.
+                <strong>Amount: £60</strong> (Community stalls: £20) — Payment required to confirm your booking.
               </p>
             </div>
 
@@ -256,8 +260,8 @@ export default function StallBookingPage() {
           <h3 className="text-lg font-bold text-yellow-400 mb-2">Share This Booking Page</h3>
           <p className="text-white/80 text-sm mb-4">Know someone who might want a stall? Scan to share</p>
           <div className="inline-block bg-white p-4 rounded-lg">
-            <img 
-              src="/stall-booking-qr.png" 
+            <img
+              src="/stall-booking-qr.png"
               alt="QR code for stall booking"
               className="w-40 h-40"
             />
