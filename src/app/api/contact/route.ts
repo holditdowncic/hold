@@ -70,6 +70,25 @@ export async function POST(request: NextRequest) {
 
         await Promise.all(adminIds.map((id) => sendTelegram(id, telegramMessage)));
 
+        // Also send to OpenClaw bot
+        try {
+            const openclawToken = process.env.OPENCLAW_BOT_TOKEN;
+            const openclawChatId = process.env.OPENCLAW_CHAT_ID;
+            if (openclawToken && openclawChatId) {
+                await fetch(`https://api.telegram.org/bot${openclawToken}/sendMessage`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        chat_id: openclawChatId,
+                        text: telegramMessage,
+                        parse_mode: "HTML",
+                    }),
+                });
+            }
+        } catch (openclawErr) {
+            console.error("OpenClaw contact notification error:", openclawErr);
+        }
+
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error("Contact form error:", error);

@@ -118,6 +118,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Send notification to OpenClaw bot
+    try {
+      const openclawToken = process.env.OPENCLAW_BOT_TOKEN;
+      const openclawChatId = process.env.OPENCLAW_CHAT_ID;
+      if (openclawToken && openclawChatId) {
+        const categoryLabels: Record<string, string> = {
+          community_father: "Community Father",
+          everyday_hero: "Everyday Hero",
+          mentor_year: "Mentor of the Year",
+          resilient_man: "Resilient Man",
+          always_there: "The Man Who's Always There",
+          young_role_model: "Young Male Role Model",
+        };
+        const nomineeLines = requiredCategories
+          .map((cat) => `• <b>${categoryLabels[cat] || cat}:</b> ${votes[cat].trim()}`)
+          .join("\n");
+        const msg = [
+          `🗳️ <b>New Vote Submitted</b>`,
+          ``,
+          `<b>Email:</b> ${email}`,
+          ``,
+          nomineeLines,
+          reason ? `\n<b>Reason:</b> ${reason}` : "",
+          ``,
+          `<i>${new Date().toLocaleString("en-GB", { timeZone: "Europe/London" })}</i>`,
+        ].filter(Boolean).join("\n");
+
+        await fetch(`https://api.telegram.org/bot${openclawToken}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chat_id: openclawChatId, text: msg, parse_mode: "HTML" }),
+        });
+      }
+    } catch (notifyErr) {
+      console.error("OpenClaw notification error:", notifyErr);
+    }
+
     return NextResponse.json(
       { message: "Votes submitted successfully!" },
       { status: 200 }
