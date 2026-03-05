@@ -118,6 +118,16 @@ export default function VotePage() {
     <div className="min-h-screen">
       <Navbar />
 
+      {/* HERO IMAGE - Last Year's Event */}
+      <section className="relative w-full h-80 sm:h-96 md:h-[500px] overflow-hidden">
+        <img
+          src="/media/roots/roots-13.jpeg"
+          alt="Roots & Wings Family Fun Day - Last Year's Event"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/0 to-black/40"></div>
+      </section>
+
       {/* 1. HERO SECTION */}
       <section className="relative overflow-hidden px-5 pt-20 pb-12 sm:px-6 sm:pt-28">
         <div
