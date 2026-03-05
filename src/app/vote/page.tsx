@@ -118,8 +118,8 @@ export default function VotePage() {
     <div className="min-h-screen">
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden px-5 pt-28 pb-12 sm:px-6 sm:pt-32">
+      {/* 1. HERO SECTION */}
+      <section className="relative overflow-hidden px-5 pt-20 pb-12 sm:px-6 sm:pt-28">
         <div
           className="absolute inset-0 z-0"
           style={{
@@ -127,94 +127,112 @@ export default function VotePage() {
               "radial-gradient(ellipse at 30% 50%, var(--hero-glow-1) 0%, transparent 60%), radial-gradient(ellipse at 70% 20%, var(--hero-glow-2) 0%, transparent 50%)",
           }}
         />
-        <div className="relative z-10 mx-auto max-w-[900px] text-center">
+        <div className="relative z-10 mx-auto max-w-[900px]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <span className="mb-5 inline-block rounded-full border border-accent/15 bg-accent-glow px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-accent">
-              Roots & Wings 2026
-            </span>
-            <h1 className="font-[family-name:var(--font-heading)] text-[clamp(2.5rem,6vw,4rem)] font-bold leading-tight tracking-tight mb-4">
-              <span className="text-gradient">Community Awards</span>
+            <h1 className="font-[family-name:var(--font-heading)] text-[clamp(2.5rem,6vw,4rem)] font-bold leading-tight tracking-tight mb-3 text-center text-text-primary">
+              The Roots & Wings Community Awards 2026
             </h1>
-            <h2 className="text-xl md:text-2xl font-semibold text-text-primary mb-6">
+            <h2 className="text-2xl md:text-3xl font-bold text-text-primary mb-6 text-center">
               Celebrating the men who show up
             </h2>
-            <p className="mx-auto max-w-[700px] text-base leading-relaxed text-text-secondary md:text-lg mb-8">
-              Recognising the men whose influence strengthens families and communities across South London. Across our communities there are men who quietly shape lives through their presence, consistency and care.
+            <p className="mx-auto max-w-[800px] text-base leading-relaxed text-text-secondary md:text-lg mb-6 text-center">
+              Recognising the men whose influence strengthens families and communities across South London.
             </p>
-
-            <div className="inline-block bg-yellow-400 text-blue-900 px-6 py-3 rounded-full font-bold mb-8">
-              Voting closes: 16th May 2026
-            </div>
+            <p className="mx-auto max-w-[800px] text-base leading-relaxed text-text-secondary md:text-lg mb-8 text-center">
+              Across our communities there are men who quietly shape lives through their presence, consistency and care. They guide young people, support families and demonstrate leadership in ways that are often unseen but deeply felt.
+            </p>
+            <p className="mx-auto max-w-[800px] text-base leading-relaxed text-text-secondary md:text-lg text-center">
+              The Roots & Wings Community Awards were created to recognise these men and celebrate the influence they carry within our communities.
+            </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Why These Awards Matter */}
-      <section className="px-5 py-12 sm:px-6 bg-bg-card/50">
+      {/* 2. CREDIBILITY LINE */}
+      <section className="px-5 py-8 sm:px-6 bg-blue-900 text-white text-center">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="mx-auto max-w-[900px]"
+        >
+          <p className="text-base md:text-lg font-semibold">
+            Last year more than 250 people attended Roots & Wings to celebrate fathers, families and community leadership.
+          </p>
+        </motion.div>
+      </section>
+
+      {/* 3. WHY THESE AWARDS MATTER */}
+      <section className="px-5 py-16 sm:px-6">
         <div className="mx-auto max-w-[900px]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="mb-12"
+            transition={{ duration: 0.5, delay: 0.15 }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-6 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-8 text-center">
               Why These Awards Matter
             </h2>
             <p className="text-base md:text-lg text-text-secondary leading-relaxed mb-6 text-center">
-              Many men contribute to their communities without recognition. They mentor young people, support families and lead by example through their actions. The Roots & Wings Community Awards shine a light on these men and celebrate the positive influence they bring to their communities.
+              Many men contribute to their communities without recognition. They mentor young people, support families and lead by example through their actions.
             </p>
-            <p className="text-base md:text-lg text-text-secondary leading-relaxed text-center">
-              <strong>Your vote helps ensure their impact is seen and valued.</strong>
+            <p className="text-base md:text-lg text-text-secondary leading-relaxed mb-6 text-center">
+              The Roots & Wings Community Awards shine a light on these men and celebrate the positive influence they bring to their communities.
+            </p>
+            <p className="text-base md:text-lg font-semibold text-text-primary text-center">
+              Your vote helps ensure their impact is seen and valued.
             </p>
           </motion.div>
-
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <div className="bg-white rounded-lg p-6 border border-border">
-              <h3 className="text-xl font-bold text-blue-900 mb-3">Last Year</h3>
-              <p className="text-text-secondary">
-                More than 250 people attended Roots & Wings to celebrate fathers, families and community leadership.
-              </p>
-            </div>
-            <div className="bg-white rounded-lg p-6 border border-border">
-              <h3 className="text-xl font-bold text-blue-900 mb-3">This Year</h3>
-              <p className="text-text-secondary">
-                We continue building that tradition and recognising the men who make a difference every day.
-              </p>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* Awards Categories */}
-      <section className="px-5 py-12 sm:px-6">
+      {/* 4. ROOTS & WINGS THEME LINE */}
+      <section className="px-5 py-12 sm:px-6 bg-yellow-50">
+        <div className="mx-auto max-w-[900px] text-center">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <h3 className="text-2xl md:text-3xl font-bold text-blue-900 mb-2">
+              Roots & Wings 2026
+            </h3>
+            <p className="text-lg md:text-xl font-semibold text-text-primary">
+              Three Generations. One Influence
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 5. AWARD CATEGORIES WITH DEFINITIONS */}
+      <section className="px-5 py-16 sm:px-6">
         <div className="mx-auto max-w-[900px]">
           <motion.h2
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.5, delay: 0.25 }}
             className="text-3xl md:text-4xl font-bold text-text-primary mb-12 text-center"
           >
             Award Categories
           </motion.h2>
           
-          <div className="grid md:grid-cols-2 gap-6 mb-12">
+          <div className="space-y-6">
             {categories.map((category, index) => (
               <motion.div
                 key={category.key}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 + index * 0.05 }}
-                className="bg-white rounded-lg p-6 border border-border hover:shadow-lg transition-shadow"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: 0.3 + index * 0.05 }}
+                className="bg-white rounded-lg p-6 border border-border hover:shadow-md transition-shadow"
               >
-                <h3 className="text-lg font-bold text-blue-900 mb-3">
+                <h3 className="text-xl font-bold text-blue-900 mb-3">
                   {category.title}
                 </h3>
-                <p className="text-text-secondary text-sm leading-relaxed">
+                <p className="text-text-secondary text-base leading-relaxed">
                   {category.description}
                 </p>
               </motion.div>
@@ -223,8 +241,32 @@ export default function VotePage() {
         </div>
       </section>
 
-      {/* Voting Section */}
-      <section className="px-5 py-12 sm:px-6 bg-bg-card/50">
+      {/* 6. CAST YOUR VOTE SECTION (Above Form) */}
+      <section className="px-5 py-12 sm:px-6 bg-blue-50">
+        <div className="mx-auto max-w-[900px] text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-6">
+              Cast Your Vote
+            </h2>
+            <p className="text-lg md:text-xl text-text-secondary mb-6">
+              Take 30 seconds to recognise a man making a difference.
+            </p>
+            <p className="text-base md:text-lg text-text-secondary mb-8">
+              Your vote helps celebrate the fathers, mentors and role models whose influence strengthens our communities.
+            </p>
+            <div className="bg-blue-900 text-white px-6 py-4 rounded-lg font-semibold inline-block">
+              Join hundreds of people recognising men in our community.
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 7. VOTING FORM */}
+      <section className="px-5 py-16 sm:px-6">
         <div className="mx-auto max-w-[800px]">
           {isDeadlinePassed ? (
             <motion.div
@@ -245,25 +287,7 @@ export default function VotePage() {
               <p className="text-text-secondary">You have already submitted your votes. Results will be announced at the event.</p>
             </motion.div>
           ) : (
-            <>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="text-center mb-8"
-              >
-                <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
-                  Cast Your Vote
-                </h2>
-                <p className="text-base md:text-lg text-text-secondary mb-6">
-                  Take 30 seconds to recognise a man making a difference. Your vote helps celebrate the fathers, mentors and role models whose influence strengthens our communities.
-                </p>
-                <div className="inline-block bg-blue-900 text-white px-6 py-3 rounded-lg font-semibold">
-                  Over 300 votes already cast. Join others in recognising men who make a difference.
-                </div>
-              </motion.div>
-
-              <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Nominees */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -415,45 +439,60 @@ export default function VotePage() {
                   </motion.button>
                 )}
               </form>
-            </>
           )}
         </div>
+
+        {/* 8. VOTING DEADLINE (Below Form) */}
+        {!isDeadlinePassed && !alreadyVoted && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="text-center mt-8 p-6 bg-yellow-50 rounded-lg border border-yellow-200"
+          >
+            <p className="text-lg font-semibold text-blue-900">
+              Voting closes on 16 May 2026
+            </p>
+          </motion.div>
+        )}
       </section>
 
-      {/* Event Info */}
-      <section className="px-5 py-12 sm:px-6">
+      {/* 9. EVENT ANNOUNCEMENT */}
+      <section className="px-5 py-16 sm:px-6 bg-blue-900 text-white">
         <div className="mx-auto max-w-[900px]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-8 text-center">
-              The Roots & Wings Family Fun Day
+            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">
+              Where Winners Will Be Announced
             </h2>
             
-            <div className="bg-blue-900 text-white rounded-lg p-8 text-center mb-8">
-              <h3 className="text-2xl font-bold mb-4">When & Where</h3>
-              <p className="text-lg font-semibold mb-2">Saturday 20 June 2026</p>
-              <p className="text-base opacity-90 mb-4">
-                Heavers Farm Primary School<br />
-                58 Dinsdale Gardens<br />
-                South Norwood, London SE25 6LT
+            <div className="bg-white/10 rounded-lg p-8 text-center backdrop-blur-sm">
+              <p className="text-lg mb-8">
+                Winners will be announced during the Roots & Wings Family Fun Day.
               </p>
-              <p className="text-sm opacity-75">
-                The award winners will be announced during our celebration of fatherhood, mentorship and community leadership.
+              
+              <div className="mb-8">
+                <p className="text-2xl font-bold mb-4">Saturday 20 June 2026</p>
+                <div className="text-base leading-relaxed space-y-1">
+                  <p>Heavers Farm Primary School</p>
+                  <p>58 Dinsdale Gardens</p>
+                  <p>South Norwood, London SE25 6LT</p>
+                </div>
+              </div>
+
+              <p className="text-base opacity-90">
+                Roots & Wings brings together families, fathers and community members for a day of football, games, performances, food and celebration.
               </p>
             </div>
-
-            <p className="text-base md:text-lg text-text-secondary text-center">
-              Roots & Wings brings together families, fathers and community members for a day of football, games, performances, food and celebration.
-            </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Share Section */}
-      <section className="px-5 py-12 sm:px-6 bg-bg-card/50">
+      {/* 10. SHARE PROMPT */}
+      <section className="px-5 py-16 sm:px-6">
         <div className="mx-auto max-w-[900px] text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -466,26 +505,47 @@ export default function VotePage() {
             <p className="text-base md:text-lg text-text-secondary mb-8 max-w-[700px] mx-auto">
               Know someone who deserves recognition? Share this page and invite others to vote so we can celebrate the men whose influence strengthens our communities.
             </p>
-            <div className="bg-yellow-400 text-blue-900 inline-block px-8 py-4 rounded-lg font-semibold cursor-pointer hover:bg-yellow-500 transition-colors">
+            <button className="bg-yellow-400 hover:bg-yellow-500 text-blue-900 px-8 py-4 rounded-lg font-semibold transition-colors">
               Share This Page
-            </div>
+            </button>
           </motion.div>
         </div>
       </section>
 
-      {/* Closing Message */}
-      <section className="px-5 py-12 sm:px-6">
+      {/* 11. NOMINATE FOR NEXT YEAR */}
+      <section className="px-5 py-16 sm:px-6 bg-bg-card/50">
         <div className="mx-auto max-w-[900px] text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
-            className="bg-white rounded-lg p-8 border border-border"
           >
-            <p className="text-lg md:text-xl text-text-secondary leading-relaxed">
-              <strong>Every vote is a chance to recognise a man who is making a difference.</strong>
+            <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-6">
+              Nominate for Next Year
+            </h2>
+            <p className="text-base md:text-lg text-text-secondary mb-8 max-w-[700px] mx-auto">
+              If you know a father, mentor or male role model who deserves recognition in future Roots & Wings awards, we welcome nominations for next year.
             </p>
-            <p className="text-base md:text-lg text-text-secondary leading-relaxed mt-4">
+            <p className="text-lg font-semibold text-blue-900">
+              Email: <a href="mailto:holditdownuk@hotmail.com" className="hover:underline">holditdownuk@hotmail.com</a>
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 12. CLOSING STATEMENT */}
+      <section className="px-5 py-16 sm:px-6">
+        <div className="mx-auto max-w-[900px] text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.65 }}
+            className="bg-white rounded-lg p-10 border-2 border-blue-900"
+          >
+            <p className="text-lg md:text-xl font-semibold text-text-primary leading-relaxed mb-6">
+              Every vote is a chance to recognise a man who is making a difference.
+            </p>
+            <p className="text-base md:text-lg text-text-secondary leading-relaxed">
               Help us celebrate the fathers, mentors and role models shaping our communities. Together we honour the influence that often goes unseen but never goes unfelt.
             </p>
           </motion.div>
