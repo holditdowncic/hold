@@ -1,4 +1,67 @@
+"use client";
+
+import { useState } from "react";
+
 export default function StallBookingPage() {
+  const [formData, setFormData] = useState({
+    name: "",
+    business: "",
+    website: "",
+    products: "",
+    stallType: "",
+    electricity: "",
+    table: "",
+    email: "",
+    phone: "",
+    requirements: "",
+  });
+
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [message, setMessage] = useState("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus("submitting");
+
+    try {
+      const response = await fetch("/api/stall-booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setStatus("success");
+        setMessage("Your stall booking request has been submitted! You will receive an email with payment instructions shortly.");
+        setFormData({
+          name: "",
+          business: "",
+          website: "",
+          products: "",
+          stallType: "",
+          electricity: "",
+          table: "",
+          email: "",
+          phone: "",
+          requirements: "",
+        });
+      } else {
+        setStatus("error");
+        setMessage(data.error || "Failed to submit booking. Please try again.");
+      }
+    } catch {
+      setStatus("error");
+      setMessage("Network error. Please try again.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-900 to-blue-950 py-12 px-4">
       <div className="max-w-2xl mx-auto">
@@ -43,9 +106,8 @@ export default function StallBookingPage() {
         </div>
 
         {/* Booking Form */}
-        <form
-          action="https://formspree.io/f/YOUR_FORM_ID"
-          method="POST"
+        <form 
+          onSubmit={handleSubmit}
           className="bg-white rounded-lg p-6 md:p-8 shadow-xl"
         >
           <div className="space-y-6">
@@ -58,6 +120,8 @@ export default function StallBookingPage() {
                 type="text"
                 id="name"
                 name="name"
+                value={formData.name}
+                onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Your name"
@@ -73,6 +137,8 @@ export default function StallBookingPage() {
                 type="text"
                 id="business"
                 name="business"
+                value={formData.business}
+                onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Your business or organisation"
@@ -88,6 +154,8 @@ export default function StallBookingPage() {
                 type="text"
                 id="website"
                 name="website"
+                value={formData.website}
+                onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Instagram, Facebook, or website URL"
               />
@@ -102,6 +170,8 @@ export default function StallBookingPage() {
               <textarea
                 id="products"
                 name="products"
+                value={formData.products}
+                onChange={handleChange}
                 required
                 rows={3}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -117,6 +187,8 @@ export default function StallBookingPage() {
               <select
                 id="stallType"
                 name="stallType"
+                value={formData.stallType}
+                onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
@@ -143,6 +215,8 @@ export default function StallBookingPage() {
                     type="radio"
                     name="electricity"
                     value="yes"
+                    checked={formData.electricity === "yes"}
+                    onChange={handleChange}
                     required
                     className="w-4 h-4 text-blue-600"
                   />
@@ -153,6 +227,8 @@ export default function StallBookingPage() {
                     type="radio"
                     name="electricity"
                     value="no"
+                    checked={formData.electricity === "no"}
+                    onChange={handleChange}
                     required
                     className="w-4 h-4 text-blue-600"
                   />
@@ -172,6 +248,8 @@ export default function StallBookingPage() {
                     type="radio"
                     name="table"
                     value="yes"
+                    checked={formData.table === "yes"}
+                    onChange={handleChange}
                     required
                     className="w-4 h-4 text-blue-600"
                   />
@@ -182,6 +260,8 @@ export default function StallBookingPage() {
                     type="radio"
                     name="table"
                     value="no"
+                    checked={formData.table === "no"}
+                    onChange={handleChange}
                     required
                     className="w-4 h-4 text-blue-600"
                   />
@@ -199,6 +279,8 @@ export default function StallBookingPage() {
                 type="email"
                 id="email"
                 name="email"
+                value={formData.email}
+                onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="your@email.com"
@@ -214,6 +296,8 @@ export default function StallBookingPage() {
                 type="tel"
                 id="phone"
                 name="phone"
+                value={formData.phone}
+                onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="07943 126859"
@@ -228,6 +312,8 @@ export default function StallBookingPage() {
               <textarea
                 id="requirements"
                 name="requirements"
+                value={formData.requirements}
+                onChange={handleChange}
                 rows={3}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Any other needs or special requests..."
@@ -241,17 +327,31 @@ export default function StallBookingPage() {
                 After submitting this form, you will receive an email with payment instructions.
               </p>
               <p className="text-sm text-blue-800">
-                <strong>Amount: £60</strong> (Community stalls: £20) — Payment required to confirm your booking.
+                <strong>Amount: £60</strong> (Community stalls: £20) - Payment required to confirm your booking.
               </p>
             </div>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              className="w-full bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold py-3 px-6 rounded-lg transition-colors"
-            >
-              Submit Booking Request
-            </button>
+            {/* Status Messages */}
+            {status === "error" && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+                {message}
+              </div>
+            )}
+
+            {status === "success" ? (
+              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg text-center">
+                <h4 className="font-semibold mb-1">Success!</h4>
+                <p>{message}</p>
+              </div>
+            ) : (
+              <button
+                type="submit"
+                disabled={status === "submitting"}
+                className="w-full bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {status === "submitting" ? "Submitting..." : "Submit Booking Request"}
+              </button>
+            )}
           </div>
         </form>
 
