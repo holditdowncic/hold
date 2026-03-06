@@ -349,7 +349,7 @@ export default function VotePage() {
                         <div className="mb-4">
                           <label 
                             htmlFor={`${category.key}_name`}
-                            className="block text-sm font-medium text-text-primary mb-2"
+                            className="block text-sm font-medium text-blue-900 mb-2"
                           >
                             Nominee Name *
                           </label>
@@ -359,7 +359,7 @@ export default function VotePage() {
                             value={votes[category.key] || ""}
                             onChange={(e) => handleVoteChange(category.key, e.target.value)}
                             placeholder={`Enter name for ${category.title}`}
-                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                            className="w-full px-4 py-3 border-2 border-blue-300 rounded-lg bg-white text-black placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-600 transition-all font-medium"
                             required
                           />
                         </div>
@@ -367,7 +367,7 @@ export default function VotePage() {
                         <div className="mb-4">
                           <label 
                             htmlFor={`${category.key}_company`}
-                            className="block text-sm font-medium text-text-primary mb-2"
+                            className="block text-sm font-medium text-blue-900 mb-2"
                           >
                             Company / Organisation
                           </label>
@@ -377,9 +377,9 @@ export default function VotePage() {
                             value={companies[category.key] || ""}
                             onChange={(e) => setCompanies({ ...companies, [category.key]: e.target.value })}
                             placeholder="Where do they work?"
-                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                            className="w-full px-4 py-3 border-2 border-blue-300 rounded-lg bg-white text-black placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-600 transition-all font-medium"
                           />
-                          <p className="text-xs text-text-secondary mt-1">
+                          <p className="text-xs text-gray-600 mt-1">
                             Optional - helps us understand their context
                           </p>
                         </div>
@@ -387,7 +387,7 @@ export default function VotePage() {
                         <div>
                           <label 
                             htmlFor={`${category.key}_reason`}
-                            className="block text-sm font-medium text-text-primary mb-2"
+                            className="block text-sm font-medium text-blue-900 mb-2"
                           >
                             Why are you nominating them?
                           </label>
@@ -397,9 +397,9 @@ export default function VotePage() {
                             onChange={(e) => setCategoryReasons({ ...categoryReasons, [category.key]: e.target.value })}
                             placeholder="Tell us 2-3 lines about why they deserve this award..."
                             rows={3}
-                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
+                            className="w-full px-4 py-3 border-2 border-blue-300 rounded-lg bg-white text-black placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-600 transition-all resize-none font-medium"
                           />
-                          <p className="text-xs text-text-secondary mt-1">
+                          <p className="text-xs text-gray-600 mt-1">
                             Optional but encouraged - helps us celebrate them at the event
                           </p>
                         </div>
@@ -417,7 +417,7 @@ export default function VotePage() {
                 >
                   <h3 className="text-2xl font-bold text-text-primary mb-6">Your Details</h3>
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-text-primary mb-2">
+                    <label htmlFor="email" className="block text-sm font-medium text-blue-900 mb-2">
                       Email Address *
                     </label>
                     <input
@@ -426,10 +426,10 @@ export default function VotePage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="your@email.com"
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                      className="w-full px-4 py-3 border-2 border-blue-300 rounded-lg bg-white text-black placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-600 transition-all font-medium"
                       required
                     />
-                    <p className="text-xs text-text-secondary mt-2">
+                    <p className="text-xs text-gray-600 mt-2">
                       Your email is used to prevent duplicate voting. We will not share it with third parties.
                     </p>
                   </div>
@@ -444,7 +444,7 @@ export default function VotePage() {
                 >
                   <h3 className="text-2xl font-bold text-text-primary mb-6">Tell Us Why (Optional)</h3>
                   <div>
-                    <label htmlFor="reason" className="block text-sm font-medium text-text-primary mb-2">
+                    <label htmlFor="reason" className="block text-sm font-medium text-blue-900 mb-2">
                       Why did you choose these individuals?
                     </label>
                     <textarea
@@ -453,9 +453,9 @@ export default function VotePage() {
                       onChange={(e) => setReason(e.target.value)}
                       placeholder="Share 2-3 sentences about why these people deserve recognition. What impact have they made in your community?"
                       rows={4}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
+                      className="w-full px-4 py-3 border-2 border-blue-300 rounded-lg bg-white text-black placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-600 transition-all resize-none font-medium"
                     />
-                    <p className="text-xs text-text-secondary mt-2">
+                    <p className="text-xs text-gray-600 mt-2">
                       Optional — but your words help us celebrate these community heroes at the event.
                     </p>
                   </div>
