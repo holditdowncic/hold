@@ -48,6 +48,7 @@ export default function VotePage() {
   const [message, setMessage] = useState("");
   const [isDeadlinePassed, setIsDeadlinePassed] = useState(false);
   const [alreadyVoted, setAlreadyVoted] = useState(false);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
   useEffect(() => {
     const now = new Date();
@@ -230,21 +231,41 @@ export default function VotePage() {
             Award Categories
           </motion.h2>
           
-          <div className="space-y-6">
+          <div className="space-y-4">
             {categories.map((category, index) => (
               <motion.div
                 key={category.key}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.4, delay: 0.3 + index * 0.05 }}
-                className="bg-white rounded-lg p-6 border border-border hover:shadow-md transition-shadow"
               >
-                <h3 className="text-xl font-bold text-blue-900 mb-3">
-                  {category.title}
-                </h3>
-                <p className="text-text-secondary text-base leading-relaxed">
-                  {category.description}
-                </p>
+                <button
+                  onClick={() => setExpandedCategory(expandedCategory === category.key ? null : category.key)}
+                  className="w-full bg-white rounded-lg p-6 border border-border hover:shadow-md transition-all text-left"
+                >
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-bold text-blue-900">
+                      {category.title}
+                    </h3>
+                    <span className={`text-2xl font-bold text-blue-900 transition-transform ${expandedCategory === category.key ? 'rotate-180' : ''}`}>
+                      ▼
+                    </span>
+                  </div>
+                </button>
+                
+                {expandedCategory === category.key && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="bg-blue-50 px-6 py-4 rounded-b-lg border-l border-r border-b border-border"
+                  >
+                    <p className="text-text-secondary text-base leading-relaxed">
+                      {category.description}
+                    </p>
+                  </motion.div>
+                )}
               </motion.div>
             ))}
           </div>
