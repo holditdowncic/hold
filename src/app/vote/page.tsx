@@ -42,6 +42,8 @@ const VOTING_DEADLINE = new Date("2026-05-16T23:59:59");
 
 export default function VotePage() {
   const [votes, setVotes] = useState<Record<string, string>>({});
+  const [companies, setCompanies] = useState<Record<string, string>>({});
+  const [categoryReasons, setCategoryReasons] = useState<Record<string, string>>({});
   const [email, setEmail] = useState("");
   const [reason, setReason] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
@@ -95,7 +97,7 @@ export default function VotePage() {
       const response = await fetch("/api/vote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ votes, email, reason }),
+        body: JSON.stringify({ votes, companies, categoryReasons, email, reason }),
       });
 
       const data = await response.json();
@@ -362,7 +364,7 @@ export default function VotePage() {
                           />
                         </div>
 
-                        <div>
+                        <div className="mb-4">
                           <label 
                             htmlFor={`${category.key}_company`}
                             className="block text-sm font-medium text-text-primary mb-2"
@@ -372,11 +374,33 @@ export default function VotePage() {
                           <input
                             type="text"
                             id={`${category.key}_company`}
+                            value={companies[category.key] || ""}
+                            onChange={(e) => setCompanies({ ...companies, [category.key]: e.target.value })}
                             placeholder="Where do they work?"
                             className="w-full px-4 py-3 border border-border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                           />
                           <p className="text-xs text-text-secondary mt-1">
                             Optional - helps us understand their context
+                          </p>
+                        </div>
+
+                        <div>
+                          <label 
+                            htmlFor={`${category.key}_reason`}
+                            className="block text-sm font-medium text-text-primary mb-2"
+                          >
+                            Why are you nominating them?
+                          </label>
+                          <textarea
+                            id={`${category.key}_reason`}
+                            value={categoryReasons[category.key] || ""}
+                            onChange={(e) => setCategoryReasons({ ...categoryReasons, [category.key]: e.target.value })}
+                            placeholder="Tell us 2-3 lines about why they deserve this award..."
+                            rows={3}
+                            className="w-full px-4 py-3 border border-border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                          />
+                          <p className="text-xs text-text-secondary mt-1">
+                            Optional but encouraged - helps us celebrate them at the event
                           </p>
                         </div>
                       </motion.div>
