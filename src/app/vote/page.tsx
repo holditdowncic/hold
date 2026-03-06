@@ -359,7 +359,7 @@ export default function VotePage() {
                             value={votes[category.key] || ""}
                             onChange={(e) => handleVoteChange(category.key, e.target.value)}
                             placeholder={`Enter name for ${category.title}`}
-                            className="w-full px-4 py-3 border border-border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                             required
                           />
                         </div>
@@ -377,7 +377,7 @@ export default function VotePage() {
                             value={companies[category.key] || ""}
                             onChange={(e) => setCompanies({ ...companies, [category.key]: e.target.value })}
                             placeholder="Where do they work?"
-                            className="w-full px-4 py-3 border border-border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                           />
                           <p className="text-xs text-text-secondary mt-1">
                             Optional - helps us understand their context
@@ -397,7 +397,7 @@ export default function VotePage() {
                             onChange={(e) => setCategoryReasons({ ...categoryReasons, [category.key]: e.target.value })}
                             placeholder="Tell us 2-3 lines about why they deserve this award..."
                             rows={3}
-                            className="w-full px-4 py-3 border border-border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
                           />
                           <p className="text-xs text-text-secondary mt-1">
                             Optional but encouraged - helps us celebrate them at the event
@@ -426,7 +426,7 @@ export default function VotePage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="your@email.com"
-                      className="w-full px-4 py-3 border border-border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       required
                     />
                     <p className="text-xs text-text-secondary mt-2">
@@ -453,7 +453,7 @@ export default function VotePage() {
                       onChange={(e) => setReason(e.target.value)}
                       placeholder="Share 2-3 sentences about why these people deserve recognition. What impact have they made in your community?"
                       rows={4}
-                      className="w-full px-4 py-3 border border-border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
                     />
                     <p className="text-xs text-text-secondary mt-2">
                       Optional — but your words help us celebrate these community heroes at the event.
