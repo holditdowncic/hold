@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { votes, email, reason } = await request.json();
+    const { votes, companies, categoryReasons, email, reason } = await request.json();
     const ip = request.headers.get("x-forwarded-for") || "unknown";
     const userAgent = request.headers.get("user-agent") || "";
 
@@ -100,10 +100,12 @@ export async function POST(request: NextRequest) {
     const voteRecords = requiredCategories.map((category) => ({
       category_key: category,
       nominee_name: votes[category].trim(),
+      nominee_company: companies?.[category]?.trim() || null,
+      nominee_reason: categoryReasons?.[category]?.trim() || null,
       voter_email: email.toLowerCase(),
       voter_ip: ip,
       voter_user_agent: userAgent,
-      reason: reason || null,
+      voter_reason: reason || null,
     }));
 
     const { error: voteError } = await supabase

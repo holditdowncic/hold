@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -291,8 +292,16 @@ export default function VotePage() {
             <p className="text-base md:text-lg text-text-secondary mb-8">
               Your vote helps celebrate the fathers, mentors and role models whose influence strengthens our communities.
             </p>
-            <div className="bg-blue-900 text-white px-6 py-4 rounded-lg font-semibold inline-block">
+            <div className="bg-blue-900 text-white px-6 py-4 rounded-lg font-semibold inline-block mb-6">
               Join hundreds of people recognising men in our community.
+            </div>
+            
+            <div className="mt-6">
+              <Link href="/about">
+                <button className="text-blue-900 hover:text-blue-700 font-semibold underline transition-colors">
+                  Learn more about why these awards matter →
+                </button>
+              </Link>
             </div>
           </motion.div>
         </div>
