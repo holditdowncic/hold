@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { categories, categoryLabels, VOTING_DEADLINE } from "@/data/categories";
 
 const supabaseUrl = process.env.SUPABASE_URL || 'https://krqghaxflwyxwcapbedf.supabase.co';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
-const VOTING_DEADLINE = new Date("2026-05-16T23:59:59");
+const requiredCategoryKeys = categories.map((c) => c.key);
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,16 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate votes
-    const requiredCategories = [
-      "community_father",
-      "everyday_hero",
-      "mentor_year",
-      "resilient_man",
-      "always_there",
-      "young_role_model",
-    ];
-
-    for (const category of requiredCategories) {
+    for (const category of requiredCategoryKeys) {
       if (!votes[category] || !votes[category].trim()) {
         return NextResponse.json(
           { error: `Please enter a nominee for all categories.` },
@@ -96,8 +88,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Save all votes
-    const voteRecords = requiredCategories.map((category) => ({
+    // Save all votes (now includes company and per-category reason)
+    const voteRecords = requiredCategoryKeys.map((category) => ({
       category_key: category,
       nominee_name: votes[category].trim(),
       nominee_company: companies?.[category]?.trim() || null,
@@ -125,16 +117,17 @@ export async function POST(request: NextRequest) {
       const openclawToken = process.env.OPENCLAW_BOT_TOKEN;
       const openclawChatId = process.env.OPENCLAW_CHAT_ID;
       if (openclawToken && openclawChatId) {
-        const categoryLabels: Record<string, string> = {
-          community_father: "Community Father",
-          everyday_hero: "Everyday Hero",
-          mentor_year: "Mentor of the Year",
-          resilient_man: "Resilient Man",
-          always_there: "The Man Who's Always There",
-          young_role_model: "Young Male Role Model",
-        };
-        const nomineeLines = requiredCategories
-          .map((cat) => `• <b>${categoryLabels[cat] || cat}:</b> ${votes[cat].trim()}`)
+        const nomineeLines = requiredCategoryKeys
+          .map((cat) => {
+            let line = `• <b>${categoryLabels[cat] || cat}:</b> ${votes[cat].trim()}`;
+            if (companies?.[cat]?.trim()) {
+              line += ` (${companies[cat].trim()})`;
+            }
+            if (categoryReasons?.[cat]?.trim()) {
+              line += `\n  💬 ${categoryReasons[cat].trim()}`;
+            }
+            return line;
+          })
           .join("\n");
         const msg = [
           `🗳️ <b>New Vote Submitted</b>`,
@@ -142,7 +135,7 @@ export async function POST(request: NextRequest) {
           `<b>Email:</b> ${email}`,
           ``,
           nomineeLines,
-          reason ? `\n<b>Reason:</b> ${reason}` : "",
+          reason ? `\n<b>Overall Reason:</b> ${reason}` : "",
           ``,
           `<i>${new Date().toLocaleString("en-GB", { timeZone: "Europe/London" })}</i>`,
         ].filter(Boolean).join("\n");
