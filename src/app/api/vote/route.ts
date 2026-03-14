@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { categories, categoryLabels, VOTING_DEADLINE } from "@/data/categories";
 import { buildVoteResultsSummary } from "@/lib/vote-results";
 
@@ -21,7 +21,7 @@ async function notifyVoteChannels({
   companies?: Record<string, string>;
   categoryReasons?: Record<string, string>;
   reason?: string;
-  supabase: ReturnType<typeof createClient>;
+  supabase: SupabaseClient;
 }) {
   const openclawToken = process.env.OPENCLAW_BOT_TOKEN;
   const openclawChatId = process.env.OPENCLAW_CHAT_ID;
