@@ -204,6 +204,28 @@
         "href": "/contact",
         "isPage": true
       }
+    ],
+    "legal_links": [
+      {
+        "label": "Privacy Policy",
+        "href": "/privacy-policy",
+        "isPage": true
+      },
+      {
+        "label": "Terms & Conditions",
+        "href": "/terms",
+        "isPage": true
+      },
+      {
+        "label": "Refund Policy",
+        "href": "/refund-policy",
+        "isPage": true
+      },
+      {
+        "label": "Stripe Verification",
+        "href": "/stripe-verification",
+        "isPage": true
+      }
     ]
   },
   "events": {
@@ -218,9 +240,10 @@
     "logo_src": "/logos/holdlogo.png",
     "logo_alt": "HOLD IT DOWN",
     "lines": [
-      "Community Interest Company",
+      "Community Interest Company (CIC)",
       "Registered in England & Wales",
-      "Company No. 14377702"
+      "Company No. 14377702",
+      "102 Buller Road, Thornton Heath, England, CR7 8QY"
     ],
     "links": [
       {
@@ -347,8 +370,8 @@
         "icon": "instagram"
       },
       {
-        "label": "Location",
-        "value": "Thornton Heath, Croydon CR7 8QY",
+        "label": "Registered Office",
+        "value": "102 Buller Road, Thornton Heath, England, CR7 8QY",
         "href": null,
         "icon": "location"
       }

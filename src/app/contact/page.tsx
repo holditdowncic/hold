@@ -21,7 +21,7 @@ const defaultContact: ContactContent = (() => {
         items: [
             { label: "Email", value: "holditdownuk@hotmail.com", href: "mailto:holditdownuk@hotmail.com", icon: "email" },
             { label: "Instagram", value: "@holditdowncic", href: "https://www.instagram.com/holditdowncic", icon: "instagram" },
-            { label: "Location", value: "Thornton Heath, Croydon CR7 8QY", href: null, icon: "location" },
+            { label: "Registered Office", value: "102 Buller Road, Thornton Heath, England, CR7 8QY", href: null, icon: "location" },
         ],
     } as ContactContent;
 })();

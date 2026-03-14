@@ -18,6 +18,13 @@ const defaultFooterLinks: FooterLink[] = [
   { label: "Contact", href: "/contact", isPage: true },
 ];
 
+const defaultLegalLinks: FooterLink[] = [
+  { label: "Privacy Policy", href: "/privacy-policy", isPage: true },
+  { label: "Terms & Conditions", href: "/terms", isPage: true },
+  { label: "Refund Policy", href: "/refund-policy", isPage: true },
+  { label: "Stripe Verification", href: "/stripe-verification", isPage: true },
+];
+
 function safeLinks(raw: unknown): FooterLink[] {
   if (!Array.isArray(raw)) return [];
   return raw
@@ -35,10 +42,23 @@ function safeLines(raw: unknown): string[] {
 export default function Footer() {
   const footer = (sectionsJson as unknown as Record<string, unknown>)["footer"] as Record<string, unknown> | undefined;
   const footerLinks = safeLinks(footer?.links).length ? safeLinks(footer?.links) : defaultFooterLinks;
+  const legalLinks = safeLinks(footer?.legal_links).length ? safeLinks(footer?.legal_links) : defaultLegalLinks;
   const lines = safeLines(footer?.lines);
   const logoSrc = typeof footer?.logo_src === "string" ? footer.logo_src : "/logos/holdlogo.png";
   const logoAlt = typeof footer?.logo_alt === "string" ? footer.logo_alt : "HOLD IT DOWN";
-  const resolvedLines = lines.length ? lines : ["Community Interest Company", "Registered in England & Wales", "Company No. 14377702"];
+  const resolvedLines = lines.length ? lines : [
+    "Community Interest Company (CIC)",
+    "Registered in England & Wales",
+    "Company No. 14377702",
+    "102 Buller Road, Thornton Heath, England, CR7 8QY",
+  ];
+  const contact = (sectionsJson as unknown as Record<string, unknown>)["contact"] as { email?: string; items?: Array<{ label?: string; value?: string }> } | undefined;
+  const supportEmail =
+    (Array.isArray(contact?.items)
+      ? contact?.items?.find((item) => String(item.label || "").trim().toLowerCase() === "email")?.value
+      : "") ||
+    contact?.email ||
+    "info@holditdown.uk";
 
   return (
     <footer className="border-t border-border px-4 pt-8 pb-6 sm:px-6 sm:pt-10 sm:pb-8 md:pt-14 md:pb-10">
@@ -71,29 +91,59 @@ export default function Footer() {
               </span>
             ))}
           </p>
+          <a
+            href={`mailto:${supportEmail}`}
+            className="mt-3 text-xs text-accent transition-colors hover:text-accent-warm"
+          >
+            {supportEmail}
+          </a>
         </div>
 
         {/* Links */}
-        <div className="grid grid-cols-3 gap-x-2 gap-y-0 sm:flex sm:flex-wrap sm:justify-center sm:gap-x-8 sm:gap-y-1">
-          {footerLinks.map((link) =>
-            link.isPage ? (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="inline-flex min-h-[44px] items-center justify-center text-[0.8125rem] text-text-secondary transition-colors sm:px-1 sm:text-sm hover:text-accent"
-              >
-                {link.label}
-              </Link>
-            ) : (
-              <a
-                key={link.href}
-                href={link.href}
-                className="inline-flex min-h-[44px] items-center justify-center text-[0.8125rem] text-text-secondary transition-colors sm:px-1 sm:text-sm hover:text-accent"
-              >
-                {link.label}
-              </a>
-            )
-          )}
+        <div className="grid w-full gap-6 sm:grid-cols-2">
+          <div className="text-center">
+            <p className="mb-2 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-text-tertiary">
+              Explore
+            </p>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-0 sm:flex sm:flex-wrap sm:justify-center sm:gap-x-6 sm:gap-y-1">
+              {footerLinks.map((link) =>
+                link.isPage ? (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="inline-flex min-h-[44px] items-center justify-center text-[0.8125rem] text-text-secondary transition-colors sm:px-1 sm:text-sm hover:text-accent"
+                  >
+                    {link.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    className="inline-flex min-h-[44px] items-center justify-center text-[0.8125rem] text-text-secondary transition-colors sm:px-1 sm:text-sm hover:text-accent"
+                  >
+                    {link.label}
+                  </a>
+                )
+              )}
+            </div>
+          </div>
+
+          <div className="text-center">
+            <p className="mb-2 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-text-tertiary">
+              Legal
+            </p>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-0 sm:flex sm:flex-wrap sm:justify-center sm:gap-x-6 sm:gap-y-1">
+              {legalLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="inline-flex min-h-[44px] items-center justify-center text-[0.8125rem] text-text-secondary transition-colors sm:px-1 sm:text-sm hover:text-accent"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Bottom */}

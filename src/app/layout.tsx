@@ -8,11 +8,13 @@ const SITE_URL = "https://www.holditdowncic.uk";
 
 type SectionsJson = Record<string, unknown>;
 
-function getContactItem(label: string): { value: string; href: string } | null {
+function getContactItem(label: string | string[]): { value: string; href: string } | null {
   try {
     const contact = ((sectionsJson as SectionsJson).contact as { items?: Array<{ label?: string; value?: string; href?: string | null }> } | undefined) || undefined;
     const items = Array.isArray(contact?.items) ? contact!.items! : [];
-    const item = items.find((it) => String(it.label || "").trim().toLowerCase() === label.trim().toLowerCase());
+    const labels = Array.isArray(label) ? label : [label];
+    const normalized = labels.map((entry) => entry.trim().toLowerCase());
+    const item = items.find((it) => normalized.includes(String(it.label || "").trim().toLowerCase()));
     if (!item) return null;
     const value = String(item.value || "").trim();
     const href = String(item.href || "").trim();
@@ -37,8 +39,8 @@ function getSiteInstagramUrl(): string {
 }
 
 function getSiteLocationText(): string {
-  const v = getContactItem("Location")?.value || "";
-  return v.trim() || "Thornton Heath, Croydon CR7 8QY";
+  const v = getContactItem(["Registered Office", "Location"])?.value || "";
+  return v.trim() || "102 Buller Road, Thornton Heath, England, CR7 8QY";
 }
 
 function getThemeCss(): string {
