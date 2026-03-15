@@ -190,9 +190,14 @@ export default function Navbar() {
           <ThemeToggle />
         </div>
 
-        {/* Mobile: Theme Toggle + Hamburger */}
+        {/* Mobile: Donate Button + Hamburger */}
         <div className="flex items-center gap-2 md:hidden">
-          <ThemeToggle />
+          <Link
+            href={donateLinkUrl}
+            className="inline-flex h-8 items-center justify-center rounded-full bg-gradient-to-r from-accent to-accent-warm px-4 text-xs font-semibold text-white transition-all hover:shadow-md"
+          >
+            Donate
+          </Link>
           <button
             onClick={() => setOpen(!open)}
             className="flex flex-col items-center justify-center gap-[5px] p-3 -mr-2 min-h-[44px] min-w-[44px]"
@@ -235,8 +240,9 @@ export default function Navbar() {
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               className="fixed top-0 right-0 z-[999] h-screen w-[min(280px,85vw)] border-l border-border bg-bg-elevated md:hidden"
             >
-              {/* Close Button */}
-              <div className="flex justify-end px-4 pt-5">
+              {/* Close Button & Theme Toggle */}
+              <div className="flex items-center justify-between px-4 pt-5">
+                <ThemeToggle />
                 <button
                   onClick={() => setOpen(false)}
                   aria-label="Close menu"

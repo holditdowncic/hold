@@ -52,7 +52,7 @@ export default function Hero({ content }: HeroProps) {
   return (
     <section
       id="hero"
-      className="relative flex min-h-[70vh] items-center justify-center overflow-hidden px-4 pt-20 pb-10 sm:min-h-screen sm:px-6 sm:pt-24 sm:pb-16 md:pt-32 md:pb-20"
+      className="relative flex min-h-[70vh] items-center justify-center overflow-hidden px-4 pt-32 pb-10 sm:min-h-screen sm:px-6 sm:pt-24 sm:pb-16 md:pt-32 md:pb-20"
     >
       {/* Background */}
       <div className="absolute inset-0 z-0">
