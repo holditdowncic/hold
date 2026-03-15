@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { donateLinkUrl } from "@/lib/donate-link";
 import sectionsJson from "@/data/sections.json";
 
 type FooterLink = { label: string; href: string; isPage?: boolean };
@@ -50,7 +51,7 @@ export default function Footer() {
     "Community Interest Company (CIC)",
     "Registered in England & Wales",
     "Company No. 14377702",
-    "102 Buller Road, Thornton Heath, England, CR7 8QY",
+    "Thornton Heath, England",
   ];
   const contact = (sectionsJson as unknown as Record<string, unknown>)["contact"] as { email?: string; items?: Array<{ label?: string; value?: string }> } | undefined;
   const supportEmail =
@@ -97,6 +98,12 @@ export default function Footer() {
           >
             {supportEmail}
           </a>
+          <Link
+            href={donateLinkUrl}
+            className="mt-4 inline-flex min-h-[44px] items-center justify-center rounded-full bg-gradient-to-r from-accent to-accent-warm px-5 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg"
+          >
+            Donate
+          </Link>
         </div>
 
         {/* Links */}

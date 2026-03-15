@@ -75,7 +75,7 @@ export default function ShareSection() {
                                 nominations.
                             </p>
                             <a
-                                href="mailto:holditdownuk@hotmail.com"
+                                href="mailto:info@holditdown.uk"
                                 className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-warm px-6 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/20"
                             >
                                 <svg
@@ -89,7 +89,7 @@ export default function ShareSection() {
                                     <rect width="20" height="16" x="2" y="4" rx="2" />
                                     <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                                 </svg>
-                                holditdownuk@hotmail.com
+                                info@holditdown.uk
                             </a>
                         </div>
                     </Reveal>

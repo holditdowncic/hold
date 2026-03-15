@@ -19,9 +19,9 @@ const defaultContact: ContactContent = (() => {
         description:
             "We\u2019d love to hear from you. Whether you want to join a programme, volunteer, partner with us, or just learn more \u2014 reach out.",
         items: [
-            { label: "Email", value: "holditdownuk@hotmail.com", href: "mailto:holditdownuk@hotmail.com", icon: "email" },
+            { label: "Email", value: "info@holditdown.uk", href: "mailto:info@holditdown.uk", icon: "email" },
             { label: "Instagram", value: "@holditdowncic", href: "https://www.instagram.com/holditdowncic", icon: "instagram" },
-            { label: "Registered Office", value: "102 Buller Road, Thornton Heath, England, CR7 8QY", href: null, icon: "location" },
+            { label: "Registered Office", value: "Thornton Heath, England", href: null, icon: "location" },
         ],
     } as ContactContent;
 })();

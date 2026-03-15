@@ -203,6 +203,37 @@ CREATE POLICY "Public insert voter_verifications" ON voter_verifications FOR INS
 CREATE POLICY "Service read voter_verifications" ON voter_verifications FOR SELECT USING (false);
 CREATE POLICY "Service update voter_verifications" ON voter_verifications FOR UPDATE USING (false);
 
+-- Donation records captured from Stripe webhooks
+CREATE TABLE IF NOT EXISTS donations (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  stripe_checkout_session_id TEXT UNIQUE,
+  stripe_payment_intent_id TEXT UNIQUE,
+  stripe_charge_id TEXT UNIQUE,
+  stripe_customer_id TEXT,
+  stripe_payment_link_id TEXT,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'completed', 'failed', 'refunded')),
+  livemode BOOLEAN NOT NULL DEFAULT false,
+  currency TEXT,
+  amount_total BIGINT,
+  amount_subtotal BIGINT,
+  amount_refunded BIGINT DEFAULT 0,
+  customer_name TEXT,
+  customer_email TEXT,
+  donor_message TEXT,
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  raw_event JSONB NOT NULL DEFAULT '{}'::jsonb,
+  last_event_type TEXT,
+  paid_at TIMESTAMPTZ,
+  refunded_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE donations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Service read donations" ON donations FOR SELECT USING (false);
+CREATE POLICY "Service insert donations" ON donations FOR INSERT WITH CHECK (false);
+CREATE POLICY "Service update donations" ON donations FOR UPDATE USING (false);
+
 -- Insert voting categories for Roots & Wings 2026
 INSERT INTO voting_categories (key, title, description, sort_order) VALUES
   ('community_father', 'Community Father Figure', 'A father who makes a positive impact in the community', 1),

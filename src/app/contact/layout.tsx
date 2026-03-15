@@ -9,9 +9,9 @@ function getSiteEmail(): string {
         const items = Array.isArray(contact?.items) ? contact!.items! : [];
         const emailItem = items.find((it) => String(it.label || "").toLowerCase() === "email");
         const v = String(emailItem?.value || "").trim();
-        return v || "holditdownuk@hotmail.com";
+        return v || "info@holditdown.uk";
     } catch {
-        return "holditdownuk@hotmail.com";
+        return "info@holditdown.uk";
     }
 }
 

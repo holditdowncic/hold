@@ -47,7 +47,7 @@ export const businessDetails = {
   companyNumber: "14377702",
   email: getContactValue("Email", "info@holditdown.uk"),
   publicLocation: getContactValue("Location", "Thornton Heath, Croydon CR7 8QY"),
-  registeredOffice: "102 Buller Road, Thornton Heath, England, CR7 8QY",
+  registeredOffice: "Thornton Heath, England",
   organisationType:
     "Private company limited by guarantee without share capital",
   regulatoryType: "Community Interest Company (CIC)",

@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Reveal, fadeUp, staggerContainer, TiltCard } from "@/lib/motion";
+import { Reveal, staggerContainer, TiltCard } from "@/lib/motion";
+import { donateLinkUrl } from "@/lib/donate-link";
 import type { SupportContent } from "@/lib/types";
 
 const defaultWays = [
@@ -118,23 +119,31 @@ export default function Support({ content }: SupportProps) {
                 {/* CTA */}
                 <Reveal>
                     <div className="mt-10 text-center sm:mt-14">
-                        <a
-                            href="/contact"
-                            className="group inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-accent to-accent-warm px-8 py-3.5 text-sm font-semibold text-white transition-all sm:w-auto sm:px-10 sm:py-4 sm:text-base hover:-translate-y-0.5 hover:shadow-lg"
-                        >
-                            <span>{ctaText}</span>
-                            <svg
-                                width="18"
-                                height="18"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                        <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+                            <a
+                                href={donateLinkUrl}
+                                className="group inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-accent to-accent-warm px-8 py-3.5 text-sm font-semibold text-white transition-all sm:w-auto sm:px-10 sm:py-4 sm:text-base hover:-translate-y-0.5 hover:shadow-lg"
                             >
-                                <path d="M7 17L17 7M17 7H7M17 7V17" />
-                            </svg>
-                        </a>
+                                <span>Donate via Stripe</span>
+                                <svg
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                                >
+                                    <path d="M7 17L17 7M17 7H7M17 7V17" />
+                                </svg>
+                            </a>
+                            <a
+                                href="/contact"
+                                className="inline-flex w-full items-center justify-center gap-2.5 rounded-full border border-border-hover px-8 py-3.5 text-sm font-semibold text-text-primary transition-all sm:w-auto sm:px-10 sm:py-4 sm:text-base hover:-translate-y-0.5 hover:border-accent/30 hover:bg-accent/5"
+                            >
+                                <span>{ctaText}</span>
+                            </a>
+                        </div>
                     </div>
                 </Reveal>
             </div>

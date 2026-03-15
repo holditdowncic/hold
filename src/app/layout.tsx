@@ -25,7 +25,7 @@ function getContactItem(label: string | string[]): { value: string; href: string
 }
 
 function getSiteEmail(): string {
-  return getContactItem("Email")?.value || "holditdownuk@hotmail.com";
+  return getContactItem("Email")?.value || "info@holditdown.uk";
 }
 
 function getSiteInstagramHandle(): string {
@@ -40,7 +40,7 @@ function getSiteInstagramUrl(): string {
 
 function getSiteLocationText(): string {
   const v = getContactItem(["Registered Office", "Location"])?.value || "";
-  return v.trim() || "102 Buller Road, Thornton Heath, England, CR7 8QY";
+  return v.trim() || "Thornton Heath, England";
 }
 
 function getThemeCss(): string {

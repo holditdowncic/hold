@@ -7,6 +7,7 @@ import Image from "next/image";
 import VoteBanner from "@/components/VotePopup";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/lib/theme";
+import { donateLinkUrl } from "@/lib/donate-link";
 import sectionsJson from "@/data/sections.json";
 
 type NavLink = { label: string; href: string; isPage?: boolean };
@@ -180,6 +181,12 @@ export default function Navbar() {
               </Link>
             )
           )}
+          <Link
+            href={donateLinkUrl}
+            className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-accent to-accent-warm px-5 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg"
+          >
+            Donate
+          </Link>
           <ThemeToggle />
         </div>
 
@@ -278,6 +285,20 @@ export default function Navbar() {
                     </motion.div>
                   )
                 )}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 + links.length * 0.05 }}
+                  className="pt-3"
+                >
+                  <Link
+                    href={donateLinkUrl}
+                    onClick={() => setOpen(false)}
+                    className="inline-flex min-h-[44px] w-full items-center justify-center rounded-full bg-gradient-to-r from-accent to-accent-warm px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg"
+                  >
+                    Donate
+                  </Link>
+                </motion.div>
               </div>
             </motion.div>
           </>
