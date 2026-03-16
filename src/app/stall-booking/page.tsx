@@ -2,6 +2,31 @@
 
 import { useState } from "react";
 
+const PAYMENT_LINKS: Record<string, { label: string; price: string; url: string }> = {
+  community: {
+    label: "Community Stall",
+    price: "£25",
+    url: "https://pay.sumup.com/b2c/QF47LUXV",
+  },
+  own_table: {
+    label: "Standard Stall (own table)",
+    price: "£40",
+    url: "https://pay.sumup.com/b2c/QYJ2CJK2",
+  },
+  table_provided: {
+    label: "Standard Stall (table provided)",
+    price: "£60",
+    url: "https://pay.sumup.com/b2c/Q8M282TJ",
+  },
+};
+
+function getPaymentLink(stallType: string, table: string) {
+  if (stallType === "community") return PAYMENT_LINKS.community;
+  if (table === "yes") return PAYMENT_LINKS.own_table;
+  if (table === "no") return PAYMENT_LINKS.table_provided;
+  return null;
+}
+
 export default function StallBookingPage() {
   const [formData, setFormData] = useState({
     name: "",
@@ -18,6 +43,7 @@ export default function StallBookingPage() {
 
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+  const [paymentLink, setPaymentLink] = useState<{ label: string; price: string; url: string } | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -39,7 +65,9 @@ export default function StallBookingPage() {
 
       if (response.ok) {
         setStatus("success");
-        setMessage("Your stall booking request has been submitted! You will receive an email with payment instructions shortly.");
+        setMessage("Your stall booking request has been submitted! Please complete your payment below to confirm your spot.");
+        const link = getPaymentLink(formData.stallType, formData.table);
+        setPaymentLink(link);
         setFormData({
           name: "",
           business: "",
@@ -80,26 +108,30 @@ export default function StallBookingPage() {
 
         {/* Info Box */}
         <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 mb-8 text-white">
-          <h3 className="text-xl font-bold text-yellow-400 mb-4">Stall Information</h3>
-          <ul className="space-y-2">
-            <li className="flex items-center gap-2">
-              <span className="text-yellow-400">✓</span>
-              <span>Stall Fee: <strong>£60</strong> (payable online)</span>
+          <h3 className="text-xl font-bold text-yellow-400 mb-4">Stall Pricing</h3>
+          <ul className="space-y-3">
+            <li className="flex items-start gap-2">
+              <span className="text-yellow-400 mt-0.5">✓</span>
+              <span><strong className="text-yellow-300">£25</strong> — Community stall</span>
             </li>
-            <li className="flex items-center gap-2">
-              <span className="text-yellow-400">✓</span>
-              <span>Community Stalls: <strong>£20</strong></span>
+            <li className="flex items-start gap-2">
+              <span className="text-yellow-400 mt-0.5">✓</span>
+              <span><strong className="text-yellow-300">£40</strong> — Standard stall (you bring your own table)</span>
             </li>
-            <li className="flex items-center gap-2">
-              <span className="text-yellow-400">✓</span>
+            <li className="flex items-start gap-2">
+              <span className="text-yellow-400 mt-0.5">✓</span>
+              <span><strong className="text-yellow-300">£60</strong> — Standard stall (table provided by us)</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-yellow-400 mt-0.5">✓</span>
               <span>Booking Deadline: <strong>16th May 2026</strong></span>
             </li>
-            <li className="flex items-center gap-2">
-              <span className="text-yellow-400">✓</span>
-              <span>Location: Outdoor community event</span>
+            <li className="flex items-start gap-2">
+              <span className="text-yellow-400 mt-0.5">✓</span>
+              <span>Location: Heavers Farm School, SE25 6LT</span>
             </li>
-            <li className="flex items-center gap-2 text-red-300">
-              <span>✗</span>
+            <li className="flex items-start gap-2 text-red-300">
+              <span className="mt-0.5">✗</span>
               <span><strong>No food stalls permitted</strong></span>
             </li>
           </ul>
@@ -193,6 +225,7 @@ export default function StallBookingPage() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">Select stall type</option>
+                <option value="community">Community Stall (£25)</option>
                 <option value="crafts">Arts & Crafts</option>
                 <option value="clothing">Clothing / Fashion</option>
                 <option value="books">Books / Stationery</option>
@@ -320,16 +353,17 @@ export default function StallBookingPage() {
               />
             </div>
 
-            {/* Payment Info */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="font-semibold text-blue-900 mb-2">Payment Details</h4>
-              <p className="text-sm text-blue-800 mb-2">
-                After submitting this form, you will receive an email with payment instructions.
-              </p>
-              <p className="text-sm text-blue-800">
-                <strong>Amount: £60</strong> (Community stalls: £20) - Payment required to confirm your booking.
-              </p>
-            </div>
+            {/* Dynamic Price Preview */}
+            {(formData.stallType || formData.table) && (() => {
+              const preview = getPaymentLink(formData.stallType, formData.table);
+              return preview ? (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-blue-900 mb-1">Your stall fee</h4>
+                  <p className="text-2xl font-bold text-blue-900">{preview.price}</p>
+                  <p className="text-sm text-blue-700 mt-1">{preview.label} — payment link provided after submission</p>
+                </div>
+              ) : null;
+            })()}
 
             {/* Status Messages */}
             {status === "error" && (
@@ -339,9 +373,27 @@ export default function StallBookingPage() {
             )}
 
             {status === "success" ? (
-              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg text-center">
-                <h4 className="font-semibold mb-1">Success!</h4>
-                <p>{message}</p>
+              <div className="text-center space-y-4">
+                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
+                  <h4 className="font-semibold mb-1">✅ Request Submitted!</h4>
+                  <p>{message}</p>
+                </div>
+                {paymentLink && (
+                  <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-5">
+                    <p className="text-sm text-gray-600 mb-1">Amount due</p>
+                    <p className="text-3xl font-bold text-blue-900 mb-1">{paymentLink.price}</p>
+                    <p className="text-sm text-gray-500 mb-4">{paymentLink.label}</p>
+                    <a
+                      href={paymentLink.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block w-full bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold py-3 px-6 rounded-lg transition-colors text-center"
+                    >
+                      💳 Pay Now with SumUp
+                    </a>
+                    <p className="text-xs text-gray-400 mt-3">You will be taken to a secure SumUp payment page. Your booking is only confirmed once payment is received.</p>
+                  </div>
+                )}
               </div>
             ) : (
               <button
