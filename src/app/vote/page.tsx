@@ -1,6 +1,6 @@
 "use client";
 
-
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import VoteHero from "@/components/vote/VoteHero";
@@ -22,6 +22,25 @@ export default function VotePage() {
     <div className="min-h-screen">
       <Navbar />
       <VoteHero />
+
+      {/* Individual voter callout */}
+      <section className="px-5 pb-2 sm:px-6">
+        <div className="mx-auto max-w-[800px]">
+          <div className="rounded-2xl border border-accent/20 bg-accent/5 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold text-text-primary mb-1">Voting as an individual?</p>
+              <p className="text-xs text-text-tertiary">This page is for organisations voting across all 6 categories. Individuals can vote in one category instead.</p>
+            </div>
+            <Link
+              href="/vote/single"
+              className="flex-shrink-0 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-warm px-5 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg"
+            >
+              Vote in one category →
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <CredibilityBanner />
       <WhyItMatters />
       <ThemeBanner />
