@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -17,6 +18,15 @@ import { useVoteForm } from "@/lib/useVoteForm";
 
 export default function VotePage() {
   const form = useVoteForm();
+  const [formOpen, setFormOpen] = useState(false);
+  const formRef = useRef<HTMLDivElement>(null);
+
+  const handleOpenForm = () => {
+    setFormOpen(true);
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  };
 
   return (
     <div className="min-h-screen">
@@ -45,8 +55,13 @@ export default function VotePage() {
       <WhyItMatters />
       <ThemeBanner />
       <AwardCategories />
-      <CastYourVote />
-      <VotingForm form={form} />
+      <CastYourVote onCastVote={handleOpenForm} />
+
+      {/* Voting form — hidden until button clicked */}
+      <div ref={formRef}>
+        {formOpen && <VotingForm form={form} />}
+      </div>
+
       <EventAnnouncement />
       <ShareSection />
       <ClosingStatement />
