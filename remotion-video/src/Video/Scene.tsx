@@ -11,6 +11,7 @@ import {
 interface SceneProps {
   clipUrl: string;
   sceneIndex?: number;
+  playAudio?: boolean;
 }
 
 function looksLikeImageUrl(url: string): boolean {
@@ -23,9 +24,14 @@ function looksLikeImageUrl(url: string): boolean {
   );
 }
 
-export const Scene: React.FC<SceneProps> = ({ clipUrl, sceneIndex = 0 }) => {
+export const Scene: React.FC<SceneProps> = ({
+  clipUrl,
+  sceneIndex = 0,
+  playAudio = false,
+}) => {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
+  const isImage = looksLikeImageUrl(clipUrl);
 
   const FADE_FRAMES = 6; // 0.2s at 30fps
 
@@ -38,16 +44,19 @@ export const Scene: React.FC<SceneProps> = ({ clipUrl, sceneIndex = 0 }) => {
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
   );
 
-  // Gentle documentary "Ken Burns" motion.
-  // Start slightly more zoomed-in to aggressively crop any embedded black bars
-  // that sometimes come back from gen video models.
-  const zoom = interpolate(t, [0, 1], [1.18, 1.26]);
+  // Talking-head/video clips already contain their own framing. Keep them static.
+  // Only still images get the push-in treatment.
+  const zoomStart = isImage ? 1.18 : 1.0;
+  const zoomEnd = isImage ? 1.26 : 1.0;
+  const zoom = interpolate(t, [0, 1], [zoomStart, zoomEnd]);
   const panX = interpolate(
     t,
     [0, 1],
-    sceneIndex % 2 === 0 ? [-18, 18] : [18, -18]
+    sceneIndex % 2 === 0
+      ? [isImage ? -18 : 0, isImage ? 18 : 0]
+      : [isImage ? 18 : 0, isImage ? -18 : 0]
   );
-  const panY = interpolate(t, [0, 1], [10, -10]);
+  const panY = interpolate(t, [0, 1], [isImage ? 10 : 0, isImage ? -10 : 0]);
 
   // If no clip URL, show a dark background (fallback)
   if (!clipUrl) {
@@ -57,8 +66,6 @@ export const Scene: React.FC<SceneProps> = ({ clipUrl, sceneIndex = 0 }) => {
       />
     );
   }
-
-  const isImage = looksLikeImageUrl(clipUrl);
 
   return (
     <AbsoluteFill style={{ opacity }}>
@@ -78,23 +85,7 @@ export const Scene: React.FC<SceneProps> = ({ clipUrl, sceneIndex = 0 }) => {
             opacity: 0.85,
           }}
         />
-      ) : (
-        <OffthreadVideo
-          src={clipUrl}
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            filter: "blur(28px) saturate(1.15) contrast(1.05)",
-            transform: "scale(1.2)",
-            transformOrigin: "50% 50%",
-            opacity: 0.85,
-          }}
-          muted
-        />
-      )}
+      ) : null}
 
       {/* Layer 2: main clip, full-bleed cover + motion */}
       {isImage ? (
@@ -122,7 +113,7 @@ export const Scene: React.FC<SceneProps> = ({ clipUrl, sceneIndex = 0 }) => {
             transformOrigin: "50% 50%",
             transform: `translate3d(${panX}px, ${panY}px, 0) scale(${zoom})`,
           }}
-          muted
+          muted={!playAudio}
         />
       )}
 

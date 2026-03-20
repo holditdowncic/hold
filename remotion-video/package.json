@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "render": "tsx src/render.ts",
+    "render:carousel": "tsx src/render-carousel.ts",
+    "render:service": "tsx src/render-service.ts",
     "studio": "remotion studio src/index.ts",
     "build": "remotion bundle src/index.ts"
   },

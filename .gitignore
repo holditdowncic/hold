@@ -18,3 +18,13 @@ remotion-video/build/
 dignitate-workflow-*.local.json
 tmp/
 /.tmp/
+.tmp-*
+.tmp_*
+tmp_*
+tmp_frames*/
+_frame*.png
+*.b64
+*.pyc
+__pycache__/
+remotion-video/assets/
+reel_frames/

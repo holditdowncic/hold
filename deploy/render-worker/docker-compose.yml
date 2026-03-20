@@ -1,0 +1,45 @@
+services:
+  renderer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${RENDER_PORT:-3001}:3001"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3001
+      MAX_CONCURRENCY: ${MAX_CONCURRENCY:-1}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL}
+      N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL}
+      FAL_KEY: ${FAL_KEY}
+      ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY}
+      ELEVEN_PACE_SPEED: ${ELEVEN_PACE_SPEED:-1.2}
+      ELEVEN_LOCK_PROFILE: ${ELEVEN_LOCK_PROFILE:-1}
+      ELEVEN_LOCK_BRAND_WORD_AUDIO: ${ELEVEN_LOCK_BRAND_WORD_AUDIO:-1}
+      ELEVEN_LOCKED_VOICE_ID: ${ELEVEN_LOCKED_VOICE_ID:-GoLTMzQJAHarswiHqv3L}
+      ELEVEN_LOCKED_BRAND_WORD_PATH: ${ELEVEN_LOCKED_BRAND_WORD_PATH:-/app/remotion-video/assets/dignitate-word.mp3}
+      GITHUB_ARCHIVE_TOKEN: ${GITHUB_ARCHIVE_TOKEN:-}
+      GITHUB_ARCHIVE_OWNER: ${GITHUB_ARCHIVE_OWNER:-dignitatesocial}
+      GITHUB_ARCHIVE_REPO: ${GITHUB_ARCHIVE_REPO:-dignitatevideo}
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
+      SUPABASE_BUCKET: ${SUPABASE_BUCKET:-}
+    volumes:
+      - ./tmp:/tmp/remotion-render
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - renderer
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

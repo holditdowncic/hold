@@ -1,7 +1,8 @@
 import React from "react";
 import { Composition } from "remotion";
 import { DignitateVideo } from "./Video/DignitateVideo";
-import { VideoInputProps } from "./Video/types";
+import { CarouselSlide } from "./Carousel/CarouselSlide";
+import { CarouselSlideInputProps, VideoInputProps } from "./Video/types";
 
 const defaultProps: VideoInputProps = {
   clipUrls: [],
@@ -40,6 +41,20 @@ const defaultProps: VideoInputProps = {
   title: "Preview",
   fps: 30,
   audioDurationInSeconds: 20,
+  includeClipAudio: false,
+};
+
+const defaultCarouselProps: CarouselSlideInputProps = {
+  slide: {
+    role: "cover",
+    heading: "Diagnosis Delays Hit Families",
+    subline:
+      "When diagnosis is delayed, families are often left managing memory changes, safety concerns, and appointments without clear guidance.",
+    backgroundImageUrl: "",
+    slideIndex: 0,
+    totalSlides: 5,
+    title: "Preview",
+  },
 };
 
 export const Root: React.FC = () => {
@@ -55,10 +70,10 @@ export const Root: React.FC = () => {
         width={1080}
         height={1920}
         defaultProps={defaultProps}
-        calculateMetadata={({ props }) => {
-          const sceneSeconds = Array.isArray((props as any).scenes)
-            ? (props as any).scenes.reduce((sum: number, s: any) => {
-                const sec = Number(s?.duration);
+        calculateMetadata={({ props }: { props: VideoInputProps }) => {
+          const sceneSeconds = Array.isArray(props.scenes)
+            ? props.scenes.reduce((sum: number, scene: VideoInputProps["scenes"][number]) => {
+                const sec = Number(scene?.duration);
                 return sum + (Number.isFinite(sec) && sec > 0 ? sec : 0);
               }, 0)
             : 0;
@@ -67,7 +82,7 @@ export const Root: React.FC = () => {
           const durationSeconds =
             sceneSeconds > 0
               ? sceneSeconds
-              : Math.max(0, Number((props as any).audioDurationInSeconds) || 0);
+              : Math.max(0, Number(props.audioDurationInSeconds) || 0);
 
           const duration = Math.ceil(durationSeconds * props.fps);
           return {
@@ -77,6 +92,15 @@ export const Root: React.FC = () => {
             height: 1920,
           };
         }}
+      />
+      <Composition
+        id="DignitateCarouselSlide"
+        component={CarouselSlide}
+        durationInFrames={1}
+        fps={30}
+        width={1080}
+        height={1350}
+        defaultProps={defaultCarouselProps}
       />
     </>
   );

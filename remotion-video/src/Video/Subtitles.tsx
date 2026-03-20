@@ -19,6 +19,70 @@ function buildWordTimeline(
   totalDurationSec: number,
   fps: number
 ): WordEntry[] {
+  const hasTimedWords = scenes.some(
+    (scene) => Array.isArray(scene?.timedWords) && scene.timedWords.length > 0
+  );
+
+  if (hasTimedWords) {
+    const timeline: WordEntry[] = [];
+    let sceneOffsetSec = 0;
+
+    for (const scene of scenes) {
+      const sceneDuration =
+        Number.isFinite(Number(scene?.duration)) && Number(scene.duration) > 0
+          ? Number(scene.duration)
+          : 0;
+      const timedWords = Array.isArray(scene?.timedWords) ? scene.timedWords : [];
+
+      if (timedWords.length) {
+        for (const timed of timedWords) {
+          const word = normalizeWord(String(timed?.word || ""));
+          if (!word) continue;
+          const startSec = Math.max(0, Number(timed?.startSec) || 0);
+          const endSec = Math.max(startSec + 0.06, Number(timed?.endSec) || 0);
+          const startFrame = Math.max(0, Math.round((sceneOffsetSec + startSec) * fps));
+          const endFrame = Math.max(startFrame + 1, Math.round((sceneOffsetSec + endSec) * fps));
+          timeline.push({ word, startFrame, endFrame });
+        }
+      } else if (scene.narration) {
+        const words = scene.narration.split(/\s+/).filter(Boolean);
+        const fallbackDuration =
+          sceneDuration > 0
+            ? sceneDuration
+            : Math.max(
+                0.6,
+                totalDurationSec / Math.max(1, scenes.length)
+              );
+        const perWord = fallbackDuration / Math.max(1, words.length);
+        words.forEach((word: string, idx: number) => {
+          const startFrame = Math.round((sceneOffsetSec + idx * perWord) * fps);
+          const endFrame = Math.max(
+            startFrame + 1,
+            Math.round((sceneOffsetSec + (idx + 1) * perWord) * fps)
+          );
+          timeline.push({ word: normalizeWord(word), startFrame, endFrame });
+        });
+      }
+
+      if (sceneDuration > 0) {
+        sceneOffsetSec += sceneDuration;
+        continue;
+      }
+
+      if (timedWords.length) {
+        const timedMax = timedWords.reduce((max: number, word: SceneWord) => {
+          const endSec = Number(word?.endSec) || 0;
+          return endSec > max ? endSec : max;
+        }, 0);
+        sceneOffsetSec += Math.max(0, timedMax);
+      }
+    }
+
+    if (timeline.length > 0) {
+      return timeline;
+    }
+  }
+
   const allWords: string[] = [];
   for (const scene of scenes) {
     const words = scene.narration.split(/\s+/).filter(Boolean);
@@ -127,6 +191,8 @@ interface SubtitlesProps {
   fps: number;
 }
 
+type SceneWord = NonNullable<SceneData["timedWords"]>[number];
+
 export const Subtitles: React.FC<SubtitlesProps> = ({
   scenes,
   audioDurationInSeconds,
@@ -142,8 +208,8 @@ export const Subtitles: React.FC<SubtitlesProps> = ({
   if (timeline.length === 0) return null;
 
   const groups = useMemo(() => {
-    // TikTok-style: short, punchy chunks.
-    return buildCaptionGroups(timeline, { maxWords: 6, maxChars: 28 });
+    // Keep phrases short and readable enough to wrap into one or two lines.
+    return buildCaptionGroups(timeline, { maxWords: 5, maxChars: 34 });
   }, [timeline]);
 
   // Find current word index
@@ -184,74 +250,103 @@ export const Subtitles: React.FC<SubtitlesProps> = ({
   });
 
   const fontFamily =
-    '"Montserrat", "Arial Black", Impact, system-ui, -apple-system, sans-serif';
-
-  // Classic TikTok/Shorts caption treatment: white fill with a thick black stroke.
-  // Chrome (Remotion renderer) supports WebkitTextStroke.
-  const strokeColor = "rgba(0,0,0,0.95)";
-  const baseShadow = "0 8px 20px rgba(0,0,0,0.65)";
-  const highlight = "#18d4c4";
-  const blockBg = "rgba(0,0,0,0.65)";
-  const blockBorder = "rgba(255,255,255,0.12)";
+    '"Inter Tight", "Avenir Next Condensed", "Helvetica Neue", Arial, sans-serif';
+  const textShadow = "0 3px 14px rgba(0,0,0,0.5)";
+  const activeFill = "#facc15";
+  const activeText = "#111827";
+  const wordBg = "rgba(255,255,255,0.04)";
 
   return (
     <AbsoluteFill
       style={{
         justifyContent: "flex-end",
         alignItems: "center",
-        padding: "0 72px 210px 72px",
+        padding: "0 56px 130px 56px",
         opacity: blockOpacity,
       }}
     >
       <div
         style={{
           width: "100%",
-          maxWidth: 980,
-          textAlign: "center",
-          background: blockBg,
-          border: `1px solid ${blockBorder}`,
-          borderRadius: 22,
-          padding: "18px 22px",
-          backdropFilter: "blur(4px)",
+          maxWidth: 900,
+          background: "transparent",
+          border: "none",
+          borderRadius: 0,
+          padding: "8px 6px 10px 6px",
+          backdropFilter: "none",
+          boxShadow: "none",
         }}
       >
-        {visibleWords.map((w, i) => {
-          const isActive = i === activeWordInGroup;
-          const isPast = i < activeWordInGroup;
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "10px 8px",
+            textAlign: "center",
+          }}
+        >
+          {visibleWords.map((w, i) => {
+            const isActive = i === activeWordInGroup;
+            const isPast = i < activeWordInGroup;
 
-          const pop = isActive
-            ? interpolate(
-                frame,
-                [w.startFrame, w.startFrame + 4, w.endFrame],
-                [1, 1.08, 1],
-                { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
-              )
-            : 1;
+            const pop = isActive
+              ? (() => {
+                  const startFrame = w.startFrame;
+                  const endFrame = Math.max(startFrame + 1, w.endFrame);
+                  const peakFrame = Math.min(endFrame - 1, startFrame + 4);
 
-          return (
-            <span
-              key={`${groupIndex}-${i}-${w.startFrame}`}
-              style={{
-                fontFamily,
-                fontWeight: 900,
-                fontSize: 86,
-                letterSpacing: "-0.5px",
-                lineHeight: 1.08,
-                textTransform: "uppercase",
-                color: isActive ? highlight : "#ffffff",
-                WebkitTextStrokeWidth: 10,
-                WebkitTextStrokeColor: strokeColor,
-                textShadow: baseShadow,
-                margin: "0 10px",
-                display: "inline-block",
-                transform: `translateY(${isActive ? -1 : 0}px) scale(${pop})`,
-                opacity: isPast ? 0.98 : 1,
-              }}
-            >
-              {w.word}
-            </span>
-          );
-        })}
+                  if (peakFrame <= startFrame) {
+                    return interpolate(
+                      frame,
+                      [startFrame, endFrame],
+                      [0.94, 1],
+                      { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+                    );
+                  }
+
+                  return interpolate(
+                    frame,
+                    [startFrame, peakFrame, endFrame],
+                    [0.94, 1.06, 1],
+                    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+                  );
+                })()
+              : 1;
+
+            return (
+              <span
+                key={`${groupIndex}-${i}-${w.startFrame}`}
+                style={{
+                  fontFamily,
+                  fontWeight: 800,
+                  fontSize: 58,
+                  letterSpacing: "-0.8px",
+                  lineHeight: 1,
+                  color: isActive ? activeText : "#f8fafc",
+                  background: isActive ? activeFill : wordBg,
+                  border: isActive
+                    ? "1px solid rgba(255,255,255,0.35)"
+                    : "1px solid rgba(255,255,255,0.03)",
+                  borderRadius: 16,
+                  padding: "8px 12px 10px 12px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: isActive
+                    ? "0 10px 24px rgba(250,204,21,0.26)"
+                    : "none",
+                  textShadow: isActive ? "none" : textShadow,
+                  transform: `translateY(${isActive ? -2 : 0}px) scale(${pop})`,
+                  opacity: isPast ? 0.95 : 1,
+                }}
+              >
+                {w.word}
+              </span>
+            );
+          })}
+        </div>
       </div>
     </AbsoluteFill>
   );

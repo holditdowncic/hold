@@ -1,0 +1,3 @@
+srv1417199.hstgr.cloud {
+  reverse_proxy renderer:3001
+}
