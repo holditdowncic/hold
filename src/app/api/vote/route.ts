@@ -209,7 +209,7 @@ export async function POST(request: NextRequest) {
     if (verificationError) {
       console.error("Verification error:", verificationError);
       return NextResponse.json(
-        { error: "Failed to record vote. Please try again." },
+        { error: "Failed to record vote. Please try again.", debug: verificationError.message },
         { status: 500 }
       );
     }
@@ -233,7 +233,7 @@ export async function POST(request: NextRequest) {
     if (voteError) {
       console.error("Vote error:", voteError);
       return NextResponse.json(
-        { error: "Failed to save votes. Please try again." },
+        { error: "Failed to save votes. Please try again.", debug: voteError.message },
         { status: 500 }
       );
     }
