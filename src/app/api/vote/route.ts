@@ -1,33 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { categories, categoryLabels, VOTING_DEADLINE } from "@/data/categories";
-import { buildVoteResultsSummary } from "@/lib/vote-results";
+
 
 const supabaseUrl = process.env.SUPABASE_URL || 'https://krqghaxflwyxwcapbedf.supabase.co';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 const requiredCategoryKeys = categories.map((c) => c.key);
 
-async function notifyVoteChannels({
+function buildTelegramMessage({
   email,
   votes,
   companies,
   categoryReasons,
   reason,
-  supabase,
+  dbOffline,
 }: {
   email: string;
   votes: Record<string, string>;
   companies?: Record<string, string>;
   categoryReasons?: Record<string, string>;
   reason?: string;
-  supabase: SupabaseClient;
+  dbOffline?: boolean;
 }) {
-  const openclawToken = process.env.OPENCLAW_BOT_TOKEN;
-  const openclawChatId = process.env.OPENCLAW_CHAT_ID;
-  const openclawWebhookUrl = process.env.OPENCLAW_WEBHOOK_URL;
-  const openclawWebhookToken = process.env.OPENCLAW_WEBHOOK_TOKEN;
-
   const nomineeLines = requiredCategoryKeys
     .map((cat) => {
       let line = `• <b>${categoryLabels[cat] || cat}:</b> ${votes[cat].trim()}`;
@@ -41,8 +36,8 @@ async function notifyVoteChannels({
     })
     .join("\n");
 
-  const telegramMessage = [
-    `🗳️ <b>New Vote Submitted</b>`,
+  return [
+    dbOffline ? `🗳️ <b>New Vote Submitted</b> ⚠️ <i>[DB offline — needs manual entry]</i>` : `🗳️ <b>New Vote Submitted</b>`,
     ``,
     `<b>Email:</b> ${email}`,
     ``,
@@ -53,83 +48,97 @@ async function notifyVoteChannels({
   ]
     .filter(Boolean)
     .join("\n");
+}
 
-  const [votesResult, verificationsResult] = await Promise.all([
-    supabase.from("votes").select("category_key, nominee_name, voter_email, created_at"),
-    supabase.from("voter_verifications").select("email, voted_at, created_at"),
-  ]);
+async function sendTelegramNotification(message: string) {
+  const token = process.env.OPENCLAW_BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = process.env.OPENCLAW_CHAT_ID;
+  const adminIds = process.env.TELEGRAM_ADMIN_IDS;
 
-  if (votesResult.error) {
-    console.error("Vote notification summary query error:", votesResult.error);
+  const targets: string[] = [];
+  if (chatId) targets.push(chatId);
+  if (!chatId && adminIds) {
+    targets.push(...adminIds.split(",").map((id) => id.trim()).filter(Boolean));
   }
 
-  if (verificationsResult.error) {
-    console.error("Verification notification summary query error:", verificationsResult.error);
-  }
+  if (!token || targets.length === 0) return;
 
-  const voteSummary =
-    votesResult.error || verificationsResult.error
-      ? null
-      : buildVoteResultsSummary(votesResult.data ?? [], verificationsResult.data ?? [], {
-          nomineeLimit: 3,
-        });
-
-  const notifications: Promise<Response>[] = [];
-
-  if (openclawToken && openclawChatId) {
-    notifications.push(
-      fetch(`https://api.telegram.org/bot${openclawToken}/sendMessage`, {
+  const results = await Promise.allSettled(
+    targets.map((target) =>
+      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          chat_id: openclawChatId,
-          text: telegramMessage,
+          chat_id: target,
+          text: message,
           parse_mode: "HTML",
         }),
-      }),
-    );
-  }
+      })
+    )
+  );
 
-  if (openclawWebhookUrl) {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-
-    if (openclawWebhookToken) {
-      headers.Authorization = `Bearer ${openclawWebhookToken}`;
-    }
-
-    notifications.push(
-      fetch(openclawWebhookUrl, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          event: "vote.submitted",
-          occurredAt: new Date().toISOString(),
-          voterEmail: email.toLowerCase(),
-          votes: requiredCategoryKeys.map((categoryKey) => ({
-            categoryKey,
-            categoryLabel: categoryLabels[categoryKey] || categoryKey,
-            nomineeName: votes[categoryKey].trim(),
-            nomineeCompany: companies?.[categoryKey]?.trim() || null,
-            nomineeReason: categoryReasons?.[categoryKey]?.trim() || null,
-          })),
-          overallReason: reason || null,
-          summary: voteSummary?.summary ?? null,
-        }),
-      }),
-    );
-  }
-
-  if (notifications.length === 0) {
-    return;
-  }
-
-  const results = await Promise.allSettled(notifications);
   for (const result of results) {
     if (result.status === "rejected") {
-      console.error("OpenClaw notification error:", result.reason);
+      console.error("Telegram notification error:", result.reason);
     }
+  }
+}
+
+async function notifyWebhook({
+  email,
+  votes,
+  companies,
+  categoryReasons,
+  reason,
+}: {
+  email: string;
+  votes: Record<string, string>;
+  companies?: Record<string, string>;
+  categoryReasons?: Record<string, string>;
+  reason?: string;
+}) {
+  const webhookUrl = process.env.OPENCLAW_WEBHOOK_URL;
+  const webhookToken = process.env.OPENCLAW_WEBHOOK_TOKEN;
+  if (!webhookUrl) return;
+
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (webhookToken) headers.Authorization = `Bearer ${webhookToken}`;
+
+  try {
+    await fetch(webhookUrl, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        event: "vote.submitted",
+        occurredAt: new Date().toISOString(),
+        voterEmail: email.toLowerCase(),
+        votes: requiredCategoryKeys.map((categoryKey) => ({
+          categoryKey,
+          categoryLabel: categoryLabels[categoryKey] || categoryKey,
+          nomineeName: votes[categoryKey].trim(),
+          nomineeCompany: companies?.[categoryKey]?.trim() || null,
+          nomineeReason: categoryReasons?.[categoryKey]?.trim() || null,
+        })),
+        overallReason: reason || null,
+      }),
+    });
+  } catch (err) {
+    console.error("Webhook notification error:", err);
+  }
+}
+
+async function checkSupabaseAvailable(): Promise<boolean> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch(`${supabaseUrl}/rest/v1/`, {
+      signal: controller.signal,
+      headers: { apikey: supabaseServiceKey },
+    });
+    clearTimeout(timeout);
+    return res.ok || res.status === 401 || res.status === 403;
+  } catch {
+    return false;
   }
 }
 
@@ -166,90 +175,88 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // Check if Supabase is reachable
+    const dbAvailable = await checkSupabaseAvailable();
 
-    // Check if email has already voted
-    const { data: existingVoter } = await supabase
-      .from("voter_verifications")
-      .select("*")
-      .eq("email", email.toLowerCase())
-      .single();
+    if (dbAvailable) {
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    if (existingVoter) {
-      return NextResponse.json(
-        { error: "This email has already submitted votes." },
-        { status: 409 }
-      );
-    }
+      // Check if email has already voted
+      const { data: existingVoter } = await supabase
+        .from("voter_verifications")
+        .select("*")
+        .eq("email", email.toLowerCase())
+        .single();
 
-    // Check if IP has already voted (optional - can be strict)
-    const { data: existingIp } = await supabase
-      .from("voter_verifications")
-      .select("*")
-      .eq("ip_address", ip)
-      .single();
+      if (existingVoter) {
+        return NextResponse.json(
+          { error: "This email has already submitted votes." },
+          { status: 409 }
+        );
+      }
 
-    if (existingIp) {
-      return NextResponse.json(
-        { error: "A vote has already been submitted from this device." },
-        { status: 409 }
-      );
-    }
+      // Check if IP has already voted
+      const { data: existingIp } = await supabase
+        .from("voter_verifications")
+        .select("*")
+        .eq("ip_address", ip)
+        .single();
 
-    // Create voter verification record
-    const { error: verificationError } = await supabase
-      .from("voter_verifications")
-      .insert({
-        email: email.toLowerCase(),
-        ip_address: ip,
-        is_verified: true,
-        voted_at: new Date().toISOString(),
-      });
+      if (existingIp) {
+        return NextResponse.json(
+          { error: "A vote has already been submitted from this device." },
+          { status: 409 }
+        );
+      }
 
-    if (verificationError) {
-      console.error("Verification error:", verificationError);
-      return NextResponse.json(
-        { error: "Failed to record vote. Please try again.", debug: verificationError.message },
-        { status: 500 }
-      );
-    }
+      // Create voter verification record
+      const { error: verificationError } = await supabase
+        .from("voter_verifications")
+        .insert({
+          email: email.toLowerCase(),
+          ip_address: ip,
+          is_verified: true,
+          voted_at: new Date().toISOString(),
+        });
 
-    // Save all votes (now includes company and per-category reason)
-    const voteRecords = requiredCategoryKeys.map((category) => ({
-      category_key: category,
-      nominee_name: votes[category].trim(),
-      nominee_company: companies?.[category]?.trim() || null,
-      nominee_reason: categoryReasons?.[category]?.trim() || null,
-      voter_email: email.toLowerCase(),
-      voter_ip: ip,
-      voter_user_agent: userAgent,
-      voter_reason: reason || null,
-    }));
+      if (verificationError) {
+        console.error("Verification error:", verificationError);
+      }
 
-    const { error: voteError } = await supabase
-      .from("votes")
-      .insert(voteRecords);
+      // Save votes (only columns that exist in the schema)
+      const voteRecords = requiredCategoryKeys.map((category) => ({
+        category_key: category,
+        nominee_name: votes[category].trim(),
+        voter_email: email.toLowerCase(),
+        voter_ip: ip,
+        voter_user_agent: userAgent,
+      }));
 
-    if (voteError) {
-      console.error("Vote error:", voteError);
-      return NextResponse.json(
-        { error: "Failed to save votes. Please try again.", debug: voteError.message },
-        { status: 500 }
-      );
-    }
+      const { error: voteError } = await supabase
+        .from("votes")
+        .insert(voteRecords);
 
-    // Send notifications without blocking the vote submission result.
-    try {
-      await notifyVoteChannels({
-        email,
-        votes,
-        companies,
-        categoryReasons,
-        reason,
-        supabase,
-      });
-    } catch (notifyErr) {
-      console.error("OpenClaw notification error:", notifyErr);
+      if (voteError) {
+        console.error("Vote insert error:", voteError);
+      }
+
+      // Build summary for webhook
+      // Send notifications
+      try {
+        const msg = buildTelegramMessage({ email, votes, companies, categoryReasons, reason });
+        await Promise.allSettled([
+          sendTelegramNotification(msg),
+          notifyWebhook({ email, votes, companies, categoryReasons, reason }),
+        ]);
+      } catch (notifyErr) {
+        console.error("Notification error:", notifyErr);
+      }
+    } else {
+      // DB is offline — send vote to Telegram as the record
+      console.warn("Supabase unreachable, recording vote via Telegram only");
+      const msg = buildTelegramMessage({ email, votes, companies, categoryReasons, reason, dbOffline: true });
+      await sendTelegramNotification(msg);
+      await notifyWebhook({ email, votes, companies, categoryReasons, reason });
     }
 
     return NextResponse.json(
