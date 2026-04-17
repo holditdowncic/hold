@@ -262,16 +262,6 @@ export const stripeVerificationContent: LegalPageContent = {
   ],
   sections: [
     {
-      title: "What payment processors typically expect on a public website",
-      bullets: [
-        "A clear organisation name and description of the organisation's services, activities, or fundraising purpose.",
-        "Visible customer or supporter support details such as a working email address and organisation location.",
-        "A publicly accessible privacy policy.",
-        "Public terms and conditions for the website and payments.",
-        "Refund, return, cancellation, and fulfilment details where they are relevant to the way the business takes payment.",
-      ],
-    },
-    {
       title: "Organisation details published on this site",
       bullets: [
         entityStatement,
