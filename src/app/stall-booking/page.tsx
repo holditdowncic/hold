@@ -418,7 +418,7 @@ export default function StallBookingPage() {
               className="w-40 h-40"
             />
           </div>
-          <p className="text-white/60 text-xs mt-3">Scan to open: holditdown.uk/stall-booking</p>
+          <p className="text-white/60 text-xs mt-3">Scan to open: www.holditdown.uk/stall-booking</p>
         </div>
 
         {/* Contact */}

@@ -4,7 +4,7 @@ import CookieBanner from "@/components/CookieBanner";
 import sectionsJson from "@/data/sections.json";
 import "./globals.css";
 
-const SITE_URL = "https://www.holditdowncic.uk";
+const SITE_URL = "https://www.holditdown.uk";
 
 type SectionsJson = Record<string, unknown>;
 
@@ -112,7 +112,7 @@ export const metadata: Metadata = {
     "Hold It Down CIC is a leading youth organisation in London, UK. Based in Croydon, South London, we create culturally rooted, intergenerational spaces for young people aged 12–25, fathers, families and elders. Our programmes include Roots & Wings, Talk Di TingZ, mentorship, fatherhood support, and outdoor adventures.",
   keywords: [
     // Brand
-    "Hold It Down", "Hold It Down CIC", "holditdown", "holditdowncic.uk",
+    "Hold It Down", "Hold It Down CIC", "holditdown", "holditdown.uk",
     // Youth + Location
     "youth organisation London", "youth organisation UK", "youth organisation Croydon",
     "youth organisation South London", "youth organisation near me",
@@ -280,7 +280,7 @@ const faqJsonLd = {
       name: "How can I contact Hold It Down CIC?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: `You can contact Hold It Down CIC by email at ${getSiteEmail()}, through their website at holditdowncic.uk/contact, or via Instagram ${getSiteInstagramHandle()}.`,
+        text: `You can contact Hold It Down CIC by email at ${getSiteEmail()}, through their website at www.holditdown.uk/contact, or via Instagram ${getSiteInstagramHandle()}.`,
       },
     },
     {

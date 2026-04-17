@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "🏆 Roots & Wings Community Awards - Vote Now!",
     description: "Recognise the heroes in our community. Vote for Community Father Figure, Mentor of the Year, and more. Free to vote. Deadline: 16th May 2026.",
-    url: "https://holditdown.uk/vote",
+    url: "https://www.holditdown.uk/vote",
     siteName: "Hold It Down CIC",
     locale: "en_GB",
     type: "website",

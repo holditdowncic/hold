@@ -39,7 +39,7 @@ function getContactValue(label: string, fallback: string): string {
   return String(match?.value || "").trim() || fallback;
 }
 
-export const siteUrl = "https://www.holditdowncic.uk";
+export const siteUrl = "https://www.holditdown.uk";
 
 export const businessDetails = {
   tradingName: "Hold It Down CIC",
@@ -296,12 +296,6 @@ export const stripeVerificationContent: LegalPageContent = {
     {
       title: "Nature of organisation",
       bullets: businessDetails.sicCodes,
-    },
-    {
-      title: "Separate dashboard verification documents",
-      paragraphs: [
-        "If Stripe asks for additional verification inside the dashboard, that usually relates to identity or organisation records rather than website copy. Depending on the account setup, Stripe may request incorporation details, bank information, proof of address, or identity documents for the relevant individual.",
-      ],
     },
   ],
 };

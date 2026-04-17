@@ -60,7 +60,7 @@ export default function SharePage() {
               href="/vote"
               className="text-xl md:text-2xl font-bold text-blue-900 hover:underline"
             >
-              holditdown.uk/vote
+              www.holditdown.uk/vote
             </Link>
           </div>
 
