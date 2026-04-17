@@ -243,7 +243,7 @@
       "Community Interest Company (CIC)",
       "Registered in England & Wales",
       "Company No. 14377702",
-      "Thornton Heath, England"
+      "102 Buller Road, Thornton Heath, England, CR7 8QY"
     ],
     "links": [
       {
@@ -348,9 +348,10 @@
   },
   "cookie_banner": {
     "enabled": true,
-    "message": "We use essential cookies to enhance your browsing experience and remember your preferences.",
-    "accept_text": "Accept All",
-    "decline_text": "Decline"
+    "message": "We use essential cookies and similar local storage to remember your preferences and support core site functions.",
+    "accept_text": "OK",
+    "decline_text": "Close",
+    "policy_link": "/privacy-policy"
   },
   "contact": {
     "section_label": "Get In Touch",
@@ -371,7 +372,7 @@
       },
       {
         "label": "Registered Office",
-        "value": "Thornton Heath, England",
+        "value": "102 Buller Road, Thornton Heath, England, CR7 8QY",
         "href": null,
         "icon": "location"
       }

@@ -35,10 +35,10 @@ export default function CookieBanner() {
                 // Fallback to defaults if API fails
                 setContent({
                     message:
-                        "We use cookies to enhance your experience. By continuing to visit this site you agree to our use of cookies.",
-                    accept_text: "Accept All",
-                    decline_text: "Decline",
-                    policy_link: null,
+                        "We use essential cookies and similar local storage to remember your preferences and support core site functions.",
+                    accept_text: "OK",
+                    decline_text: "Close",
+                    policy_link: "/privacy-policy",
                     enabled: true,
                 });
                 setTimeout(() => setVisible(true), 1500);

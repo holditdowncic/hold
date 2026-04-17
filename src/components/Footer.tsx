@@ -51,7 +51,7 @@ export default function Footer() {
     "Community Interest Company (CIC)",
     "Registered in England & Wales",
     "Company No. 14377702",
-    "Thornton Heath, England",
+    "102 Buller Road, Thornton Heath, England, CR7 8QY",
   ];
   const contact = (sectionsJson as unknown as Record<string, unknown>)["contact"] as { email?: string; items?: Array<{ label?: string; value?: string }> } | undefined;
   const supportEmail =

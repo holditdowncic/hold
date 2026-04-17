@@ -40,7 +40,7 @@ function getSiteInstagramUrl(): string {
 
 function getSiteLocationText(): string {
   const v = getContactItem(["Registered Office", "Location"])?.value || "";
-  return v.trim() || "Thornton Heath, England";
+  return v.trim() || "102 Buller Road, Thornton Heath, England, CR7 8QY";
 }
 
 function getThemeCss(): string {

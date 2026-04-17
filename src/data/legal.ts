@@ -46,8 +46,9 @@ export const businessDetails = {
   legalName: "Hold It Down Community Interest Company",
   companyNumber: "14377702",
   email: getContactValue("Email", "info@holditdown.uk"),
-  publicLocation: getContactValue("Location", "Thornton Heath, Croydon CR7 8QY"),
-  registeredOffice: "Thornton Heath, England",
+  publicLocation: getContactValue("Location", "102 Buller Road, Thornton Heath, England, CR7 8QY"),
+  registeredOffice: "102 Buller Road, Thornton Heath, England, CR7 8QY",
+  registeredIn: "England and Wales",
   organisationType:
     "Private company limited by guarantee without share capital",
   regulatoryType: "Community Interest Company (CIC)",
@@ -72,7 +73,7 @@ export const privacyPolicyContent: LegalPageContent = {
   title: "How Hold It Down CIC uses personal information",
   description:
     "This Privacy Policy explains what data we collect, why we collect it, and how we protect it when you browse this website or contact Hold It Down CIC.",
-  lastUpdated: "14 March 2026",
+  lastUpdated: "17 April 2026",
   sections: [
     {
       title: "Who we are",
@@ -87,6 +88,7 @@ export const privacyPolicyContent: LegalPageContent = {
       bullets: [
         "Contact details you submit through forms, including your name, email address, phone number, subject, and message.",
         "Operational information you provide when making enquiries about programmes, partnerships, volunteering, events, or bookings.",
+        "Transaction and supporter information you choose to provide in donation or payment flows, such as your name, email address, amount, and any optional message.",
         "Basic technical information such as cookie preferences, browser details, and website usage data needed to operate, secure, and improve the website.",
         "If online payments are enabled, payment information is collected and processed by Stripe or another payment partner. We do not store full card details on this website.",
       ],
@@ -101,23 +103,42 @@ export const privacyPolicyContent: LegalPageContent = {
       ],
     },
     {
+      title: "Our lawful bases",
+      bullets: [
+        "Legitimate interests: operating the website, responding to enquiries, administering programmes, events, donations, and bookings, maintaining proportionate records, and protecting the site and the people who use it.",
+        "Contract or steps at your request before a contract: where you ask us to arrange or administer a paid booking, event place, stall booking, or other requested service.",
+        "Legal obligation: where we must keep records, meet accounting, tax, safeguarding, fraud-prevention, or reporting duties, or respond to lawful requests.",
+        "Consent: if we introduce optional non-essential cookies or similar tools, we will ask for consent where required and give you a way to change that choice.",
+      ],
+    },
+    {
       title: "When we share information",
       paragraphs: [
-        "We only share personal information where there is a valid reason to do so, such as using trusted service providers for website hosting, communications, forms, or payment processing, or where disclosure is required by law or safeguarding obligations.",
+        "We only share personal information where there is a valid reason to do so, such as using trusted service providers to host the website, route form enquiries, send operational notifications, or process payments. Depending on the interaction, that may include providers such as Stripe for payments and Telegram for internal enquiry notifications.",
+        "We may also share information with banks, insurers, professional advisers, or public authorities where reasonably necessary for administration, safeguarding, fraud prevention, or where disclosure is required by law.",
         "We do not sell personal information.",
+      ],
+    },
+    {
+      title: "International transfers",
+      paragraphs: [
+        "Some of our service providers or their sub-processors may access, store, or process personal information outside the UK, including in the United States and other countries where they operate.",
+        "Where this happens, we aim to use providers that offer appropriate safeguards for UK personal data, such as contractual protections or equivalent transfer measures. If you want more detail about the safeguards relevant to a particular service, contact us.",
       ],
     },
     {
       title: "Cookies and analytics",
       paragraphs: [
-        "This website uses essential cookies to remember preferences and support core functionality. If we introduce non-essential analytics or marketing cookies, we will ask for consent where required.",
+        "This website uses essential cookies or similar local storage items to remember core preferences, such as cookie-banner choices, and to support core functionality.",
+        "We do not rely on non-essential analytics or marketing cookies as a default part of the website experience. If we introduce non-essential analytics, advertising, or similar technologies, we will update this notice and ask for consent where required.",
       ],
     },
     {
-      title: "Retention and your rights",
+      title: "Retention, your rights, and complaints",
       paragraphs: [
         "We keep personal information only for as long as reasonably necessary for the purpose it was collected, including legal, safeguarding, financial, and operational record-keeping requirements.",
-        "If UK data protection law applies to your request, you may ask for access to your personal information, ask us to correct inaccurate data, or ask us to delete information when we no longer need it and there is no legal reason to keep it.",
+        "If UK data protection law applies to your request, you may have rights to ask for access to your personal information, ask us to correct inaccurate data, ask us to delete information when we no longer need it, ask us to restrict how we use it, object to certain uses, and in some cases ask for a portable copy.",
+        `If you have a data protection concern, contact us at ${businessDetails.email}. If you remain dissatisfied, you also have the right to complain to the Information Commissioner's Office (ICO).`,
       ],
     },
   ],
@@ -128,13 +149,24 @@ export const termsContent: LegalPageContent = {
   title: "Website and payment terms",
   description:
     "These terms explain how this website may be used and how online enquiries, bookings, donations, and payments are handled by Hold It Down CIC.",
-  lastUpdated: "14 March 2026",
+  lastUpdated: "17 April 2026",
   sections: [
     {
       title: "Using this website",
       paragraphs: [
         "By using this website, you agree to use it lawfully and not to interfere with the website, its forms, or any other visitor's access.",
         "You must not misuse the website, attempt unauthorised access, submit false information, or use the site for fraud, spam, or other unlawful activity.",
+      ],
+    },
+    {
+      title: "Company information",
+      bullets: [
+        `Legal name: ${businessDetails.legalName}`,
+        `Trading name: ${businessDetails.tradingName}`,
+        `Company number: ${businessDetails.companyNumber}`,
+        `Registered in: ${businessDetails.registeredIn}`,
+        `Registered office: ${businessDetails.registeredOffice}`,
+        `Support email: ${businessDetails.email}`,
       ],
     },
     {
@@ -151,6 +183,14 @@ export const termsContent: LegalPageContent = {
         "Where payment is taken online, confirmation is normally provided on-screen or by email after the payment has been accepted.",
         "Specific event, programme, donation, or booking pages may include additional commercial details such as dates, eligibility, capacity, deadlines, or pricing.",
         "If a listed offer, fee, or availability changes before payment is completed, the information shown at checkout or on the relevant page controls.",
+      ],
+    },
+    {
+      title: "Cancellation rights and dated activities",
+      paragraphs: [
+        "Donations do not carry a general cooling-off right once payment has been completed, subject to the mistake, duplicate-payment, and unauthorised-payment review process set out in our Refund Policy.",
+        "Where a payment relates to an event, stall booking, programme session, or other leisure or activity service scheduled for a specific date or period, a statutory cooling-off right may not apply once the booking concerns reserved capacity for that dated activity.",
+        "If a specific page, hosted checkout, invoice, or written agreement gives a different cancellation window, refund position, or attendance condition, that more specific term applies to that payment.",
       ],
     },
     {
@@ -182,7 +222,7 @@ export const refundPolicyContent: LegalPageContent = {
   title: "Refund, cancellation, and fulfilment information",
   description:
     "This policy explains how Hold It Down CIC handles donations, event fees, and approved booking payments made through this website.",
-  lastUpdated: "14 March 2026",
+  lastUpdated: "17 April 2026",
   sections: [
     {
       title: "What this policy covers",
@@ -195,15 +235,17 @@ export const refundPolicyContent: LegalPageContent = {
       title: "Donations",
       bullets: [
         "Donations are generally treated as final because funds are allocated to community activity and programme delivery.",
+        "There is no general cooling-off right once a donation has been processed, although we will review genuine error, duplicate-payment, and unauthorised-payment requests in good faith.",
         "If you made a donation in error, paid the wrong amount, duplicated a payment, or believe a payment was unauthorised, contact us promptly and we will review the request in good faith.",
       ],
     },
     {
       title: "Event and booking payments",
       bullets: [
+        "Some event, stall, and activity bookings relate to a specific date or reserved capacity. In those cases, a statutory cooling-off right may not apply, and the relevant page, hosted checkout, or written agreement may treat the booking as non-refundable once confirmed.",
         "If Hold It Down CIC cancels an event, programme session, or approved booking that you paid for and cannot offer a suitable alternative, we will normally offer a refund or credit.",
         "If you need to cancel, contact us as early as possible. Whether a refund can be offered depends on timing, committed costs, reserved capacity, and the terms shown on the relevant page.",
-        "Where a place, stall, or service has been specifically reserved for you, late cancellations may be non-refundable if costs have already been committed.",
+        "Where a place, stall, or service has been specifically reserved for you, late cancellations or non-attendance may be non-refundable if costs or capacity have already been committed.",
       ],
     },
     {
@@ -229,7 +271,7 @@ export const stripeVerificationContent: LegalPageContent = {
   title: "Public website information for payment verification",
   description:
     "This page summarises the public organisation and policy information published on the Hold It Down CIC website to support payment processor and customer review.",
-  lastUpdated: "14 March 2026",
+  lastUpdated: "17 April 2026",
   callouts: [
     {
       title: "Privacy Policy",
@@ -270,6 +312,7 @@ export const stripeVerificationContent: LegalPageContent = {
         `Company type: ${businessDetails.organisationType}`,
         `Regulatory type: ${businessDetails.regulatoryType}`,
         `Company number: ${businessDetails.companyNumber}`,
+        `Registered in: ${businessDetails.registeredIn}`,
         `Company status: ${businessDetails.companyStatus}`,
         `Incorporated on: ${businessDetails.incorporatedOn}`,
         `Support email: ${businessDetails.email}`,
