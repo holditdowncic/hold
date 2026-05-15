@@ -24,6 +24,7 @@ import type {
 import sectionsJson from "@/data/sections.json";
 import teamJson from "@/data/team.json";
 import galleryJson from "@/data/gallery.json";
+import rw2024Json from "@/data/roots-and-wings-2024.json";
 import programsJson from "@/data/programs.json";
 import initiativesJson from "@/data/initiatives.json";
 import eventsJson from "@/data/events.json";
@@ -119,6 +120,10 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
 
 export async function getGalleryImages(): Promise<GalleryImage[]> {
   return sortByOrder((galleryJson as GalleryImage[]) ?? []);
+}
+
+export async function getRW2024Images(): Promise<GalleryImage[]> {
+  return (rw2024Json as GalleryImage[]) ?? [];
 }
 
 export async function getPrograms(): Promise<Program[]> {

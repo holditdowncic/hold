@@ -115,10 +115,21 @@ export default function Programs({ programs, initiatives, meta }: ProgramsProps)
                 <p className="mb-6 text-sm leading-relaxed text-text-secondary">
                   {flagshipDesc2}
                 </p>
-                <div className="flex flex-wrap gap-2">
-                  {flagshipTags.map((t) => (
-                    <Tag key={t}>{t}</Tag>
-                  ))}
+                <div className="flex flex-wrap items-center gap-4">
+                  <Link 
+                    href="/roots-and-wings"
+                    className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2 text-xs font-semibold text-white transition-all hover:bg-accent-light hover:shadow-md"
+                  >
+                    View Project & Gallery
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                  <div className="flex flex-wrap gap-2">
+                    {flagshipTags.map((t) => (
+                      <Tag key={t}>{t}</Tag>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
