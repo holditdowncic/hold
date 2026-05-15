@@ -88,6 +88,56 @@ export default function RootsAndWingsClient({ images }: { images: GalleryImage[]
         </div>
       </section>
 
+      {/* History Section */}
+      <section className="bg-bg px-5 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto max-w-[1200px]">
+          <div className="mb-12 text-center">
+            <Reveal>
+              <h2 className="font-[family-name:var(--font-heading)] text-3xl font-bold md:text-4xl">Our Journey</h2>
+            </Reveal>
+            <Reveal>
+              <p className="mt-4 text-text-secondary">Celebrating a legacy of growth and connection</p>
+            </Reveal>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-3">
+            {[
+              { 
+                year: "2024", 
+                title: "Fatherhood & Family", 
+                desc: "17+ activities and workshops focused on bonding.",
+                link: "/events/roots-and-wings-2024-fatherhood-family"
+              },
+              { 
+                year: "2025", 
+                title: "Roots & Wings Fun Day", 
+                desc: "300+ attendees joined for our biggest celebration yet.",
+                link: "/events/roots-and-wings-2025"
+              },
+              { 
+                year: "2026", 
+                title: "The Vision Expands", 
+                desc: "Scaling our impact across more South London boroughs.",
+                link: "/events/roots-and-wings-fun-day-2026"
+              }
+            ].map((item) => (
+              <Reveal key={item.year}>
+                <Link 
+                  href={item.link}
+                  className="group block rounded-2xl border border-border bg-bg-card p-8 transition-all hover:border-accent/40 hover:shadow-2xl"
+                >
+                  <span className="mb-4 inline-block text-4xl font-bold text-accent/20 group-hover:text-accent/40 transition-colors">
+                    {item.year}
+                  </span>
+                  <h3 className="mb-2 text-xl font-bold">{item.title}</h3>
+                  <p className="text-text-secondary">{item.desc}</p>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Gallery Section */}
       <section className="bg-bg-alt px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-[1200px]">
