@@ -18,7 +18,7 @@ export default function LittleRootsForm() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     try {
@@ -28,7 +28,7 @@ export default function LittleRootsForm() {
         body: JSON.stringify(formData)
       });
       if (resp.ok) setSubmitted(true);
-    } catch (err) {
+    } catch {
       alert("Submission failed. Please try again.");
     } finally {
       setLoading(false);

@@ -11,8 +11,32 @@ const ACTIVITIES = [
   "Paintballing"
 ];
 
+type BiggzConsentFormData = {
+  childName: string;
+  childAge: string;
+  parentName: string;
+  phone: string;
+  email: string;
+  address: string;
+  attendance: string;
+  activities: string[];
+  emergencyName: string;
+  emergencyRelationship: string;
+  emergencyPhone: string;
+  emergencyAck: boolean;
+  medicalInfo: string;
+  dietary: string;
+  gpName: string;
+  gpPhone: string;
+  nhsNumber: string;
+  safeguardingConsent: boolean;
+  photoConsent: string;
+  declarationName: string;
+  declarationDate: string;
+};
+
 export default function BiggzConsentForm() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<BiggzConsentFormData>({
     childName: "",
     childAge: "",
     parentName: "",
@@ -38,17 +62,20 @@ export default function BiggzConsentForm() {
 
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const target = e.target;
+    const { name, value } = target;
+    const nextValue = target instanceof HTMLInputElement && target.type === "checkbox" ? target.checked : value;
+
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value
+      [name]: nextValue
     }));
   };
 
-  const handleActivityChange = (activity) => {
+  const handleActivityChange = (activity: string) => {
     setFormData((prev) => ({
       ...prev,
       activities: prev.activities.includes(activity)
@@ -57,7 +84,7 @@ export default function BiggzConsentForm() {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -75,7 +102,7 @@ export default function BiggzConsentForm() {
         const errorData = await resp.json();
         setError(errorData.error || "Failed to submit form. Please try again.");
       }
-    } catch (err) {
+    } catch {
       setError("An unexpected error occurred. Please check your connection.");
     } finally {
       setLoading(false);
@@ -256,7 +283,7 @@ export default function BiggzConsentForm() {
               <label className="block text-sm font-medium text-neutral-400 mb-4">Photo and Media Consent</label>
               <div className="grid grid-cols-2 gap-4">
                 {["Yes", "No"].map((v) => (
-                  <button key={v} type="button" onClick={() => handleInputChange({ target: { name: "photoConsent", value: v } })} className={`p-4 rounded-xl border text-sm font-bold transition ${formData.photoConsent === v ? 'bg-white text-black border-white' : 'bg-neutral-800 border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}>
+                  <button key={v} type="button" onClick={() => setFormData((prev) => ({ ...prev, photoConsent: v }))} className={`p-4 rounded-xl border text-sm font-bold transition ${formData.photoConsent === v ? 'bg-white text-black border-white' : 'bg-neutral-800 border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}>
                     {v}, I {v === 'No' ? 'do not ' : ''}give permission
                   </button>
                 ))}

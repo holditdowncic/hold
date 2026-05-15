@@ -2,7 +2,8 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Reveal, fadeUp, staggerContainer, TiltCard } from "@/lib/motion";
+import Link from "next/link";
+import { Reveal, staggerContainer, TiltCard } from "@/lib/motion";
 import type { Program, Initiative, ProgramsSectionContent } from "@/lib/types";
 
 const defaultPrograms: Program[] = [
