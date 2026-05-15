@@ -76,27 +76,27 @@ export default function Gallery({ images, meta }: GalleryProps) {
                     {galleryImages.map((image, index) => {
                         const isWide = index === 0 || index === 5 || index === 9;
                         return (
-                            <motion.div
+                            <motion.figure
                                 key={image.id}
                                 variants={fadeUp}
-                                className={`group relative cursor-pointer overflow-hidden rounded-xl border border-border bg-bg-card transition-all duration-300 hover:border-accent/30 hover:shadow-xl ${isWide ? "col-span-2 aspect-[16/10]" : "aspect-square"
+                                className={`group cursor-pointer overflow-hidden rounded-xl border border-border bg-bg-card transition-all duration-300 hover:border-accent/30 hover:shadow-xl ${isWide ? "col-span-2" : ""
                                     }`}
                                 onClick={() => setSelectedImage(index)}
                             >
-                                <Image
-                                    src={image.src}
-                                    alt={image.alt}
-                                    fill
-                                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                    sizes={isWide ? "(max-width: 640px) 100vw, (max-width: 768px) 66vw, 50vw" : "(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"}
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-bg/80 via-bg/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                                <div className="absolute bottom-0 left-0 right-0 translate-y-full p-3 transition-transform duration-300 group-hover:translate-y-0 sm:p-4">
-                                    <p className="text-xs font-semibold text-white sm:text-sm">
-                                        {image.caption}
-                                    </p>
+                                <div className={`relative overflow-hidden ${isWide ? "aspect-[16/10]" : "aspect-square"}`}>
+                                    <Image
+                                        src={image.src}
+                                        alt={image.alt}
+                                        fill
+                                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                        sizes={isWide ? "(max-width: 640px) 100vw, (max-width: 768px) 66vw, 50vw" : "(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"}
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-bg/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                                 </div>
-                            </motion.div>
+                                <figcaption className="flex min-h-[4.25rem] items-center px-3 py-3 text-sm font-semibold leading-snug text-text-primary sm:px-4">
+                                    {image.caption}
+                                </figcaption>
+                            </motion.figure>
                         );
                     })}
                 </motion.div>
