@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Reveal, staggerContainer, fadeUp } from "@/lib/motion";
 import type { GalleryImage, GalleryContent } from "@/lib/types";
+import TreeOfHopeScene from "./TreeOfHopeScene";
 
 const defaultImages: GalleryImage[] = [
     { id: "1", src: "/media/roots/roots-1.jpeg", alt: "Roots & Wings volunteers group photo", caption: "Our Team", sort_order: 1 },
@@ -33,10 +34,6 @@ export default function Gallery({ images, meta }: GalleryProps) {
     const sectionLabel = meta?.section_label ?? "Gallery";
     const heading = meta?.heading ?? "Moments that matter";
     const description = meta?.description ?? "Highlights from our community events — real families, real connections, real impact.";
-    const videoSrc = meta?.video_src ?? "/media/video-1.mp4";
-    const videoPoster = meta?.video_poster ?? "/media/image-10.jpeg";
-    const videoCaption = meta?.video_caption ?? "Watch highlights from our Roots & Wings Family Fun Day 2025";
-
     // Split heading for gradient effect
     const headingParts = heading.split(" ");
     const lastWord = headingParts.pop();
@@ -101,25 +98,14 @@ export default function Gallery({ images, meta }: GalleryProps) {
                     })}
                 </motion.div>
 
-                {/* Video Section */}
-                <Reveal>
-                    <div className="mt-10 sm:mt-14 md:mt-16">
-                        <div className="relative aspect-video overflow-hidden rounded-2xl border border-border bg-bg-card">
-                            <video
-                                className="h-full w-full object-cover"
-                                controls
-                                poster={videoPoster}
-                            >
-                                <source src={videoSrc} type="video/mp4" />
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                        <p className="mt-4 text-center text-sm text-text-secondary">
-                            {videoCaption}
-                        </p>
-                    </div>
-                </Reveal>
             </div>
+
+            {/* Tree of Hope */}
+            <Reveal>
+                <div id="tree-of-hope" className="mx-auto mt-10 max-w-[1120px] scroll-mt-36 px-5 sm:mt-14 sm:px-6 md:mt-16">
+                    <TreeOfHopeScene />
+                </div>
+            </Reveal>
 
             {/* Lightbox Modal */}
             <AnimatePresence>

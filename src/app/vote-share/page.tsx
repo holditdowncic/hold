@@ -67,7 +67,7 @@ export default function SharePage() {
           {/* Deadline */}
           <div className="bg-yellow-100 border-2 border-yellow-400 rounded-xl p-4">
             <p className="font-semibold text-blue-900">
-              Voting Closes: 16th May 2026
+              Voting Closes: 17th June 2026
             </p>
             <p className="text-sm text-gray-600 mt-1">
               Free to vote • One vote per person

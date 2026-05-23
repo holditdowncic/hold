@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Reveal, fadeUp } from "@/lib/motion";
+import { Reveal } from "@/lib/motion";
 import { categories } from "@/data/categories";
 import type { UseVoteFormReturn } from "@/lib/useVoteForm";
 
@@ -329,7 +329,7 @@ export default function VotingForm({ form }: VotingFormProps) {
                                 <circle cx="12" cy="12" r="10" />
                                 <polyline points="12 6 12 12 16 14" />
                             </svg>
-                            Voting closes on 16 May 2026
+                            Voting closes on 17 June 2026
                         </div>
                     </div>
                 </Reveal>

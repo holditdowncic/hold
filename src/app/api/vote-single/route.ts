@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     const now = new Date();
     if (now > VOTING_DEADLINE) {
       return NextResponse.json(
-        { error: "Voting has closed. The deadline was May 16th, 2026." },
+        { error: "Voting has closed. The deadline was 17 June 2026." },
         { status: 403 }
       );
     }

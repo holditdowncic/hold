@@ -10,7 +10,7 @@ import { useTheme } from "@/lib/theme";
 import { donateLinkUrl } from "@/lib/donate-link";
 import sectionsJson from "@/data/sections.json";
 
-type NavLink = { label: string; href: string; isPage?: boolean };
+type NavLink = { label: string; href: string; isPage?: boolean; shortLabel?: string };
 
 const defaultLinks: NavLink[] = [
   { label: "About", href: "#about" },
@@ -28,7 +28,12 @@ function safeLinks(raw: unknown): NavLink[] {
     .filter((l) => l && typeof l === "object")
     .map((l) => l as NavLink)
     .filter((l) => typeof l.label === "string" && typeof l.href === "string")
-    .map((l) => ({ label: l.label, href: l.href, isPage: !!l.isPage }));
+    .map((l) => ({
+      label: l.label,
+      href: l.href,
+      isPage: !!l.isPage,
+      shortLabel: typeof l.shortLabel === "string" ? l.shortLabel : undefined,
+    }));
 }
 
 function ThemeToggle() {
@@ -158,15 +163,19 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Links + Theme Toggle */}
-        <div className="hidden items-center gap-9 md:flex">
-          {links.map((link) =>
-            link.isPage ? (
+        <div className="hidden items-center gap-5 lg:flex xl:gap-9">
+          {links.map((link) => {
+            const label = link.shortLabel || link.label;
+
+            return link.isPage ? (
               <Link
                 key={link.href}
                 href={link.href}
+                aria-label={link.label}
+                title={link.label}
                 className="group relative py-1 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
               >
-                {link.label}
+                {label}
                 <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 bg-accent transition-all duration-400 group-hover:w-full" />
               </Link>
             ) : (
@@ -174,13 +183,15 @@ export default function Navbar() {
                 key={link.href}
                 href={isHome ? link.href : `/${link.href}`}
                 onClick={(e) => handleClick(e, link.href)}
+                aria-label={link.label}
+                title={link.label}
                 className="group relative py-1 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
               >
-                {link.label}
+                {label}
                 <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 bg-accent transition-all duration-400 group-hover:w-full" />
               </Link>
-            )
-          )}
+            );
+          })}
           <Link
             href={donateLinkUrl}
             className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-accent to-accent-warm px-5 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg"
@@ -191,7 +202,7 @@ export default function Navbar() {
         </div>
 
         {/* Mobile: Donate Button + Hamburger */}
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="flex items-center gap-2 lg:hidden">
           <Link
             href={donateLinkUrl}
             className="inline-flex h-8 items-center justify-center rounded-full bg-gradient-to-r from-accent to-accent-warm px-4 text-xs font-semibold text-white transition-all hover:shadow-md"
@@ -229,7 +240,7 @@ export default function Navbar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="fixed inset-0 z-[998] bg-black/50 backdrop-blur-sm md:hidden"
+              className="fixed inset-0 z-[998] bg-black/50 backdrop-blur-sm lg:hidden"
               onClick={() => setOpen(false)}
             />
             {/* Menu Panel */}
@@ -238,7 +249,7 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="fixed top-0 right-0 z-[999] h-screen w-[min(280px,85vw)] border-l border-border bg-bg-elevated md:hidden"
+              className="fixed top-0 right-0 z-[999] h-screen w-[min(280px,85vw)] border-l border-border bg-bg-elevated lg:hidden"
             >
               {/* Close Button & Theme Toggle */}
               <div className="flex items-center justify-between px-4 pt-5">

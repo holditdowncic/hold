@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function VoteBanner() {
     const text =
-        "🏆 Roots & Wings Community Awards 2026 — Vote now for the men who make a difference · Voting closes 16 May 2026 · ";
+        "🏆 Roots & Wings Community Awards 2026 — Vote now for the men who make a difference · Voting closes 17 June 2026 · ";
 
     return (
         <Link

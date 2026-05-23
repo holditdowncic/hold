@@ -36,14 +36,14 @@ export function useVoteForm(): UseVoteFormReturn {
     const [reason, setReason] = useState("");
     const [status, setStatus] = useState<VoteStatus>("idle");
     const [message, setMessage] = useState("");
-    const [isDeadlinePassed, setIsDeadlinePassed] = useState(false);
+    const [isDeadlinePassed] = useState(() => new Date() > VOTING_DEADLINE);
     const [alreadyVoted, setAlreadyVoted] = useState(false);
 
     useEffect(() => {
-        const now = new Date();
-        setIsDeadlinePassed(now > VOTING_DEADLINE);
         const voted = localStorage.getItem("rootswings_voted");
-        if (voted) setAlreadyVoted(true);
+        if (!voted) return;
+        const frame = window.requestAnimationFrame(() => setAlreadyVoted(true));
+        return () => window.cancelAnimationFrame(frame);
     }, []);
 
     const handleVoteChange = (categoryKey: string, value: string) => {
@@ -62,7 +62,7 @@ export function useVoteForm(): UseVoteFormReturn {
         e.preventDefault();
 
         if (isDeadlinePassed) {
-            setMessage("Voting has closed. The deadline was May 16th, 2026.");
+            setMessage("Voting has closed. The deadline was 17 June 2026.");
             setStatus("error");
             return;
         }

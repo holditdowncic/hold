@@ -23,12 +23,13 @@ export default function SingleVotePage() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
-  const [isDeadlinePassed, setIsDeadlinePassed] = useState(false);
+  const [isDeadlinePassed] = useState(() => new Date() > VOTING_DEADLINE);
   const [alreadyVoted, setAlreadyVoted] = useState(false);
 
   useEffect(() => {
-    setIsDeadlinePassed(new Date() > VOTING_DEADLINE);
-    if (localStorage.getItem("rootswings_voted")) setAlreadyVoted(true);
+    if (!localStorage.getItem("rootswings_voted")) return;
+    const frame = window.requestAnimationFrame(() => setAlreadyVoted(true));
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   const activeCategory = categories.find((c) => c.key === selectedCategory);
@@ -266,7 +267,7 @@ export default function SingleVotePage() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
                 </svg>
-                Voting closes on 16 May 2026
+                Voting closes on 17 June 2026
               </div>
             </div>
           )}

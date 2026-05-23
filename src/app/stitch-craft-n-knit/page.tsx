@@ -1,0 +1,220 @@
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+
+export const metadata: Metadata = {
+  title: "Stitch Craft N Knit",
+  description:
+    "Stitch Craft N Knit is a welcoming community teaching group at Thornton Heath Library, built around connection, creativity, and community.",
+  alternates: {
+    canonical: "/stitch-craft-n-knit",
+  },
+  openGraph: {
+    title: "Stitch Craft N Knit | Hold It Down CIC",
+    description:
+      "A safe, friendly and creative community space founded and coordinated by Marie Brown.",
+    url: "/stitch-craft-n-knit",
+    images: [
+      {
+        url: "/media/stitch-craft-n-knit/community-knitting-hero.jpg",
+        width: 1392,
+        height: 752,
+        alt: "Community knitting group gathered around a table with yarn and needles",
+      },
+    ],
+  },
+};
+
+const values = [
+  {
+    title: "Connection",
+    text: "A place to reconnect with others, meet new people, and step gently out of isolation.",
+  },
+  {
+    title: "Creativity",
+    text: "Hands-on learning that helps people build confidence through making, adapting, and trying again.",
+  },
+  {
+    title: "Community",
+    text: "A safe and supportive teaching group where members can grow and encourage one another.",
+  },
+];
+
+const expectations = [
+  "A friendly and welcoming atmosphere",
+  "Hands-on guidance whether you have never held needles or you are casting on your tenth project",
+  "Opportunities to meet new people and build lasting friendships",
+  "A safe, supportive community space",
+  "Creative learning that nurtures confidence and wellbeing",
+  "More than knitting: a space to connect, create, and belong",
+];
+
+export default function StitchCraftNKnitPage() {
+  return (
+    <div className="min-h-screen bg-bg text-text-primary">
+      <Navbar />
+
+      <main>
+        <section className="relative overflow-hidden pt-28 sm:pt-32">
+          <div className="mx-auto grid max-w-[1200px] gap-8 px-5 pb-12 sm:px-6 md:grid-cols-[0.95fr_1.05fr] md:items-center md:pb-16">
+            <div className="relative z-10">
+              <p className="mb-4 inline-flex rounded-full border border-[#2C7A7B]/25 bg-[#2C7A7B]/10 px-4 py-2 text-sm font-semibold text-[#23686A] dark:text-[#7DD3D0]">
+                Weekly creative community group
+              </p>
+              <h1 className="font-[family-name:var(--font-heading)] text-[clamp(2.6rem,7vw,5.75rem)] font-bold leading-[0.95] text-[#29192D] dark:text-[#FFF8F1]">
+                Stitch Craft N Knit
+              </h1>
+              <p className="mt-6 max-w-[620px] text-lg leading-relaxed text-text-secondary sm:text-xl">
+                Everything is built around the three C&apos;s: Connection,
+                Creativity, and Community.
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <a
+                  href="#weekly-sessions"
+                  className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-[#4A224C] px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#5D2C60]"
+                >
+                  View weekly sessions
+                </a>
+                <Link
+                  href="/contact"
+                  className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-border bg-bg-card px-6 py-3 text-sm font-semibold text-text-primary transition hover:-translate-y-0.5 hover:border-[#2C7A7B]/40"
+                >
+                  Ask about joining
+                </Link>
+              </div>
+            </div>
+
+            <div className="relative overflow-hidden rounded-[1.25rem] border border-border bg-bg-card shadow-[0_20px_70px_rgba(30,20,45,0.16)]">
+              <div className="relative aspect-[16/10]">
+                <Image
+                  src="/media/stitch-craft-n-knit/community-knitting-hero.jpg"
+                  alt="Community knitting group gathered around a table with yarn and needles"
+                  fill
+                  priority
+                  unoptimized
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 580px"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-y border-border bg-bg-elevated px-5 py-10 sm:px-6">
+          <div className="mx-auto grid max-w-[1200px] gap-4 md:grid-cols-3">
+            {values.map((value) => (
+              <article
+                key={value.title}
+                className="rounded-2xl border border-border bg-bg-card p-6"
+              >
+                <h2 className="font-[family-name:var(--font-heading)] text-2xl font-semibold text-[#4A224C] dark:text-[#E9C46A]">
+                  {value.title}
+                </h2>
+                <p className="mt-3 leading-relaxed text-text-secondary">
+                  {value.text}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="px-5 py-14 sm:px-6 md:py-20">
+          <div className="mx-auto grid max-w-[1200px] gap-10 md:grid-cols-[0.9fr_1.1fr] md:items-start">
+            <div className="overflow-hidden rounded-[1.25rem] border border-border bg-bg-card">
+              <div className="relative aspect-[16/11]">
+                <Image
+                  src="/media/stitch-craft-n-knit/community-knitting-session.jpg"
+                  alt="People knitting together in a bright library community room"
+                  fill
+                  unoptimized
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 500px"
+                />
+              </div>
+            </div>
+
+            <div>
+              <p className="mb-3 text-sm font-semibold uppercase text-[#2C7A7B] dark:text-[#7DD3D0]">
+                Founded by Marie Brown
+              </p>
+              <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.35rem)] font-bold leading-tight">
+                A safe place to learn, make, and belong
+              </h2>
+              <div className="mt-6 space-y-5 text-base leading-relaxed text-text-secondary sm:text-lg">
+                <p>
+                  Founded and coordinated by Marie Brown, Stitch Craft N Knit
+                  creates a welcoming, safe, and enjoyable space where people can
+                  come together, learn new skills, build confidence, and feel
+                  empowered through creativity and shared experiences.
+                </p>
+                <p>
+                  The group encourages people to step out of isolation and into
+                  community life, reconnect with others, meet new people, and
+                  rediscover the joy of learning and creating together.
+                  Remaining a teaching group is central to the mission, ensuring
+                  that members continue to grow, support one another, and develop
+                  new skills in a relaxed and friendly environment.
+                </p>
+                <p>
+                  With the support of Marcia Brown, the group continues to run
+                  smoothly and provide a positive space for all who attend.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="weekly-sessions"
+          className="bg-[#102D30] px-5 py-14 text-white sm:px-6 md:py-20"
+        >
+          <div className="mx-auto grid max-w-[1200px] gap-8 md:grid-cols-[0.85fr_1.15fr] md:items-start">
+            <div>
+              <p className="mb-3 text-sm font-semibold uppercase text-[#E9C46A]">
+                Weekly sessions
+              </p>
+              <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.25rem)] font-bold leading-tight">
+                Thornton Heath Library
+              </h2>
+              <div className="mt-7 grid gap-3 text-lg">
+                <div className="rounded-2xl border border-white/12 bg-white/8 p-5">
+                  <p className="text-sm font-semibold text-[#E9C46A]">Every Tuesday</p>
+                  <p className="mt-1 text-2xl font-bold">10:30am to 12:30pm</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {expectations.map((item) => (
+                <div
+                  key={item}
+                  className="rounded-2xl border border-white/12 bg-white/8 p-5 text-sm leading-relaxed text-white/85"
+                >
+                  <span className="mb-4 block h-2 w-12 rounded-full bg-[#E9C46A]" />
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="px-5 py-14 sm:px-6 md:py-20">
+          <div className="mx-auto max-w-[920px] rounded-[1.25rem] border border-border bg-bg-card p-7 text-center sm:p-10 md:p-12">
+            <blockquote className="font-[family-name:var(--font-heading)] text-[clamp(1.65rem,3.5vw,2.75rem)] font-semibold leading-tight text-[#4A224C] dark:text-[#FFF8F1]">
+              &ldquo;Knitting is a journey. Sometimes we drop stitches, we
+              learn, we adapt, and we keep going. That&apos;s not just crafting,
+              that&apos;s life.&rdquo;
+            </blockquote>
+            <p className="mt-6 text-sm font-semibold text-text-secondary">
+              Marie Brown, Founder, Stitch Craft N Knit
+            </p>
+          </div>
+        </section>
+      </main>
+
+      <Footer />
+    </div>
+  );
+}

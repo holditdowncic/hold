@@ -43,7 +43,7 @@ export const categories: Category[] = [
     },
 ];
 
-export const VOTING_DEADLINE = new Date("2026-05-16T23:59:59");
+export const VOTING_DEADLINE = new Date("2026-06-17T23:59:59");
 
 export const categoryLabels: Record<string, string> = Object.fromEntries(
     categories.map((c) => [c.key, c.title])
