@@ -8,14 +8,14 @@ import sectionsJson from "@/data/sections.json";
 type FooterLink = { label: string; href: string; isPage?: boolean };
 
 const defaultFooterLinks: FooterLink[] = [
-  { label: "About", href: "#about" },
-  { label: "Mission", href: "#mission" },
-  { label: "Programmes", href: "#programs" },
+  { label: "About", href: "/#about" },
+  { label: "Mission", href: "/#mission" },
+  { label: "Programmes", href: "/#programs" },
   { label: "Events", href: "/events", isPage: true },
-  { label: "Impact", href: "#impact" },
-  { label: "Team", href: "#team" },
-  { label: "Support", href: "#support" },
-  { label: "Gallery", href: "#gallery" },
+  { label: "Impact", href: "/#impact" },
+  { label: "Team", href: "/#team" },
+  { label: "Support", href: "/#support" },
+  { label: "Gallery", href: "/#gallery" },
   { label: "Contact", href: "/contact", isPage: true },
 ];
 
@@ -26,13 +26,21 @@ const defaultLegalLinks: FooterLink[] = [
   { label: "Stripe Verification", href: "/stripe-verification", isPage: true },
 ];
 
+function normalizeFooterHref(href: string): string {
+  return href.startsWith("#") ? `/${href}` : href;
+}
+
 function safeLinks(raw: unknown): FooterLink[] {
   if (!Array.isArray(raw)) return [];
   return raw
     .filter((l) => l && typeof l === "object")
     .map((l) => l as FooterLink)
     .filter((l) => typeof l.label === "string" && typeof l.href === "string")
-    .map((l) => ({ label: l.label, href: l.href, isPage: !!l.isPage }));
+    .map((l) => ({
+      label: l.label,
+      href: normalizeFooterHref(l.href),
+      isPage: !!l.isPage,
+    }));
 }
 
 function safeLines(raw: unknown): string[] {
