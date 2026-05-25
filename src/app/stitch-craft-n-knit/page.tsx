@@ -60,10 +60,10 @@ export default function StitchCraftNKnitPage() {
         <section className="relative overflow-hidden pt-28 sm:pt-32">
           <div className="mx-auto grid max-w-[1200px] gap-8 px-5 pb-12 sm:px-6 md:grid-cols-[0.95fr_1.05fr] md:items-center md:pb-16">
             <div className="relative z-10">
-              <p className="mb-4 inline-flex rounded-full border border-[#2C7A7B]/25 bg-[#2C7A7B]/10 px-4 py-2 text-sm font-semibold text-[#23686A] dark:text-[#7DD3D0]">
+              <p className="mb-4 inline-flex rounded-full border border-[#2C7A7B]/25 bg-[#2C7A7B]/10 px-4 py-2 text-sm font-semibold text-text-primary">
                 Weekly creative community group
               </p>
-              <h1 className="font-[family-name:var(--font-heading)] text-[clamp(2.6rem,7vw,5.75rem)] font-bold leading-[0.95] text-[#29192D] dark:text-[#FFF8F1]">
+              <h1 className="font-[family-name:var(--font-heading)] text-[clamp(2.6rem,7vw,5.75rem)] font-bold leading-[0.95] text-text-primary">
                 Stitch Craft N Knit
               </h1>
               <p className="mt-6 max-w-[620px] text-lg leading-relaxed text-text-secondary sm:text-xl">
@@ -109,7 +109,7 @@ export default function StitchCraftNKnitPage() {
                 key={value.title}
                 className="rounded-2xl border border-border bg-bg-card p-6"
               >
-                <h2 className="font-[family-name:var(--font-heading)] text-2xl font-semibold text-[#4A224C] dark:text-[#E9C46A]">
+                <h2 className="font-[family-name:var(--font-heading)] text-2xl font-semibold text-text-primary">
                   {value.title}
                 </h2>
                 <p className="mt-3 leading-relaxed text-text-secondary">
@@ -136,7 +136,7 @@ export default function StitchCraftNKnitPage() {
             </div>
 
             <div>
-              <p className="mb-3 text-sm font-semibold uppercase text-[#2C7A7B] dark:text-[#7DD3D0]">
+              <p className="mb-3 text-sm font-semibold uppercase text-text-primary">
                 Founded by Marie Brown
               </p>
               <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.35rem)] font-bold leading-tight">
@@ -172,7 +172,7 @@ export default function StitchCraftNKnitPage() {
         >
           <div className="mx-auto grid max-w-[1200px] gap-8 md:grid-cols-[0.85fr_1.15fr] md:items-start">
             <div>
-              <p className="mb-3 text-sm font-semibold uppercase text-[#E9C46A]">
+              <p className="mb-3 text-sm font-semibold uppercase text-white">
                 Weekly sessions
               </p>
               <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.25rem)] font-bold leading-tight">
@@ -180,7 +180,7 @@ export default function StitchCraftNKnitPage() {
               </h2>
               <div className="mt-7 grid gap-3 text-lg">
                 <div className="rounded-2xl border border-white/12 bg-white/8 p-5">
-                  <p className="text-sm font-semibold text-[#E9C46A]">Every Tuesday</p>
+                  <p className="text-sm font-semibold text-white">Every Tuesday</p>
                   <p className="mt-1 text-2xl font-bold">10:30am to 12:30pm</p>
                 </div>
               </div>
@@ -192,7 +192,7 @@ export default function StitchCraftNKnitPage() {
                   key={item}
                   className="rounded-2xl border border-white/12 bg-white/8 p-5 text-sm leading-relaxed text-white/85"
                 >
-                  <span className="mb-4 block h-2 w-12 rounded-full bg-[#E9C46A]" />
+                  <span className="mb-4 block h-2 w-12 rounded-full bg-white/70" />
                   {item}
                 </div>
               ))}
@@ -202,7 +202,7 @@ export default function StitchCraftNKnitPage() {
 
         <section className="px-5 py-14 sm:px-6 md:py-20">
           <div className="mx-auto max-w-[920px] rounded-[1.25rem] border border-border bg-bg-card p-7 text-center sm:p-10 md:p-12">
-            <blockquote className="font-[family-name:var(--font-heading)] text-[clamp(1.65rem,3.5vw,2.75rem)] font-semibold leading-tight text-[#4A224C] dark:text-[#FFF8F1]">
+            <blockquote className="font-[family-name:var(--font-heading)] text-[clamp(1.65rem,3.5vw,2.75rem)] font-semibold leading-tight text-text-primary">
               &ldquo;Knitting is a journey. Sometimes we drop stitches, we
               learn, we adapt, and we keep going. That&apos;s not just crafting,
               that&apos;s life.&rdquo;
