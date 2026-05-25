@@ -548,7 +548,7 @@ export default function CommunityTreePreview() {
       if (!dragging) return;
       const deltaX = event.clientX - lastX;
       const deltaY = event.clientY - lastY;
-      targetRotationY += deltaX * 0.008;
+      targetRotationY -= deltaX * 0.008;
       targetRotationX = Math.min(0.72, Math.max(-0.58, targetRotationX + deltaY * 0.006));
       lastX = event.clientX;
       lastY = event.clientY;

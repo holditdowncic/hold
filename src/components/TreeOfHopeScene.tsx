@@ -126,7 +126,7 @@ export default function TreeOfHopeScene() {
     const onPointerMove = (event: PointerEvent) => {
       gpuGrass.setMouseFromEvent(event, camera, canvas);
       if (!dragging) return;
-      targetRotationY += (event.clientX - lastX) * 0.008;
+      targetRotationY -= (event.clientX - lastX) * 0.008;
       targetRotationX = Math.min(0.42, Math.max(-0.34, targetRotationX + (event.clientY - lastY) * 0.004));
       lastX = event.clientX;
       lastY = event.clientY;

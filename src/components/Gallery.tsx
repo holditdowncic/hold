@@ -103,6 +103,11 @@ export default function Gallery({ images, meta }: GalleryProps) {
             {/* Tree of Hope */}
             <Reveal>
                 <div id="tree-of-hope" className="mx-auto mt-10 max-w-[1120px] scroll-mt-36 px-5 sm:mt-14 sm:px-6 md:mt-16">
+                    <div className="mb-4 text-center sm:mb-5">
+                        <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3rem)] font-bold leading-tight tracking-tight text-text-primary">
+                            Tree of Hope
+                        </h2>
+                    </div>
                     <TreeOfHopeScene />
                 </div>
             </Reveal>
