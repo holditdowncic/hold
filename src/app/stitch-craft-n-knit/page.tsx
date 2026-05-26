@@ -30,11 +30,11 @@ export const metadata: Metadata = {
 const values = [
   {
     title: "Connection",
-    text: "A place to reconnect with others, meet new people, and step gently out of isolation.",
+    text: "A place to reconnect with others, meet new people, and step gently out of isolation and loneliness.",
   },
   {
     title: "Creativity",
-    text: "Hands-on learning that helps people build confidence through making, adapting, and trying again.",
+    text: "Hands-on learning that helps people build confidence through exploring and developing new skills, and trying again.",
   },
   {
     title: "Community",
@@ -144,10 +144,13 @@ export default function StitchCraftNKnitPage() {
               </h2>
               <div className="mt-6 space-y-5 text-base leading-relaxed text-text-secondary sm:text-lg">
                 <p>
-                  Founded and coordinated by Marie Brown, Stitch Craft N Knit
-                  creates a welcoming, safe, and enjoyable space where people can
-                  come together, learn new skills, build confidence, and feel
+                  Founded by Marie Brown, Stitch Craft N Knit creates a
+                  welcoming, safe, and enjoyable space where people can come
+                  together, learn new skills, build confidence, and feel
                   empowered through creativity and shared experiences.
+                  Alongside her is Marcia Brown, an Intermediate Knitter with
+                  endless skills, including reading charts and patterns, as well
+                  as creating intricate cable and lace designs.
                 </p>
                 <p>
                   The group encourages people to step out of isolation and into
@@ -157,10 +160,7 @@ export default function StitchCraftNKnitPage() {
                   that members continue to grow, support one another, and develop
                   new skills in a relaxed and friendly environment.
                 </p>
-                <p>
-                  With the support of Marcia Brown, the group continues to run
-                  smoothly and provide a positive space for all who attend.
-                </p>
+
               </div>
             </div>
           </div>
