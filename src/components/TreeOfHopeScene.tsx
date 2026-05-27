@@ -9,6 +9,7 @@ export default function TreeOfHopeScene() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const controlsApiRef = useRef<{ zoomIn: () => void; zoomOut: () => void; reset: () => void } | null>(null);
   const [renderError, setRenderError] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -203,6 +204,17 @@ export default function TreeOfHopeScene() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!isInfoOpen) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsInfoOpen(false);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isInfoOpen]);
+
   return (
     <div className="relative min-h-[420px] overflow-hidden rounded-2xl border border-border bg-[linear-gradient(180deg,#f8f5e8_0%,#e6efd9_48%,#b7b184_100%)] sm:min-h-[500px] lg:min-h-[560px]">
       <div className="absolute right-4 top-4 z-20 flex items-center gap-2 rounded-full bg-white/72 p-1.5 shadow-lg shadow-black/10 backdrop-blur-md sm:right-5 sm:top-5">
@@ -234,6 +246,73 @@ export default function TreeOfHopeScene() {
           +
         </button>
       </div>
+      <button
+        type="button"
+        aria-expanded={isInfoOpen}
+        aria-controls="tree-of-hope-info"
+        onClick={() => setIsInfoOpen((open) => !open)}
+        className="absolute bottom-4 left-4 z-30 h-9 rounded-full bg-[#20170f] px-4 text-xs font-bold uppercase tracking-[0.12em] text-white shadow-lg shadow-black/15 transition hover:-translate-y-0.5 hover:bg-[#3a2a1d] focus:outline-none focus:ring-2 focus:ring-[#f2c94c] focus:ring-offset-2 focus:ring-offset-[#d7e2c2] sm:bottom-5 sm:left-5"
+      >
+        Read more
+      </button>
+      {isInfoOpen ? (
+        <div
+          id="tree-of-hope-info"
+          role="dialog"
+          aria-labelledby="tree-of-hope-info-title"
+          className="absolute bottom-16 left-4 right-4 z-30 max-h-[calc(100%-5.5rem)] overflow-y-auto rounded-lg border border-[#20170f]/15 bg-white/94 p-4 text-[#20170f] shadow-2xl shadow-black/20 backdrop-blur-md sm:bottom-[4.75rem] sm:left-5 sm:right-auto sm:max-w-[25rem] sm:p-5"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#79522d]">Roots & Wings 2026</p>
+              <h3 id="tree-of-hope-info-title" className="mt-1 text-xl font-bold leading-tight">
+                Tree of Hope Journey
+              </h3>
+            </div>
+            <button
+              type="button"
+              aria-label="Close Tree of Hope information"
+              onClick={() => setIsInfoOpen(false)}
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#f1eadc] text-lg font-bold leading-none text-[#3a2a1d] transition hover:bg-[#20170f] hover:text-white"
+            >
+              x
+            </button>
+          </div>
+
+          <p className="mt-3 text-sm leading-relaxed text-[#463628]">
+            A creative space where children, young people, parents, fathers, and the wider community can
+            share messages, hopes, reflections, and experiences around the living tree at Heavers Farm
+            Primary School.
+          </p>
+
+          <div className="mt-4 grid gap-3 text-sm leading-relaxed text-[#463628]">
+            <div>
+              <p className="font-bold text-[#20170f]">Participants can:</p>
+              <ul className="mt-1 list-disc space-y-1 pl-5">
+                <li>write messages or draw</li>
+                <li>exchange reflections with loved ones</li>
+                <li>leave short voice notes</li>
+              </ul>
+            </div>
+
+            <div className="grid gap-2">
+              <p><span className="font-bold text-[#20170f]">Roots</span> - what has shaped us</p>
+              <p><span className="font-bold text-[#20170f]">The Trunk</span> - what keeps us strong</p>
+              <p><span className="font-bold text-[#20170f]">Wings</span> - what we hope for in the future</p>
+            </div>
+
+            <p>
+              The journey encourages connection, conversation, creativity, and community reflection in a calm
+              and welcoming environment.
+            </p>
+
+            <p>
+              Participants can also contribute to <span className="font-bold text-[#20170f]">Sound of Hope</span>,
+              a QR-linked digital voice archive preserving community stories and reflections beyond the event.
+            </p>
+          </div>
+        </div>
+      ) : null}
       <canvas
         ref={canvasRef}
         aria-label="Tree of Hope 3D scene"
