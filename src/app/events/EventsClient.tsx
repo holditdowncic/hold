@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -26,6 +26,20 @@ export default function EventsClient(props: { events: EventData[]; meta: EventsS
 
   const m = meta || fallbackMeta;
   const activeEvent = events.find((e) => e.slug === selectedEvent);
+
+  useEffect(() => {
+    const openFromHash = () => {
+      const slug = window.location.hash.replace("#", "");
+      if (slug && events.some((event) => event.slug === slug)) {
+        setSelectedEvent(slug);
+        document.getElementById(slug)?.scrollIntoView({ block: "start" });
+      }
+    };
+
+    openFromHash();
+    window.addEventListener("hashchange", openFromHash);
+    return () => window.removeEventListener("hashchange", openFromHash);
+  }, [events]);
 
   return (
     <div className="min-h-screen">
@@ -156,6 +170,7 @@ export default function EventsClient(props: { events: EventData[]; meta: EventsS
             {events.map((event, i) => (
               <motion.div key={event.slug} variants={fadeUp}>
                 <div
+                  id={event.slug}
                   className="group cursor-pointer overflow-hidden rounded-2xl border border-border bg-bg-card transition-all duration-300 hover:border-accent/30 hover:shadow-lg"
                   onClick={() => setSelectedEvent(selectedEvent === event.slug ? null : event.slug)}
                 >
@@ -288,6 +303,11 @@ export default function EventsClient(props: { events: EventData[]; meta: EventsS
                                   sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
                                 />
                               )}
+                              {img.caption && (
+                                <div className="absolute inset-x-0 bottom-0 bg-bg/75 px-2 py-1.5 text-xs font-semibold leading-tight text-text-primary backdrop-blur-sm">
+                                  {img.caption}
+                                </div>
+                              )}
                             </div>
                           ))}
                         </div>
@@ -361,6 +381,11 @@ export default function EventsClient(props: { events: EventData[]; meta: EventsS
                   />
                 )}
               </div>
+              {activeEvent.gallery[lightboxImage]?.caption && (
+                <p className="absolute inset-x-0 bottom-0 bg-bg/80 px-5 py-3 text-center text-sm font-semibold text-text-primary backdrop-blur-sm">
+                  {activeEvent.gallery[lightboxImage]?.caption}
+                </p>
+              )}
               <button
                 className="absolute top-3 right-3 rounded-full border border-border bg-bg-card/80 px-3 py-2 text-sm font-semibold text-text-primary backdrop-blur-sm hover:bg-bg-card"
                 onClick={() => setLightboxImage(null)}
@@ -374,4 +399,3 @@ export default function EventsClient(props: { events: EventData[]; meta: EventsS
     </div>
   );
 }
-

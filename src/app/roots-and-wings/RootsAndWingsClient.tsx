@@ -106,19 +106,19 @@ export default function RootsAndWingsClient({ images }: { images: GalleryImage[]
                 year: "2024", 
                 title: "Fatherhood & Family", 
                 desc: "17+ activities and workshops focused on bonding.",
-                link: "/events/roots-and-wings-2024-fatherhood-family"
+                link: "/events#roots-and-wings-2024-fatherhood-family"
               },
               { 
                 year: "2025", 
                 title: "Roots & Wings Fun Day", 
                 desc: "300+ attendees joined for our biggest celebration yet.",
-                link: "/events/roots-and-wings-2025"
+                link: "/events#roots-and-wings-2025"
               },
               { 
                 year: "2026", 
                 title: "The Vision Expands", 
                 desc: "Scaling our impact across more South London boroughs.",
-                link: "/events/roots-and-wings-fun-day-2026"
+                link: "/events#roots-and-wings-fun-day-2026"
               }
             ].map((item) => (
               <Reveal key={item.year}>
@@ -171,7 +171,10 @@ export default function RootsAndWingsClient({ images }: { images: GalleryImage[]
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
                   sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
                 />
-                <div className="absolute inset-0 bg-black/20 opacity-0 transition-opacity group-hover:opacity-100" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-80 transition-opacity group-hover:opacity-100" />
+                <p className="absolute inset-x-0 bottom-0 px-3 pb-3 text-xs font-semibold leading-snug text-white sm:text-sm">
+                  {image.caption}
+                </p>
               </motion.div>
             ))}
           </motion.div>
@@ -243,6 +246,9 @@ export default function RootsAndWingsClient({ images }: { images: GalleryImage[]
                   sizes="90vw"
                 />
               </div>
+              <p className="absolute inset-x-0 bottom-0 bg-bg/80 px-5 py-3 text-center text-sm font-semibold text-text-primary backdrop-blur-sm">
+                {images[selectedImage].caption}
+              </p>
               <div className="absolute top-4 right-4 flex gap-2">
                 <button
                   className="rounded-full bg-bg/50 p-2 text-text-primary backdrop-blur-md hover:bg-bg/80"

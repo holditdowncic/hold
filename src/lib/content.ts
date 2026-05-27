@@ -123,7 +123,7 @@ export async function getGalleryImages(): Promise<GalleryImage[]> {
 }
 
 export async function getRW2024Images(): Promise<GalleryImage[]> {
-  return (rw2024Json as GalleryImage[]) ?? [];
+  return sortByOrder((rw2024Json as GalleryImage[]) ?? []);
 }
 
 export async function getPrograms(): Promise<Program[]> {

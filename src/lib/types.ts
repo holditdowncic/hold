@@ -221,8 +221,11 @@ export interface Initiative {
 }
 
 export interface EventGalleryItem {
+    id?: string;
     src: string;
     alt: string;
+    caption?: string;
+    sort_order?: number;
     type?: "video" | "image";
 }
 

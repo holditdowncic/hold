@@ -1,205 +1,86 @@
 [
   {
-    "id": "rw2024-1",
-    "src": "/gallery/roots-and-wings-2024/photo1.jpg",
-    "alt": "Young people playing football with mentors at Roots and Wings 2024",
-    "caption": "Team Spirit on the Pitch",
-    "sort_order": 1
-  },
-  {
-    "id": "rw2024-2",
-    "src": "/gallery/roots-and-wings-2024/photo2.jpg",
-    "alt": "Community football coaching session at Roots and Wings 2024",
-    "caption": "Community Coaching",
-    "sort_order": 2
-  },
-  {
-    "id": "rw2024-3",
-    "src": "/gallery/roots-and-wings-2024/photo3.jpg",
-    "alt": "Young goalkeeper taking part in Roots and Wings 2024 football activities",
-    "caption": "Eyes on the Ball",
-    "sort_order": 3
-  },
-  {
-    "id": "rw2024-4",
-    "src": "/gallery/roots-and-wings-2024/photo4.jpg",
-    "alt": "Youth football match in progress at Roots and Wings 2024",
-    "caption": "Future Stars",
-    "sort_order": 4
-  },
-  {
-    "id": "rw2024-5",
-    "src": "/gallery/roots-and-wings-2024/photo5.jpg",
-    "alt": "Young person practising goalkeeping skills at Roots and Wings 2024",
-    "caption": "Safe Hands",
-    "sort_order": 5
-  },
-  {
-    "id": "rw2024-6",
-    "src": "/gallery/roots-and-wings-2024/photo6.jpg",
-    "alt": "Children enjoying bouncy castle activities at Roots and Wings 2024",
-    "caption": "Summer Fun Day",
-    "sort_order": 6
-  },
-  {
-    "id": "rw2024-7",
-    "src": "/gallery/roots-and-wings-2024/photo7.jpg",
-    "alt": "Young woman speaking during Roots and Wings 2024",
-    "caption": "Voices of the Future",
-    "sort_order": 7
-  },
-  {
-    "id": "rw2024-8",
-    "src": "/gallery/roots-and-wings-2024/photo8.jpg",
-    "alt": "Creative arts and painting workshop at Roots and Wings 2024",
-    "caption": "Creative Expressions",
-    "sort_order": 8
-  },
-  {
-    "id": "rw2024-9",
-    "src": "/gallery/roots-and-wings-2024/photo9.jpg",
-    "alt": "Mentors and community members connecting at Roots and Wings 2024",
-    "caption": "Building Bridges",
-    "sort_order": 9
-  },
-  {
-    "id": "rw2024-10",
-    "src": "/gallery/roots-and-wings-2024/photo10.jpg",
-    "alt": "Father's Day celebration display at Roots and Wings 2024",
-    "caption": "Celebrating Fatherhood",
-    "sort_order": 10
-  },
-  {
-    "id": "rw2024-11",
-    "src": "/gallery/roots-and-wings-2024/photo11.jpg",
-    "alt": "Local firefighters meeting families at Roots and Wings 2024",
-    "caption": "Our Local Heroes",
-    "sort_order": 11
-  },
-  {
-    "id": "rw2024-12",
-    "src": "/gallery/roots-and-wings-2024/photo12.jpg",
-    "alt": "London Fire Brigade engine visiting Roots and Wings 2024",
-    "caption": "Community Engagement",
-    "sort_order": 12
-  },
-  {
-    "id": "rw2024-13",
-    "src": "/gallery/roots-and-wings-2024/photo13.jpg",
-    "alt": "Elders playing traditional board games at Roots and Wings 2024",
-    "caption": "Generations Together",
-    "sort_order": 13
-  },
-  {
-    "id": "rw2024-14",
-    "src": "/gallery/roots-and-wings-2024/photo14.jpg",
-    "alt": "Firefighter in the driver seat during the Roots and Wings 2024 visit",
-    "caption": "Inspiring Dreams",
-    "sort_order": 14
-  },
-  {
-    "id": "rw2024-15",
-    "src": "/gallery/roots-and-wings-2024/photo15.jpg",
-    "alt": "Local food vendors serving the community at Roots and Wings 2024",
-    "caption": "Local Flavour",
-    "sort_order": 15
-  },
-  {
-    "id": "rw2024-16",
-    "src": "/gallery/roots-and-wings-2024/photo16.jpg",
-    "alt": "Families enjoying the community atmosphere at Roots and Wings 2024",
-    "caption": "Stronger Together",
-    "sort_order": 16
-  },
-  {
-    "id": "rw2024-17",
-    "src": "/gallery/roots-and-wings-2024/photo17.jpg",
-    "alt": "People sharing laughter and connection at Roots and Wings 2024",
-    "caption": "Community Joy",
-    "sort_order": 17
-  },
-  {
     "id": "1",
     "src": "/media/roots/roots-1.jpeg",
     "alt": "Roots & Wings volunteers group photo",
     "caption": "Our Team",
-    "sort_order": 18
+    "sort_order": 1
   },
   {
     "id": "2",
     "src": "/media/roots/roots-11.jpeg",
     "alt": "Families and children at the fun day activities",
     "caption": "Family Fun Day",
-    "sort_order": 19
+    "sort_order": 2
   },
   {
     "id": "3",
     "src": "/media/roots/roots-3.jpeg",
     "alt": "Young person proudly wearing their medal",
     "caption": "Celebrating Achievement",
-    "sort_order": 20
+    "sort_order": 3
   },
   {
     "id": "4",
     "src": "/media/roots/roots-7.jpeg",
     "alt": "Face painting station at Roots & Wings event",
     "caption": "Creative Activities",
-    "sort_order": 21
+    "sort_order": 4
   },
   {
     "id": "5",
     "src": "/media/image-5.jpeg",
     "alt": "Family enjoying the Roots & Wings Family Fun Day",
     "caption": "Families Together",
-    "sort_order": 22
+    "sort_order": 5
   },
   {
     "id": "6",
     "src": "/media/roots/roots-17.jpeg",
     "alt": "Dancing and celebrating at the community event",
     "caption": "Dance & Performance",
-    "sort_order": 23
+    "sort_order": 6
   },
   {
     "id": "7",
     "src": "/media/image-7.jpeg",
     "alt": "Child proudly showing their medal",
     "caption": "Award Winners",
-    "sort_order": 24
+    "sort_order": 7
   },
   {
     "id": "8",
     "src": "/media/roots/roots-13.jpeg",
     "alt": "Fathers and mentors at outdoor discussion",
     "caption": "Men's Discussion",
-    "sort_order": 25
+    "sort_order": 8
   },
   {
     "id": "9",
     "src": "/media/talkdi/talkdi-1.jpeg",
     "alt": "Talk Di TingZ youth podcast team",
     "caption": "Talk Di TingZ",
-    "sort_order": 26
+    "sort_order": 9
   },
   {
     "id": "10",
     "src": "/media/roots/roots-12.jpeg",
     "alt": "Young people playing football in the park",
     "caption": "Sports & Football",
-    "sort_order": 27
+    "sort_order": 10
   },
   {
     "id": "11",
     "src": "/media/image-3.jpeg",
     "alt": "Community members showcasing children's books",
     "caption": "Community Partners",
-    "sort_order": 28
+    "sort_order": 11
   },
   {
     "id": "12",
     "src": "/media/roots/roots-22.jpeg",
     "alt": "Creative crafts and activities by young people",
     "caption": "Creative Workshops",
-    "sort_order": 29
+    "sort_order": 12
   }
 ]

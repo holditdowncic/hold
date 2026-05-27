@@ -69,23 +69,125 @@
     "date": "Summer 2024",
     "description": "Our 2024 Roots & Wings flagship event was a powerful celebration of fatherhood and family unity. Through high-energy sports, football matches, and community activities, we brought fathers and children together to build resilience and strengthen intergenerational bonds. This event exemplified our mission: empowering families and creating a vibrant, supportive community where every father's role is celebrated and every child is inspired.",
     "gallery": [
-      { "id": "rw2024-1", "src": "/gallery/roots-and-wings-2024/photo1.jpg", "alt": "Young people playing football with mentors" },
-      { "id": "rw2024-2", "src": "/gallery/roots-and-wings-2024/photo2.jpg", "alt": "Community football training session in the park" },
-      { "id": "rw2024-3", "src": "/gallery/roots-and-wings-2024/photo3.jpg", "alt": "Young goalkeeper action shot" },
-      { "id": "rw2024-4", "src": "/gallery/roots-and-wings-2024/photo4.jpg", "alt": "Youth football match in progress" },
-      { "id": "rw2024-5", "src": "/gallery/roots-and-wings-2024/photo5.jpg", "alt": "Practising goalkeeping skills" },
-      { "id": "rw2024-6", "src": "/gallery/roots-and-wings-2024/photo6.jpg", "alt": "Children enjoying the bouncy castle" },
-      { "id": "rw2024-7", "src": "/gallery/roots-and-wings-2024/photo7.jpg", "alt": "Young woman speaking at community event" },
-      { "id": "rw2024-8", "src": "/gallery/roots-and-wings-2024/photo8.jpg", "alt": "Creative arts and painting workshop" },
-      { "id": "rw2024-9", "src": "/gallery/roots-and-wings-2024/photo9.jpg", "alt": "Mentors and community members connecting" },
-      { "id": "rw2024-10", "src": "/gallery/roots-and-wings-2024/photo10.jpg", "alt": "Father's Day celebration display" },
-      { "id": "rw2024-11", "src": "/gallery/roots-and-wings-2024/photo11.jpg", "alt": "Local firefighters meeting the community" },
-      { "id": "rw2024-12", "src": "/gallery/roots-and-wings-2024/photo12.jpg", "alt": "London Fire Brigade engine on site" },
-      { "id": "rw2024-13", "src": "/gallery/roots-and-wings-2024/photo13.jpg", "alt": "Elders playing traditional board games" },
-      { "id": "rw2024-14", "src": "/gallery/roots-and-wings-2024/photo14.jpg", "alt": "Firefighter in the driver seat" },
-      { "id": "rw2024-15", "src": "/gallery/roots-and-wings-2024/photo15.jpg", "alt": "Local food vendors at the event" },
-      { "id": "rw2024-16", "src": "/gallery/roots-and-wings-2024/photo16.jpg", "alt": "Families enjoying the community atmosphere" },
-      { "id": "rw2024-17", "src": "/gallery/roots-and-wings-2024/photo17.jpg", "alt": "Laughter and connection at the park" }
+      {
+        "id": "rw2024-1",
+        "src": "/gallery/roots-and-wings-2024/photo1.jpg",
+        "alt": "Children and mentors playing football at Roots & Wings 2024",
+        "caption": "Football Kickabout",
+        "sort_order": 1
+      },
+      {
+        "id": "rw2024-2",
+        "src": "/gallery/roots-and-wings-2024/photo2.jpg",
+        "alt": "Community football match taking place on the grass at Roots & Wings 2024",
+        "caption": "Community Football Match",
+        "sort_order": 2
+      },
+      {
+        "id": "rw2024-3",
+        "src": "/gallery/roots-and-wings-2024/photo3.jpg",
+        "alt": "Young goalkeeper practising during Roots & Wings 2024 football activities",
+        "caption": "Goalkeeper Practice",
+        "sort_order": 3
+      },
+      {
+        "id": "rw2024-4",
+        "src": "/gallery/roots-and-wings-2024/photo4.jpg",
+        "alt": "Young people playing a football match at Roots & Wings 2024",
+        "caption": "Football Match in Action",
+        "sort_order": 4
+      },
+      {
+        "id": "rw2024-5",
+        "src": "/gallery/roots-and-wings-2024/photo5.jpg",
+        "alt": "Young person running with the ball during Roots & Wings 2024",
+        "caption": "Pitch Time",
+        "sort_order": 5
+      },
+      {
+        "id": "rw2024-6",
+        "src": "/gallery/roots-and-wings-2024/photo6.jpg",
+        "alt": "Children enjoying the inflatable play area at Roots & Wings 2024",
+        "caption": "Bouncy Castle Fun",
+        "sort_order": 6
+      },
+      {
+        "id": "rw2024-7",
+        "src": "/gallery/roots-and-wings-2024/photo7.jpg",
+        "alt": "Speaker holding a microphone at Roots & Wings 2024",
+        "caption": "On the Mic",
+        "sort_order": 7
+      },
+      {
+        "id": "rw2024-8",
+        "src": "/gallery/roots-and-wings-2024/photo8.jpg",
+        "alt": "Child taking part in creative activities at Roots & Wings 2024",
+        "caption": "Creative Activities",
+        "sort_order": 8
+      },
+      {
+        "id": "rw2024-9",
+        "src": "/gallery/roots-and-wings-2024/photo9.jpg",
+        "alt": "Community members being interviewed beside the football pitch at Roots & Wings 2024",
+        "caption": "Community Interviews",
+        "sort_order": 9
+      },
+      {
+        "id": "rw2024-10",
+        "src": "/gallery/roots-and-wings-2024/photo10.jpg",
+        "alt": "Father's Day celebration table display at Roots & Wings 2024",
+        "caption": "Father's Day Celebration Table",
+        "sort_order": 10
+      },
+      {
+        "id": "rw2024-11",
+        "src": "/gallery/roots-and-wings-2024/photo11.jpg",
+        "alt": "Firefighters meeting the community at Roots & Wings 2024",
+        "caption": "Fire Service Visit",
+        "sort_order": 11
+      },
+      {
+        "id": "rw2024-12",
+        "src": "/gallery/roots-and-wings-2024/photo12.jpg",
+        "alt": "London Fire Brigade engine parked near the Roots & Wings 2024 event",
+        "caption": "Fire Engine Visit",
+        "sort_order": 12
+      },
+      {
+        "id": "rw2024-13",
+        "src": "/gallery/roots-and-wings-2024/photo13.jpg",
+        "alt": "Community members playing board games at Roots & Wings 2024",
+        "caption": "Games Across Generations",
+        "sort_order": 13
+      },
+      {
+        "id": "rw2024-14",
+        "src": "/gallery/roots-and-wings-2024/photo14.jpg",
+        "alt": "Firefighter sitting in the fire engine during Roots & Wings 2024",
+        "caption": "Inside the Fire Engine",
+        "sort_order": 14
+      },
+      {
+        "id": "rw2024-15",
+        "src": "/gallery/roots-and-wings-2024/photo15.jpg",
+        "alt": "Food stall serving visitors at Roots & Wings 2024",
+        "caption": "Local Food Stall",
+        "sort_order": 15
+      },
+      {
+        "id": "rw2024-16",
+        "src": "/gallery/roots-and-wings-2024/photo16.jpg",
+        "alt": "Families gathering on the pitch at Roots & Wings 2024",
+        "caption": "Family Fun on the Pitch",
+        "sort_order": 16
+      },
+      {
+        "id": "rw2024-17",
+        "src": "/gallery/roots-and-wings-2024/photo17.jpg",
+        "alt": "Child and adult spending time together in the playground at Roots & Wings 2024",
+        "caption": "Playground Moments",
+        "sort_order": 17
+      }
     ],
     "highlights": [
       "Fatherhood & Family unity celebration",
@@ -97,7 +199,7 @@
     ],
     "id": "rw-2024",
     "image": "/gallery/roots-and-wings-2024/photo1.jpg",
-    "image_alt": "Young people playing football with mentors at Roots & Wings 2024",
+    "image_alt": "Children and mentors playing football at Roots & Wings 2024",
     "impact": [
       "Strengthened father-child bonds",
       "Increased youth confidence through sports",
