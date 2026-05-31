@@ -98,10 +98,10 @@ export default function AboutPage() {
               Impact Across Generations
             </h2>
             <p className="text-base md:text-lg text-text-secondary leading-relaxed mb-4">
-              Last year, over 250 people gathered to celebrate fathers, families, and community leadership. This year, we're building on that tradition.
+              Last year, over 250 people gathered to celebrate fathers, families, and community leadership. This year, we&apos;re building on that tradition.
             </p>
             <p className="text-base md:text-lg text-text-secondary leading-relaxed">
-              When you vote, you're not just nominating a person — you're acknowledging the ripple effect of their influence across three generations: the men before them, the men they are today, and the young people they inspire tomorrow.
+              When you vote, you&apos;re not just nominating a person — you&apos;re acknowledging the ripple effect of their influence across three generations: the men before them, the men they are today, and the young people they inspire tomorrow.
             </p>
           </motion.div>
 
