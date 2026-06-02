@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { saveFormSubmission } from "@/lib/form-submissions";
 
 const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 
@@ -21,6 +22,25 @@ async function sendTelegram(chatId: string, text: string) {
 export async function POST(request: NextRequest) {
     try {
         const data = await request.json();
+
+        if (!data.childName?.trim() || !data.parentName?.trim() || !data.phone?.trim() || !data.email?.trim()) {
+            return NextResponse.json({ error: "Required registration details are missing." }, { status: 400 });
+        }
+
+        const savedSubmission = await saveFormSubmission({
+            formType: "little-roots-registration",
+            sourcePath: "/little-roots",
+            payload: data,
+            request,
+            contactName: data.parentName,
+            contactEmail: data.email,
+            contactPhone: data.phone,
+            subject: "Little Roots registration",
+        });
+
+        if (!savedSubmission.saved) {
+            return NextResponse.json({ error: "Submission storage is temporarily unavailable." }, { status: 503 });
+        }
         
         const messageLines = [
             `🌱 <b>New Little Roots Registration</b>`,

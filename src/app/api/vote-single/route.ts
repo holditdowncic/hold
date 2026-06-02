@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { categoryLabels, VOTING_DEADLINE } from "@/data/categories";
+import { saveFormSubmission } from "@/lib/form-submissions";
 
 const supabaseUrl = process.env.SUPABASE_URL || "https://krqghaxflwyxwcapbedf.supabase.co";
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -86,6 +87,16 @@ export async function POST(request: NextRequest) {
     }
 
     const dbAvailable = await checkSupabaseAvailable();
+    const fullSubmissionPayload = {
+      email: email.toLowerCase(),
+      categoryKey,
+      categoryLabel: categoryLabels[categoryKey],
+      nomineeName: nomineeName.trim(),
+      nomineeCompany: nomineeCompany?.trim() || "",
+      nomineeReason: nomineeReason?.trim() || "",
+      reason: reason || "",
+      submittedAt: new Date().toISOString(),
+    };
 
     if (dbAvailable) {
       const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -118,6 +129,22 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      const savedSubmission = await saveFormSubmission({
+        formType: "roots-wings-vote-single",
+        sourcePath: "/vote/single",
+        payload: fullSubmissionPayload,
+        request,
+        contactEmail: email.toLowerCase(),
+        subject: "Roots & Wings single-category vote",
+      });
+
+      if (!savedSubmission.saved) {
+        return NextResponse.json(
+          { error: "Vote storage is temporarily unavailable. Please try again shortly." },
+          { status: 503 }
+        );
+      }
+
       // Record voter verification
       const { error: verificationError } = await supabase
         .from("voter_verifications")
@@ -130,6 +157,10 @@ export async function POST(request: NextRequest) {
 
       if (verificationError) {
         console.error("Verification error:", verificationError);
+        return NextResponse.json(
+          { error: "Could not save voter verification. Please try again." },
+          { status: 500 }
+        );
       }
 
       // Save the single vote (only columns that exist in the schema)
@@ -143,9 +174,31 @@ export async function POST(request: NextRequest) {
 
       if (voteError) {
         console.error("Vote insert error:", voteError);
+        return NextResponse.json(
+          { error: "Could not save vote. Please try again." },
+          { status: 500 }
+        );
       }
     } else {
-      console.warn("Supabase unreachable, recording single vote via Telegram only");
+      console.warn("Supabase votes table unreachable, recording single vote payload to submission storage");
+      const savedSubmission = await saveFormSubmission({
+        formType: "roots-wings-vote-single",
+        sourcePath: "/vote/single",
+        payload: {
+          ...fullSubmissionPayload,
+          dbOffline: true,
+        },
+        request,
+        contactEmail: email.toLowerCase(),
+        subject: "Roots & Wings single-category vote",
+      });
+
+      if (!savedSubmission.saved) {
+        return NextResponse.json(
+          { error: "Vote storage is temporarily unavailable. Please try again shortly." },
+          { status: 503 }
+        );
+      }
     }
 
     // Always send Telegram notification (serves as backup when DB is down)

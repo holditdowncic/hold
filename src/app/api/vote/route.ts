@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { categories, categoryLabels, VOTING_DEADLINE } from "@/data/categories";
+import { saveFormSubmission } from "@/lib/form-submissions";
 
 
 const supabaseUrl = process.env.SUPABASE_URL || 'https://krqghaxflwyxwcapbedf.supabase.co';
@@ -177,6 +178,14 @@ export async function POST(request: NextRequest) {
 
     // Check if Supabase is reachable
     const dbAvailable = await checkSupabaseAvailable();
+    const fullSubmissionPayload = {
+      email: email.toLowerCase(),
+      votes,
+      companies: companies || {},
+      categoryReasons: categoryReasons || {},
+      reason: reason || "",
+      submittedAt: new Date().toISOString(),
+    };
 
     if (dbAvailable) {
       const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -209,6 +218,22 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      const savedSubmission = await saveFormSubmission({
+        formType: "roots-wings-vote-all-categories",
+        sourcePath: "/vote",
+        payload: fullSubmissionPayload,
+        request,
+        contactEmail: email.toLowerCase(),
+        subject: "Roots & Wings vote - all categories",
+      });
+
+      if (!savedSubmission.saved) {
+        return NextResponse.json(
+          { error: "Vote storage is temporarily unavailable. Please try again shortly." },
+          { status: 503 }
+        );
+      }
+
       // Create voter verification record
       const { error: verificationError } = await supabase
         .from("voter_verifications")
@@ -221,6 +246,10 @@ export async function POST(request: NextRequest) {
 
       if (verificationError) {
         console.error("Verification error:", verificationError);
+        return NextResponse.json(
+          { error: "Could not save voter verification. Please try again." },
+          { status: 500 }
+        );
       }
 
       // Save votes (only columns that exist in the schema)
@@ -238,6 +267,10 @@ export async function POST(request: NextRequest) {
 
       if (voteError) {
         console.error("Vote insert error:", voteError);
+        return NextResponse.json(
+          { error: "Could not save votes. Please try again." },
+          { status: 500 }
+        );
       }
 
       // Build summary for webhook
@@ -252,8 +285,27 @@ export async function POST(request: NextRequest) {
         console.error("Notification error:", notifyErr);
       }
     } else {
-      // DB is offline — send vote to Telegram as the record
-      console.warn("Supabase unreachable, recording vote via Telegram only");
+      // DB is offline, so persist the full payload to server storage before notifying.
+      console.warn("Supabase votes table unreachable, recording vote payload to submission storage");
+      const savedSubmission = await saveFormSubmission({
+        formType: "roots-wings-vote-all-categories",
+        sourcePath: "/vote",
+        payload: {
+          ...fullSubmissionPayload,
+          dbOffline: true,
+        },
+        request,
+        contactEmail: email.toLowerCase(),
+        subject: "Roots & Wings vote - all categories",
+      });
+
+      if (!savedSubmission.saved) {
+        return NextResponse.json(
+          { error: "Vote storage is temporarily unavailable. Please try again shortly." },
+          { status: 503 }
+        );
+      }
+
       const msg = buildTelegramMessage({ email, votes, companies, categoryReasons, reason, dbOffline: true });
       await sendTelegramNotification(msg);
       await notifyWebhook({ email, votes, companies, categoryReasons, reason });

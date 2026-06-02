@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { saveFormSubmission } from "@/lib/form-submissions";
 
 const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 
@@ -24,6 +25,31 @@ async function sendTelegram(chatId: string, text: string) {
 export async function POST(request: NextRequest) {
     try {
         const data = await request.json();
+
+        if (!data.childName?.trim() || !data.parentName?.trim() || !data.phone?.trim() || !data.email?.trim()) {
+            return NextResponse.json(
+                { error: "Required consent form details are missing." },
+                { status: 400 }
+            );
+        }
+
+        const savedSubmission = await saveFormSubmission({
+            formType: "biggz-consent",
+            sourcePath: "/biggz-consent",
+            payload: data,
+            request,
+            contactName: data.parentName,
+            contactEmail: data.email,
+            contactPhone: data.phone,
+            subject: "Biggz Summer Fun consent form",
+        });
+
+        if (!savedSubmission.saved) {
+            return NextResponse.json(
+                { error: "Submission storage is temporarily unavailable." },
+                { status: 503 }
+            );
+        }
         
         // Build readable message for Telegram
         const messageLines = [

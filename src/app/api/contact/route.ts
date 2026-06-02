@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { saveFormSubmission } from "@/lib/form-submissions";
 
 const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 
@@ -38,17 +39,43 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        const trimmedSubmission = {
+            name: name.trim(),
+            email: email.trim().toLowerCase(),
+            phone: phone?.trim() || "",
+            subject: subject.trim(),
+            message: message.trim(),
+        };
+
+        const savedSubmission = await saveFormSubmission({
+            formType: "contact",
+            sourcePath: "/contact",
+            payload: trimmedSubmission,
+            request,
+            contactName: trimmedSubmission.name,
+            contactEmail: trimmedSubmission.email,
+            contactPhone: trimmedSubmission.phone,
+            subject: trimmedSubmission.subject,
+        });
+
+        if (!savedSubmission.saved) {
+            return NextResponse.json(
+                { error: "Contact form is temporarily unavailable. Please try again shortly." },
+                { status: 503 }
+            );
+        }
+
         // Build Telegram message
         const telegramMessage = [
             `📩 <b>New Contact Form Submission</b>`,
             ``,
-            `<b>Name:</b> ${name.trim()}`,
-            `<b>Email:</b> ${email.trim()}`,
-            phone?.trim() ? `<b>Phone:</b> ${phone.trim()}` : null,
-            `<b>Subject:</b> ${subject.trim()}`,
+            `<b>Name:</b> ${trimmedSubmission.name}`,
+            `<b>Email:</b> ${trimmedSubmission.email}`,
+            trimmedSubmission.phone ? `<b>Phone:</b> ${trimmedSubmission.phone}` : null,
+            `<b>Subject:</b> ${trimmedSubmission.subject}`,
             ``,
             `<b>Message:</b>`,
-            message.trim(),
+            trimmedSubmission.message,
             ``,
             `—`,
             `<i>Sent from holditdown.uk contact form</i>`,
@@ -62,13 +89,9 @@ export async function POST(request: NextRequest) {
 
         if (adminIds.length === 0) {
             console.error("No TELEGRAM_ADMIN_IDS configured");
-            return NextResponse.json(
-                { error: "Contact form is temporarily unavailable." },
-                { status: 503 }
-            );
+        } else {
+            await Promise.all(adminIds.map((id) => sendTelegram(id, telegramMessage)));
         }
-
-        await Promise.all(adminIds.map((id) => sendTelegram(id, telegramMessage)));
 
         // Also send to OpenClaw bot
         try {

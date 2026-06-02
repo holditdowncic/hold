@@ -234,6 +234,32 @@ CREATE POLICY "Service read donations" ON donations FOR SELECT USING (false);
 CREATE POLICY "Service insert donations" ON donations FOR INSERT WITH CHECK (false);
 CREATE POLICY "Service update donations" ON donations FOR UPDATE USING (false);
 
+-- Durable backup for all website form submissions before Telegram notification.
+-- This protects contact details and submitted payloads if a Telegram chat is reset.
+CREATE TABLE IF NOT EXISTS form_submissions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  form_type TEXT NOT NULL,
+  source_path TEXT NOT NULL DEFAULT '',
+  contact_name TEXT,
+  contact_email TEXT,
+  contact_phone TEXT,
+  subject TEXT,
+  payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+  ip_address TEXT NOT NULL DEFAULT '',
+  user_agent TEXT NOT NULL DEFAULT '',
+  storage_object_path TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE form_submissions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Service read form_submissions" ON form_submissions FOR SELECT USING (false);
+CREATE POLICY "Service insert form_submissions" ON form_submissions FOR INSERT WITH CHECK (false);
+
+-- Private fallback bucket used by the website if the table has not been applied yet.
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('form-submissions', 'form-submissions', false)
+ON CONFLICT (id) DO NOTHING;
+
 -- Insert voting categories for Roots & Wings 2026
 INSERT INTO voting_categories (key, title, description, sort_order) VALUES
   ('community_father', 'Community Father Figure', 'A father who makes a positive impact in the community', 1),
