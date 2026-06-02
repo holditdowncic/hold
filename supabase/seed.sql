@@ -101,6 +101,7 @@ INSERT INTO site_content (section, content) VALUES ('programs', '{
   "flagship_title": "Roots & Wings",
   "flagship_desc": "A celebration of fatherhood, family, and intergenerational connection. Roots & Wings brings fathers, children, and families together through sports, workshops, and shared experiences that strengthen bonds and create lasting memories.",
   "flagship_desc2": "It''s about planting roots of love and giving wings of confidence to future generations. The programme now forms the foundation for longer-term intergenerational and male mentorship work across Croydon.",
+  "flagship_footer": "Roots & Wings is in its second year of funding, supported by The National Lottery Community Fund.",
   "flagship_image": "/media/roots/roots-2.jpeg",
   "flagship_image_alt": "Families and children at the Roots & Wings Family Fun Day",
   "flagship_tags": ["Fatherhood", "Intergenerational", "Family Unity", "Wellbeing"]

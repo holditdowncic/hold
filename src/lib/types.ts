@@ -137,6 +137,7 @@ export interface ProgramsSectionContent {
     flagship_title: string;
     flagship_desc: string;
     flagship_desc2: string;
+    flagship_footer?: string;
     flagship_image: string;
     flagship_image_alt: string;
     flagship_tags: string[];

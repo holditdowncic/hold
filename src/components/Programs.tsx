@@ -49,6 +49,7 @@ export default function Programs({ programs, initiatives, meta }: ProgramsProps)
   const flagshipTitle = meta?.flagship_title ?? "Roots & Wings";
   const flagshipDesc = meta?.flagship_desc ?? "A celebration of fatherhood, family, and intergenerational connection. Roots & Wings brings fathers, children, and families together through sports, workshops, and shared experiences that strengthen bonds and create lasting memories.";
   const flagshipDesc2 = meta?.flagship_desc2 ?? "It\u2019s about planting roots of love and giving wings of confidence to future generations. The programme now forms the foundation for longer-term intergenerational and male mentorship work across Croydon.";
+  const flagshipFooter = meta?.flagship_footer ?? "Roots & Wings is in its second year of funding, supported by The National Lottery Community Fund.";
   const flagshipImage = meta?.flagship_image ?? "/media/roots/roots-23.jpeg";
   const flagshipImageAlt = meta?.flagship_image_alt ?? "Families and children at the Roots & Wings Family Fun Day";
   const flagshipTags = meta?.flagship_tags ?? ["Fatherhood", "Intergenerational", "Family Unity", "Wellbeing"];
@@ -132,6 +133,11 @@ export default function Programs({ programs, initiatives, meta }: ProgramsProps)
                     ))}
                   </div>
                 </div>
+                {flagshipFooter && (
+                  <p className="mt-6 border-t border-border pt-4 text-xs font-medium leading-relaxed text-text-tertiary sm:text-sm">
+                    {flagshipFooter}
+                  </p>
+                )}
               </div>
             </div>
           </TiltCard>
