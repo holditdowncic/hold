@@ -7,14 +7,14 @@ import Footer from "@/components/Footer";
 export const metadata: Metadata = {
   title: "Where Are The Men",
   description:
-    "Where Are The Men is a Hold It Down CIC campaign calling men, fathers, mentors and role models to show up for young people, families and community.",
+    "Where Are The Men is an ongoing Hold It Down CIC community campaign creating spaces for men and boys to connect, reflect and grow together.",
   alternates: {
     canonical: "/where-are-the-men",
   },
   openGraph: {
     title: "Where Are The Men | Hold It Down CIC",
     description:
-      "A community call to men, fathers, mentors and role models to be present, visible and active in the lives of young people.",
+      "An ongoing community campaign creating opportunities for men and boys to connect, learn, reflect and grow together.",
     url: "/where-are-the-men",
     images: [
       {
@@ -29,26 +29,25 @@ export const metadata: Metadata = {
 
 const commitments = [
   {
-    title: "Show Up",
-    text: "Be present in the rooms, conversations and moments where young people need consistent adults around them.",
+    title: "Presence",
+    text: "Not just physically, but emotionally, relationally, and in the moments where presence matters most.",
   },
   {
-    title: "Speak Life",
-    text: "Use lived experience to guide, encourage and challenge the next generation with honesty and care.",
+    title: "Responsibility",
+    text: "Exploring how men choose to show up for themselves, their families, and their communities.",
   },
   {
-    title: "Stand Together",
-    text: "Build a visible network of men who support families, each other and the wider community.",
+    title: "Connection",
+    text: "Creating opportunities for men and boys to be seen, heard, supported, challenged and encouraged.",
   },
 ];
 
-const focusAreas = [
-  "Positive male role models for boys and young men",
-  "Fatherhood, family connection and intergenerational support",
-  "Safe spaces for honest conversations about identity, pressure and responsibility",
-  "Mentoring, encouragement and practical community leadership",
-  "Celebrating the men who are already doing the work quietly",
-  "Inviting more men to step forward and be part of the change",
+const welcomeList = [
+  "Men and boys",
+  "Fathers and sons",
+  "Mentors and mentees",
+  "Advocates and community members",
+  "Anyone committed to building stronger families and communities",
 ];
 
 export default function WhereAreTheMenPage() {
@@ -62,29 +61,30 @@ export default function WhereAreTheMenPage() {
           <div className="relative mx-auto grid max-w-[1200px] gap-10 px-5 pb-14 sm:px-6 md:grid-cols-[0.95fr_1.05fr] md:items-center md:pb-20">
             <div>
               <p className="mb-4 inline-flex rounded-full border border-accent-warm/25 bg-accent-warm/10 px-4 py-2 text-sm font-semibold text-text-primary">
-                A community call to action
+                An ongoing community campaign by Hold It Down CIC
               </p>
               <h1 className="font-[family-name:var(--font-heading)] text-[clamp(3rem,8vw,6.75rem)] font-bold leading-[0.92] text-text-primary">
                 Where Are The Men?
               </h1>
               <p className="mt-6 max-w-[650px] text-lg leading-relaxed text-text-secondary sm:text-xl">
-                A Hold It Down CIC campaign calling men, fathers, mentors,
-                uncles, brothers and role models to be present, visible and
-                active in the lives of young people and families.
+                Launched in Brixton on 10 April, Where Are The Men? began with
+                a simple question about presence, responsibility, connection,
+                and how we choose to show up for ourselves, our families, and
+                our communities.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/contact"
                   className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-gradient-to-r from-accent to-accent-warm px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-lg"
                 >
-                  Get involved
+                  Join the conversation
                 </Link>
-                <Link
-                  href="/vote"
+                <a
+                  href="#why-it-matters"
                   className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-border bg-bg-card px-6 py-3 text-sm font-semibold text-text-primary transition hover:-translate-y-0.5 hover:border-border-hover"
                 >
-                  Celebrate a role model
-                </Link>
+                  Why it matters
+                </a>
               </div>
             </div>
 
@@ -136,91 +136,134 @@ export default function WhereAreTheMenPage() {
 
             <div>
               <p className="mb-3 text-sm font-semibold uppercase text-text-primary">
-                Why it matters
+                How it began
               </p>
               <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.35rem)] font-bold leading-tight">
-                Young people need to see men showing up with consistency.
+                Where are the men?
               </h2>
               <div className="mt-6 space-y-5 text-base leading-relaxed text-text-secondary sm:text-lg">
                 <p>
-                  Too often, positive men are present in the community but not
-                  always visible. Where Are The Men turns that question into an
-                  invitation: step forward, connect, mentor, listen and lead by
-                  example.
+                  Not just physically. But emotionally, relationally, and in the
+                  moments where presence matters most.
                 </p>
                 <p>
-                  This work is about presence before performance. It is about
-                  men standing alongside young people and families in practical,
-                  grounded ways that build trust over time.
+                  As the conversation grew, it became clear that this question
+                  is about more than attendance. It is about engagement,
+                  responsibility, connection, and how we choose to show up for
+                  ourselves, our families, and our communities.
+                </p>
+                <p>
+                  Through public reflection experiences, community
+                  conversations, and weekly gatherings, the campaign creates
+                  opportunities for men and boys to connect, learn, reflect, and
+                  grow together.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="bg-[#171321] px-5 py-14 text-white sm:px-6 md:py-20">
+        <section id="why-it-matters" className="bg-[#171321] px-5 py-14 text-white sm:px-6 md:py-20">
           <div className="mx-auto grid max-w-[1200px] gap-8 md:grid-cols-[0.85fr_1.15fr] md:items-start">
             <div>
               <p className="mb-3 text-sm font-semibold uppercase text-white/75">
-                The focus
+                Why it matters
               </p>
               <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.25rem)] font-bold leading-tight">
-                Presence. Responsibility. Brotherhood. Community.
+                Every child is shaped by example.
               </h2>
-              <p className="mt-5 max-w-[520px] leading-relaxed text-white/72">
-                The campaign creates space for men to be recognised, challenged
-                and connected to meaningful action.
+              <p className="mt-5 max-w-[560px] leading-relaxed text-white/72">
+                Every relationship is shaped by presence. Every community is
+                shaped by participation.
               </p>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              {focusAreas.map((item) => (
-                <div
-                  key={item}
-                  className="rounded-2xl border border-white/12 bg-white/8 p-5 text-sm leading-relaxed text-white/85"
-                >
-                  <span className="mb-4 block h-2 w-12 rounded-full bg-accent-warm" />
-                  {item}
-                </div>
-              ))}
+            <div className="space-y-5 rounded-2xl border border-white/12 bg-white/8 p-6 text-base leading-relaxed text-white/82 sm:text-lg md:p-8">
+              <p>
+                When men actively engage as fathers, sons, mentors, partners,
+                advocates, and community members, their presence can have a
+                lasting impact on the lives of others.
+              </p>
+              <p>
+                This campaign is not about blame. It is about creating spaces
+                where men and boys can be seen, heard, supported, challenged,
+                and encouraged to play an active role in the lives of those
+                around them.
+              </p>
             </div>
           </div>
         </section>
 
         <section className="px-5 py-14 sm:px-6 md:py-20">
-          <div className="mx-auto grid max-w-[1100px] gap-6 md:grid-cols-[1fr_0.9fr] md:items-center">
+          <div className="mx-auto grid max-w-[1100px] gap-8 md:grid-cols-[1fr_0.9fr] md:items-start">
             <div>
               <p className="mb-3 text-sm font-semibold uppercase text-text-primary">
-                Take part
+                Join the conversation
               </p>
               <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.25rem)] font-bold leading-tight">
-                If you are a man who cares about the next generation, there is
-                room for you here.
+                We welcome anyone committed to building stronger families and
+                communities.
               </h2>
-              <p className="mt-5 max-w-[700px] text-lg leading-relaxed text-text-secondary">
-                Join the conversation, volunteer your time, nominate positive
-                role models, or help us build spaces where boys and young men
-                can feel seen, supported and guided.
-              </p>
+              <div className="mt-5 space-y-5 text-lg leading-relaxed text-text-secondary">
+                <p>
+                  Following successful public engagement events in Brixton and
+                  Croydon, the campaign continues through regular community
+                  gatherings and public reflection experiences.
+                </p>
+                <p>
+                  Together, we explore what it means to show up with purpose,
+                  responsibility, and presence.
+                </p>
+              </div>
             </div>
             <div className="rounded-2xl border border-border bg-bg-card p-6 md:p-8">
-              <h3 className="font-[family-name:var(--font-heading)] text-2xl font-semibold">
-                Start with one step
+              <h3 className="font-[family-name:var(--font-heading)] text-2xl font-semibold text-text-primary">
+                This space is for
               </h3>
-              <div className="mt-6 grid gap-3">
-                <Link
-                  href="/contact"
-                  className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5"
-                >
-                  Contact Hold It Down
-                </Link>
-                <Link
-                  href="/events"
-                  className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-border bg-bg-elevated px-6 py-3 text-sm font-semibold text-text-primary transition hover:-translate-y-0.5 hover:border-border-hover"
-                >
-                  View upcoming events
-                </Link>
-              </div>
+              <ul className="mt-6 space-y-3">
+                {welcomeList.map((item) => (
+                  <li key={item} className="flex gap-3 text-text-secondary">
+                    <span className="mt-2 h-2 w-2 flex-none rounded-full bg-accent-warm" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section className="px-5 pb-16 sm:px-6 md:pb-24">
+          <div className="mx-auto max-w-[980px] rounded-[1.25rem] border border-border bg-bg-card p-7 text-center sm:p-10 md:p-12">
+            <p className="mb-3 text-sm font-semibold uppercase text-text-primary">
+              Looking forward
+            </p>
+            <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.25rem)] font-bold leading-tight text-text-primary">
+              What becomes possible when men show up?
+            </h2>
+            <div className="mx-auto mt-6 max-w-[760px] space-y-5 text-base leading-relaxed text-text-secondary sm:text-lg">
+              <p>
+                The goal is not simply to ask where the men are. The goal is to
+                create spaces where men and boys can discover where they
+                belong, how they can contribute, and what becomes possible when
+                they choose to show up consistently for themselves and others.
+              </p>
+              <p className="font-semibold text-text-primary">
+                The question remains: Where are the men?
+              </p>
+            </div>
+            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+              <Link
+                href="/contact"
+                className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5"
+              >
+                Contact Hold It Down
+              </Link>
+              <Link
+                href="/events"
+                className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-border bg-bg-elevated px-6 py-3 text-sm font-semibold text-text-primary transition hover:-translate-y-0.5 hover:border-border-hover"
+              >
+                View upcoming events
+              </Link>
             </div>
           </div>
         </section>
