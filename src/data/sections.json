@@ -189,6 +189,12 @@
         "isPage": true
       },
       {
+        "label": "Where Are The Men",
+        "shortLabel": "Men",
+        "href": "/where-are-the-men",
+        "isPage": true
+      },
+      {
         "label": "Events",
         "href": "/events",
         "isPage": true
