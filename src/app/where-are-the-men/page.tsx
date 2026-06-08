@@ -232,13 +232,56 @@ export default function WhereAreTheMenPage() {
           </div>
         </section>
 
+        <section className="border-y border-border bg-bg-elevated px-5 py-14 sm:px-6 md:py-20">
+          <div className="mx-auto grid max-w-[1100px] gap-8 md:grid-cols-[0.85fr_1.15fr] md:items-start">
+            <div>
+              <p className="mb-3 text-sm font-semibold uppercase text-text-primary">
+                Share your voice
+              </p>
+              <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.25rem)] font-bold leading-tight">
+                Tell us what this question means to you.
+              </h2>
+              <p className="mt-5 text-lg leading-relaxed text-text-secondary">
+                Where Are The Men? was never intended to provide all the
+                answers. It was created to start a conversation.
+              </p>
+            </div>
+
+            <div className="space-y-5 rounded-2xl border border-border bg-bg-card p-6 text-base leading-relaxed text-text-secondary sm:text-lg md:p-8">
+              <p>
+                We recognise that everyone experiences this question
+                differently. For some, it may bring thoughts of fatherhood. For
+                others, mentorship, relationships, community, responsibility,
+                leadership, or personal reflection.
+              </p>
+              <p>
+                We invite you to share your thoughts, experiences, and
+                reflections. You may wish to answer one simple question:
+                <span className="mt-3 block font-semibold text-text-primary">
+                  Where are the men?
+                </span>
+              </p>
+              <p>
+                Or perhaps an even deeper one:
+                <span className="mt-3 block font-semibold text-text-primary">
+                  What becomes possible when men and boys show up?
+                </span>
+              </p>
+              <p className="font-semibold text-text-primary">
+                Your voice matters. Your experiences matter. Together, those
+                voices help shape the future of this campaign.
+              </p>
+            </div>
+          </div>
+        </section>
+
         <section className="px-5 pb-16 sm:px-6 md:pb-24">
           <div className="mx-auto max-w-[980px] rounded-[1.25rem] border border-border bg-bg-card p-7 text-center sm:p-10 md:p-12">
             <p className="mb-3 text-sm font-semibold uppercase text-text-primary">
               Looking forward
             </p>
             <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.25rem)] font-bold leading-tight text-text-primary">
-              What becomes possible when men show up?
+              Creating spaces where men and boys can discover where they belong.
             </h2>
             <div className="mx-auto mt-6 max-w-[760px] space-y-5 text-base leading-relaxed text-text-secondary sm:text-lg">
               <p>
