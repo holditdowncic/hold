@@ -4,9 +4,9 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-const campaignImage = "/media/where-are-the-men/croydon-community-conversation.jpg";
+const campaignImage = "/media/where-are-the-men/croydon-community-collage.jpg";
 const campaignImageAlt =
-  "Hold It Down team speaking with a community member during the Where Are The Men campaign in Croydon";
+  "Hold It Down team speaking with community members during the Where Are The Men campaign in Croydon";
 
 export const metadata: Metadata = {
   title: "Where Are The Men",
@@ -23,8 +23,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: campaignImage,
-        width: 960,
-        height: 1280,
+        width: 1600,
+        height: 900,
         alt: campaignImageAlt,
       },
     ],
@@ -81,7 +81,7 @@ export default function WhereAreTheMenPage() {
             </div>
 
             <div className="overflow-hidden rounded-[1.25rem] border border-border bg-bg-card shadow-[0_24px_80px_rgba(20,16,32,0.18)]">
-              <div className="relative aspect-[4/3]">
+              <div className="relative aspect-[16/10]">
                 <Image
                   src={campaignImage}
                   alt={campaignImageAlt}
