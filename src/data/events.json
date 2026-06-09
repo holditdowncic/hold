@@ -1,5 +1,35 @@
 [
   {
+    "badge": "Upcoming: 12 June",
+    "date": "Friday 12 June 2026, 4-7pm",
+    "description": "A public Where Are The Men? community conversation outside Marks & Spencer Croydon. Hold It Down CIC will be inviting people to reflect on what the question means to them and share their voice through the campaign form.",
+    "gallery": [
+      {
+        "alt": "Hold It Down community gathering with families and young people",
+        "src": "/media/roots/community-gathering.jpg"
+      }
+    ],
+    "highlights": [
+      "Public community conversation",
+      "Share Your Voice QR code",
+      "Reflections on men, boys, family, and community",
+      "Open invitation for local residents"
+    ],
+    "id": "where-are-the-men-croydon-12-june-2026",
+    "image": "/media/roots/community-gathering.jpg",
+    "image_alt": "Hold It Down community gathering with families and young people",
+    "impact": [
+      "Community voice",
+      "Men and boys engagement",
+      "Public reflection",
+      "Local connection"
+    ],
+    "location": "Outside Marks & Spencer, 116 N End, Croydon CR9 1SH",
+    "slug": "where-are-the-men-croydon-12-june-2026",
+    "sort_order": -1,
+    "title": "Where Are The Men? Croydon Community Conversation"
+  },
+  {
     "badge": "300+ Attendees",
     "date": "14 June 2025",
     "description": "Approximately 300 people attended, including around 100 fathers and male carers, 100 children and young people aged 5–24, and a wider group of mothers, grandparents, volunteers and community members. The day was filled with father-and-child races, football challenges, dance performances, spoken-word acts, and facilitated men's discussions on vulnerability and love.",

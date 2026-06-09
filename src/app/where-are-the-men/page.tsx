@@ -35,6 +35,8 @@ const welcomeList = [
   "Anyone committed to building stronger families and communities",
 ];
 
+const shareYourVoiceUrl = "https://form.jotform.com/261591082336053";
+
 export default function WhereAreTheMenPage() {
   return (
     <div className="min-h-screen bg-bg text-text-primary">
@@ -57,12 +59,14 @@ export default function WhereAreTheMenPage() {
                 community, and the power of showing up.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href="/contact"
+                <a
+                  href={shareYourVoiceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-gradient-to-r from-accent to-accent-warm px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-lg"
                 >
                   Join the conversation
-                </Link>
+                </a>
                 <a
                   href="#why-it-matters"
                   className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-border bg-bg-card px-6 py-3 text-sm font-semibold text-text-primary transition hover:-translate-y-0.5 hover:border-border-hover"
@@ -194,6 +198,50 @@ export default function WhereAreTheMenPage() {
           </div>
         </section>
 
+        <section id="next-event" className="bg-[#171321] px-5 py-14 text-white sm:px-6 md:py-20">
+          <div className="mx-auto grid max-w-[1100px] gap-8 md:grid-cols-[0.9fr_1.1fr] md:items-center">
+            <div>
+              <p className="mb-3 text-sm font-semibold uppercase text-white/75">
+                Next community conversation
+              </p>
+              <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.25rem)] font-bold leading-tight">
+                Friday 12 June, outside Marks & Spencer Croydon.
+              </h2>
+              <p className="mt-5 max-w-[620px] text-lg leading-relaxed text-white/75">
+                Join us from 4pm to 7pm at 116 N End, Croydon CR9 1SH as we
+                continue the Where Are The Men? conversation in the community.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-white/12 bg-white/8 p-6 text-base leading-relaxed text-white/82 sm:text-lg md:p-8">
+              <p className="font-semibold text-white">
+                We will be inviting people to share their thoughts, reflections,
+                and experiences.
+              </p>
+              <p className="mt-4">
+                The event QR code should link directly to the Share Your Voice
+                form so people can respond quickly while they are there.
+              </p>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <a
+                  href={shareYourVoiceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-accent-warm px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5"
+                >
+                  Share your voice
+                </a>
+                <Link
+                  href="/events#where-are-the-men-croydon-12-june-2026"
+                  className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-white/18 bg-white/8 px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/12"
+                >
+                  View event details
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="border-y border-border bg-bg-elevated px-5 py-14 sm:px-6 md:py-20">
           <div className="mx-auto grid max-w-[1100px] gap-8 md:grid-cols-[0.85fr_1.15fr] md:items-start">
             <div>
@@ -228,7 +276,7 @@ export default function WhereAreTheMenPage() {
                 voices help shape the future of this campaign.
               </p>
               <a
-                href="https://form.jotform.com/261591082336053"
+                href={shareYourVoiceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5"
@@ -256,7 +304,7 @@ export default function WhereAreTheMenPage() {
             </div>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <a
-                href="https://form.jotform.com/261591082336053"
+                href={shareYourVoiceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5"
@@ -264,10 +312,10 @@ export default function WhereAreTheMenPage() {
                 Share your voice
               </a>
               <Link
-                href="/events"
+                href="/events#where-are-the-men-croydon-12-june-2026"
                 className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-border bg-bg-elevated px-6 py-3 text-sm font-semibold text-text-primary transition hover:-translate-y-0.5 hover:border-border-hover"
               >
-                View upcoming events
+                View upcoming event
               </Link>
             </div>
           </div>
