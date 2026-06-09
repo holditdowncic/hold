@@ -27,21 +27,6 @@ export const metadata: Metadata = {
   },
 };
 
-const commitments = [
-  {
-    title: "Presence",
-    text: "Not just physically, but emotionally, relationally, and in the moments where presence matters most.",
-  },
-  {
-    title: "Responsibility",
-    text: "Exploring how men choose to show up for themselves, their families, and their communities.",
-  },
-  {
-    title: "Connection",
-    text: "Creating opportunities for men and boys to be seen, heard, supported, challenged and encouraged.",
-  },
-];
-
 const welcomeList = [
   "Men and boys",
   "Fathers and sons",
@@ -67,10 +52,9 @@ export default function WhereAreTheMenPage() {
                 Where Are The Men?
               </h1>
               <p className="mt-6 max-w-[650px] text-lg leading-relaxed text-text-secondary sm:text-xl">
-                Launched in Brixton on 10 April, Where Are The Men? began with
-                a simple question about presence, responsibility, connection,
-                and how we choose to show up for ourselves, our families, and
-                our communities.
+                Launched in Brixton on 10 April, this ongoing campaign creates
+                space for honest conversation about men, boys, family,
+                community, and the power of showing up.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
@@ -104,21 +88,6 @@ export default function WhereAreTheMenPage() {
           </div>
         </section>
 
-        <section className="border-y border-border bg-bg-elevated px-5 py-10 sm:px-6">
-          <div className="mx-auto grid max-w-[1200px] gap-4 md:grid-cols-3">
-            {commitments.map((item) => (
-              <article key={item.title} className="rounded-2xl border border-border bg-bg-card p-6">
-                <h2 className="font-[family-name:var(--font-heading)] text-2xl font-semibold">
-                  {item.title}
-                </h2>
-                <p className="mt-3 leading-relaxed text-text-secondary">
-                  {item.text}
-                </p>
-              </article>
-            ))}
-          </div>
-        </section>
-
         <section className="px-5 py-14 sm:px-6 md:py-20">
           <div className="mx-auto grid max-w-[1200px] gap-10 md:grid-cols-[0.9fr_1.1fr] md:items-start">
             <div className="overflow-hidden rounded-[1.25rem] border border-border bg-bg-card">
@@ -143,14 +112,9 @@ export default function WhereAreTheMenPage() {
               </h2>
               <div className="mt-6 space-y-5 text-base leading-relaxed text-text-secondary sm:text-lg">
                 <p>
-                  Not just physically. But emotionally, relationally, and in the
-                  moments where presence matters most.
-                </p>
-                <p>
-                  As the conversation grew, it became clear that this question
-                  is about more than attendance. It is about engagement,
-                  responsibility, connection, and how we choose to show up for
-                  ourselves, our families, and our communities.
+                  The question is not only about physical attendance. It is
+                  about emotional presence, responsibility, relationships, and
+                  how we support the people around us.
                 </p>
                 <p>
                   Through public reflection experiences, community
@@ -187,8 +151,7 @@ export default function WhereAreTheMenPage() {
               <p>
                 This campaign is not about blame. It is about creating spaces
                 where men and boys can be seen, heard, supported, challenged,
-                and encouraged to play an active role in the lives of those
-                around them.
+                and encouraged.
               </p>
             </div>
           </div>
@@ -211,8 +174,7 @@ export default function WhereAreTheMenPage() {
                   gatherings and public reflection experiences.
                 </p>
                 <p>
-                  Together, we explore what it means to show up with purpose,
-                  responsibility, and presence.
+                  Together, we explore what it means to show up with purpose.
                 </p>
               </div>
             </div>
@@ -256,15 +218,9 @@ export default function WhereAreTheMenPage() {
               </p>
               <p>
                 We invite you to share your thoughts, experiences, and
-                reflections. You may wish to answer one simple question:
+                reflections by answering one simple question:
                 <span className="mt-3 block font-semibold text-text-primary">
                   Where are the men?
-                </span>
-              </p>
-              <p>
-                Or perhaps an even deeper one:
-                <span className="mt-3 block font-semibold text-text-primary">
-                  What becomes possible when men and boys show up?
                 </span>
               </p>
               <p className="font-semibold text-text-primary">
@@ -278,20 +234,16 @@ export default function WhereAreTheMenPage() {
         <section className="px-5 pb-16 sm:px-6 md:pb-24">
           <div className="mx-auto max-w-[980px] rounded-[1.25rem] border border-border bg-bg-card p-7 text-center sm:p-10 md:p-12">
             <p className="mb-3 text-sm font-semibold uppercase text-text-primary">
-              Looking forward
+              Get involved
             </p>
             <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.25rem)] font-bold leading-tight text-text-primary">
-              Creating spaces where men and boys can discover where they belong.
+              Help shape what comes next.
             </h2>
             <div className="mx-auto mt-6 max-w-[760px] space-y-5 text-base leading-relaxed text-text-secondary sm:text-lg">
               <p>
-                The goal is not simply to ask where the men are. The goal is to
-                create spaces where men and boys can discover where they
-                belong, how they can contribute, and what becomes possible when
-                they choose to show up consistently for themselves and others.
-              </p>
-              <p className="font-semibold text-text-primary">
-                The question remains: Where are the men?
+                The campaign continues through conversation, events, and
+                community action. If this question speaks to you, we would like
+                to hear from you.
               </p>
             </div>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
