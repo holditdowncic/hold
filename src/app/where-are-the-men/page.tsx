@@ -227,6 +227,14 @@ export default function WhereAreTheMenPage() {
                 Your voice matters. Your experiences matter. Together, those
                 voices help shape the future of this campaign.
               </p>
+              <a
+                href="https://form.jotform.com/261591082336053"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5"
+              >
+                Share your voice
+              </a>
             </div>
           </div>
         </section>
@@ -247,12 +255,14 @@ export default function WhereAreTheMenPage() {
               </p>
             </div>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-              <Link
-                href="/contact"
+              <a
+                href="https://form.jotform.com/261591082336053"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5"
               >
-                Contact Hold It Down
-              </Link>
+                Share your voice
+              </a>
               <Link
                 href="/events"
                 className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-border bg-bg-elevated px-6 py-3 text-sm font-semibold text-text-primary transition hover:-translate-y-0.5 hover:border-border-hover"
