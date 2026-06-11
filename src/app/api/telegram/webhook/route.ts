@@ -515,6 +515,54 @@ function treeContributionSummary(row: FormSubmissionRow) {
   ].filter(Boolean).join("\n");
 }
 
+function dataUrlToBlob(dataUrl: string) {
+  const match = dataUrl.match(/^data:([^;]+);base64,(.*)$/);
+  if (!match) return null;
+  const [, mimeType, base64] = match;
+  const bytes = Buffer.from(base64, "base64");
+  return new Blob([bytes], { type: mimeType });
+}
+
+function audioFilename(mimeType?: string) {
+  if (mimeType?.includes("ogg")) return "tree-of-hope.ogg";
+  if (mimeType?.includes("mpeg")) return "tree-of-hope.mp3";
+  if (mimeType?.includes("mp4")) return "tree-of-hope.m4a";
+  return "tree-of-hope.webm";
+}
+
+async function sendTelegramTreeAudio(
+  chatId: number,
+  row: FormSubmissionRow,
+  caption: string,
+  buttons: TelegramInlineButton[][],
+) {
+  const contribution = cleanTreeContribution(row.payload, {
+    fallbackId: row.id,
+    fallbackCreatedAt: row.created_at,
+  });
+  if (!contribution?.audioDataUrl || !process.env.TELEGRAM_BOT_TOKEN) return false;
+
+  const blob = dataUrlToBlob(contribution.audioDataUrl);
+  if (!blob) return false;
+
+  const form = new FormData();
+  form.append("chat_id", String(chatId));
+  form.append("audio", blob, audioFilename(blob.type));
+  form.append("caption", caption);
+  form.append("parse_mode", "HTML");
+  form.append("reply_markup", JSON.stringify({ inline_keyboard: buttons }));
+
+  const res = await fetch(`${TELEGRAM_API}/sendAudio`, {
+    method: "POST",
+    body: form,
+  });
+  if (!res.ok) {
+    console.error("Telegram tree audio failed:", res.status, await res.text());
+    return false;
+  }
+  return true;
+}
+
 async function updateTreeContributionStatus(
   submissionId: string,
   status: TreeModerationStatus,
@@ -561,7 +609,20 @@ async function updateTreeContributionStatus(
   return nextPayload;
 }
 
-async function handleTreePending(chatId: number) {
+function treeButtons(row: FormSubmissionRow, status: TreeModerationStatus): TelegramInlineButton[][] {
+  if (status === "approved") {
+    return [[{ text: "🙈 Hide from tree", callback_data: `treeno:${row.id}` }]];
+  }
+  if (status === "rejected") {
+    return [[{ text: "✅ Approve tree post", callback_data: `treeok:${row.id}` }]];
+  }
+  return [[
+    { text: "✅ Approve tree post", callback_data: `treeok:${row.id}` },
+    { text: "❌ Reject", callback_data: `treeno:${row.id}` },
+  ]];
+}
+
+async function handleTreeList(chatId: number, status: TreeModerationStatus) {
   try {
     const supabase = getTreeModerationClient();
     const { data, error } = await supabase
@@ -573,32 +634,46 @@ async function handleTreePending(chatId: number) {
 
     if (error) throw new Error(error.message);
 
-    const pending = ((data || []) as FormSubmissionRow[])
+    const matches = ((data || []) as FormSubmissionRow[])
       .map((row) => ({ row, contribution: cleanTreeContribution(row.payload, { fallbackId: row.id, fallbackCreatedAt: row.created_at }) }))
-      .filter(({ contribution }) => contribution?.moderationStatus === "pending")
+      .filter(({ contribution }) => contribution?.moderationStatus === status)
       .slice(0, 10);
 
-    if (pending.length === 0) {
-      await sendTelegram(chatId, "🌳 No Tree of Hope posts are waiting for approval.");
+    if (matches.length === 0) {
+      const emptyText = status === "pending"
+        ? "🌳 No Tree of Hope posts are waiting for approval."
+        : `🌳 No ${status} Tree of Hope posts found.`;
+      await sendTelegram(chatId, emptyText);
       return;
     }
 
-    for (const { row } of pending) {
+    for (const { row } of matches) {
       const summary = treeContributionSummary(row);
       if (!summary) continue;
-      await sendTelegram(
-        chatId,
-        `🌳 <b>Tree of Hope pending approval</b>\n${summary}`,
-        [[
-          { text: "✅ Approve tree post", callback_data: `treeok:${row.id}` },
-          { text: "❌ Reject", callback_data: `treeno:${row.id}` },
-        ]],
-      );
+      const title = status === "pending" ? "Tree of Hope pending approval" : `Tree of Hope ${status}`;
+      const caption = `🌳 <b>${escapeHtml(title)}</b>\n${summary}`;
+      const buttons = treeButtons(row, status);
+      const sentAudio = await sendTelegramTreeAudio(chatId, row, caption, buttons);
+      if (!sentAudio) {
+        await sendTelegram(chatId, caption, buttons);
+      }
     }
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Unknown error";
     await sendTelegram(chatId, `Tree moderation failed: ${codeInline(msg)}`);
   }
+}
+
+async function handleTreeHelp(chatId: number) {
+  await sendTelegram(
+    chatId,
+    [
+      "🌳 <b>Tree of Hope controls</b>",
+      `${codeInline("/tree pending")} — approve or reject waiting posts`,
+      `${codeInline("/tree live")} — review live posts and hide any post`,
+      `${codeInline("/tree rejected")} — restore a rejected post if needed`,
+    ].join("\n"),
+  );
 }
 
 function jsonPretty(value: unknown) {
@@ -2467,8 +2542,20 @@ export async function POST(request: NextRequest) {
       await handleEventCommand(chatId, fromId, normalizedText);
       return NextResponse.json({ ok: true });
     }
-    if (normalizedText === "/tree" || normalizedText === "/tree pending") {
-      await handleTreePending(chatId);
+    if (normalizedText === "/tree" || normalizedText === "/tree help") {
+      await handleTreeHelp(chatId);
+      return NextResponse.json({ ok: true });
+    }
+    if (normalizedText === "/tree pending") {
+      await handleTreeList(chatId, "pending");
+      return NextResponse.json({ ok: true });
+    }
+    if (normalizedText === "/tree live" || normalizedText === "/tree approved") {
+      await handleTreeList(chatId, "approved");
+      return NextResponse.json({ ok: true });
+    }
+    if (normalizedText === "/tree rejected") {
+      await handleTreeList(chatId, "rejected");
       return NextResponse.json({ ok: true });
     }
     if (normalizedText === "/status") {

@@ -15,6 +15,7 @@ export type TreeContributionPayload = {
   moderationStatus?: TreeModerationStatus;
   moderatedAt?: string;
   moderatedBy?: string;
+  consentAccepted?: boolean;
 };
 
 const statuses: TreeModerationStatus[] = ["pending", "approved", "rejected"];
@@ -58,6 +59,7 @@ export function cleanTreeContribution(
     moderationStatus,
     moderatedAt: cleanText(input.moderatedAt).slice(0, 80) || undefined,
     moderatedBy: cleanText(input.moderatedBy).slice(0, 80) || undefined,
+    consentAccepted: input.consentAccepted === true,
   };
 }
 

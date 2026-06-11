@@ -3,6 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 import { saveFormSubmission } from "@/lib/form-submissions";
 import { cleanTreeContribution, TREE_OF_HOPE_FORM_TYPE, treeZoneLabel } from "@/lib/tree-of-hope";
 
+export const runtime = "nodejs";
+
 const supabaseUrl =
   process.env.SUPABASE_URL ||
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
@@ -10,6 +12,8 @@ const supabaseUrl =
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
+const rateLimitWindowMs = 60_000;
+const rateLimitMaxSubmissions = 5;
 
 function escapeHtml(input: string): string {
   return input
@@ -23,6 +27,79 @@ function escapeHtml(input: string): string {
 function truncate(input: string, max = 180): string {
   const trimmed = input.trim();
   return trimmed.length <= max ? trimmed : `${trimmed.slice(0, max - 1)}…`;
+}
+
+function getRequestIp(request: NextRequest): string {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  if (forwardedFor) return forwardedFor.split(",")[0]?.trim() || "unknown";
+  return request.headers.get("x-real-ip") || "unknown";
+}
+
+function dataUrlToBlob(dataUrl: string) {
+  const match = dataUrl.match(/^data:([^;]+);base64,(.*)$/);
+  if (!match) return null;
+  const [, mimeType, base64] = match;
+  const bytes = Buffer.from(base64, "base64");
+  return new Blob([bytes], { type: mimeType });
+}
+
+function audioFilename(mimeType?: string) {
+  if (mimeType?.includes("ogg")) return "tree-of-hope.ogg";
+  if (mimeType?.includes("mpeg")) return "tree-of-hope.mp3";
+  if (mimeType?.includes("mp4")) return "tree-of-hope.m4a";
+  return "tree-of-hope.webm";
+}
+
+async function sendTelegramAudio(
+  chatId: string,
+  audioDataUrl: string,
+  caption: string,
+  submissionId: string,
+) {
+  const blob = dataUrlToBlob(audioDataUrl);
+  if (!blob) return false;
+
+  const form = new FormData();
+  form.append("chat_id", chatId);
+  form.append("audio", blob, audioFilename(blob.type));
+  form.append("caption", caption);
+  form.append("parse_mode", "HTML");
+  form.append("reply_markup", JSON.stringify({
+    inline_keyboard: [[
+      { text: "✅ Approve tree post", callback_data: `treeok:${submissionId}` },
+      { text: "❌ Reject", callback_data: `treeno:${submissionId}` },
+    ]],
+  }));
+
+  const res = await fetch(`${TELEGRAM_API}/sendAudio`, {
+    method: "POST",
+    body: form,
+  });
+  if (!res.ok) {
+    console.error("Tree of Hope moderation audio failed:", res.status, await res.text());
+    return false;
+  }
+  return true;
+}
+
+async function isRateLimited(request: NextRequest) {
+  if (!supabaseServiceKey) return false;
+
+  const since = new Date(Date.now() - rateLimitWindowMs).toISOString();
+  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  const { count, error } = await supabase
+    .from("form_submissions")
+    .select("id", { count: "exact", head: true })
+    .eq("form_type", TREE_OF_HOPE_FORM_TYPE)
+    .eq("ip_address", getRequestIp(request))
+    .gte("created_at", since);
+
+  if (error) {
+    console.error("Tree of Hope rate limit check failed:", error.message);
+    return false;
+  }
+
+  return (count || 0) >= rateLimitMaxSubmissions;
 }
 
 async function notifyTreeModerators(submissionId: string, contribution: NonNullable<ReturnType<typeof cleanTreeContribution>>) {
@@ -42,13 +119,18 @@ async function notifyTreeModerators(submissionId: string, contribution: NonNulla
     `Part: <b>${escapeHtml(treeZoneLabel(contribution.zoneId))}</b>`,
     `From: ${escapeHtml(contribution.author || "Community voice")}`,
     contribution.message ? `Message: ${escapeHtml(truncate(contribution.message))}` : "Message: <i>voice note only</i>",
-    contribution.audioDataUrl ? "Voice note: <b>attached on the website submission</b>" : "",
+    contribution.audioDataUrl ? "Voice note: <b>preview attached</b>" : "",
     "",
     "Approve it to place it on the public tree.",
   ].filter(Boolean).join("\n");
 
   await Promise.all(adminIds.map(async (chatId) => {
     try {
+      if (contribution.audioDataUrl) {
+        const sentAudio = await sendTelegramAudio(chatId, contribution.audioDataUrl, text, submissionId);
+        if (sentAudio) return;
+      }
+
       const res = await fetch(`${TELEGRAM_API}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -123,6 +205,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Add a message or voice note before saving." },
         { status: 400 },
+      );
+    }
+
+    if (contribution.consentAccepted !== true) {
+      return NextResponse.json(
+        { error: "Please confirm consent before sending this to the Tree of Hope." },
+        { status: 400 },
+      );
+    }
+
+    if (await isRateLimited(request)) {
+      return NextResponse.json(
+        { error: "Too many Tree of Hope submissions. Please wait a minute and try again." },
+        { status: 429 },
       );
     }
 

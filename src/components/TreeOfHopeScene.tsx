@@ -22,6 +22,7 @@ type TreeContribution = {
   createdAt: string;
   x: number;
   y: number;
+  consentAccepted?: boolean;
 };
 
 const storageKey = "hold-tree-of-hope-approved-contributions-v1";
@@ -140,18 +141,22 @@ export default function TreeOfHopeScene() {
   const [audioDraft, setAudioDraft] = useState<{ dataUrl: string; type: string } | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingError, setRecordingError] = useState("");
+  const [consentAccepted, setConsentAccepted] = useState(false);
   const [syncStatus, setSyncStatus] = useState("Loading community archive...");
   const [isSaving, setIsSaving] = useState(false);
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const [soundscapeActive, setSoundscapeActive] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
+  const soundscapeIndexRef = useRef(0);
 
   const selectedZone = zones.find((zone) => zone.id === selectedZoneId) ?? zones[3];
   const selectedZoneContributions = contributions.filter((item) => item.zoneId === selectedZone.id);
   const recorderSupported = typeof window !== "undefined" && "MediaRecorder" in window && !!navigator.mediaDevices;
-  const canSave = (message.trim().length > 0 || audioDraft !== null) && !isSaving;
+  const voiceContributions = contributions.filter((item) => item.audioDataUrl);
+  const canSave = (message.trim().length > 0 || audioDraft !== null) && consentAccepted && !isSaving;
 
   const zoneCounts = useMemo(() => {
     return zones.reduce<Record<string, number>>((counts, zone) => {
@@ -189,8 +194,10 @@ export default function TreeOfHopeScene() {
     };
 
     void loadContributions();
+    const interval = window.setInterval(loadContributions, 30_000);
     return () => {
       cancelled = true;
+      window.clearInterval(interval);
     };
   }, []);
 
@@ -242,6 +249,24 @@ export default function TreeOfHopeScene() {
     setIsRecording(false);
   };
 
+  const playSoundscape = () => {
+    if (voiceContributions.length === 0) return;
+    audioRef.current?.pause();
+
+    const item = voiceContributions[soundscapeIndexRef.current % voiceContributions.length];
+    if (!item.audioDataUrl) return;
+    soundscapeIndexRef.current += 1;
+
+    const audio = new Audio(item.audioDataUrl);
+    audioRef.current = audio;
+    setPlayingId(item.id);
+    audio.onended = () => {
+      setPlayingId(null);
+      if (soundscapeActive) window.setTimeout(playSoundscape, 900);
+    };
+    void audio.play();
+  };
+
   const saveContribution = async () => {
     if (!canSave) return;
 
@@ -256,6 +281,7 @@ export default function TreeOfHopeScene() {
       createdAt: new Date().toISOString(),
       x: position.x,
       y: position.y,
+      consentAccepted,
     };
 
     setIsSaving(true);
@@ -273,6 +299,7 @@ export default function TreeOfHopeScene() {
       setSyncStatus("Sent for approval. It will appear after admin review.");
       setMessage("");
       setAudioDraft(null);
+      setConsentAccepted(false);
     } catch {
       setSyncStatus("Could not send for approval. Please try again.");
     } finally {
@@ -291,9 +318,20 @@ export default function TreeOfHopeScene() {
     const audio = new Audio(item.audioDataUrl);
     audioRef.current = audio;
     setPlayingId(item.id);
+    setSoundscapeActive(false);
     audio.onended = () => setPlayingId(null);
     void audio.play();
   };
+
+  useEffect(() => {
+    if (soundscapeActive) {
+      playSoundscape();
+    } else {
+      audioRef.current?.pause();
+      setPlayingId(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [soundscapeActive]);
 
   const downloadArchive = () => {
     const blob = new Blob([JSON.stringify(contributions, null, 2)], { type: "application/json" });
@@ -420,6 +458,18 @@ export default function TreeOfHopeScene() {
               {recordingError}
             </div>
           ) : null}
+
+          <label className="flex gap-3 rounded-lg border border-white/10 bg-white/[0.06] p-3 text-xs leading-relaxed text-white/70">
+            <input
+              type="checkbox"
+              checked={consentAccepted}
+              onChange={(event) => setConsentAccepted(event.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-[#f2c94c]"
+            />
+            <span>
+              I understand this message or voice note may become public on the Tree of Hope after admin approval.
+            </span>
+          </label>
         </div>
 
         <div className="mt-6 flex items-center justify-between gap-3 border-t border-white/10 pt-5">
@@ -438,6 +488,35 @@ export default function TreeOfHopeScene() {
             <span className="h-4 w-4">
               <Icon name="download" />
             </span>
+          </button>
+        </div>
+
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => setSoundscapeActive((active) => !active)}
+            disabled={voiceContributions.length === 0}
+            className="h-10 rounded-lg bg-white/10 px-3 text-xs font-bold text-white transition hover:bg-white/16 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {soundscapeActive ? "Stop voices" : "Play voices"}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              void fetch("/api/tree-of-hope", { cache: "no-store" })
+                .then((response) => response.json())
+                .then((data: { contributions?: TreeContribution[] }) => {
+                  const remoteContributions = Array.isArray(data.contributions) ? data.contributions : [];
+                  setContributions(
+                    remoteContributions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+                  );
+                  setSyncStatus("Archive refreshed");
+                })
+                .catch(() => setSyncStatus("Refresh unavailable; try again shortly"));
+            }}
+            className="h-10 rounded-lg bg-white/10 px-3 text-xs font-bold text-white transition hover:bg-white/16"
+          >
+            Refresh tree
           </button>
         </div>
 
