@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import type { MouseEvent } from "react";
+import type { MouseEvent, PointerEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type TreeZone = {
@@ -221,6 +221,7 @@ export default function TreeOfHopeScene() {
   const chunksRef = useRef<BlobPart[]>([]);
   const recordingStartedAtRef = useRef(0);
   const recordingTimeoutRef = useRef<number | null>(null);
+  const dragStartRef = useRef<{ x: number; angle: number; moved: boolean } | null>(null);
   const soundscapeIndexRef = useRef(0);
 
   const selectedZone = zones.find((zone) => zone.id === selectedZoneId) ?? zones[3];
@@ -407,12 +408,39 @@ export default function TreeOfHopeScene() {
   const handleTreeClick = (event: MouseEvent<HTMLDivElement>) => {
     const target = event.target as HTMLElement;
     if (target.closest("button,a,input,textarea,label")) return;
+    if (dragStartRef.current?.moved) {
+      dragStartRef.current = null;
+      return;
+    }
 
     const rect = event.currentTarget.getBoundingClientRect();
     selectTreePoint(
       ((event.clientX - rect.left) / rect.width) * 100,
       ((event.clientY - rect.top) / rect.height) * 100,
     );
+  };
+
+  const handleTreePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement;
+    if (target.closest("button,a,input,textarea,label")) return;
+    dragStartRef.current = { x: event.clientX, angle: viewAngle, moved: false };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handleTreePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    const drag = dragStartRef.current;
+    if (!drag) return;
+    const delta = event.clientX - drag.x;
+    if (Math.abs(delta) < 6) return;
+    drag.moved = true;
+    setViewAngle((drag.angle + delta * 0.7 + 360) % 360);
+  };
+
+  const handleTreePointerEnd = () => {
+    if (!dragStartRef.current?.moved) return;
+    window.setTimeout(() => {
+      dragStartRef.current = null;
+    }, 0);
   };
 
   const playSoundscape = () => {
@@ -533,8 +561,13 @@ export default function TreeOfHopeScene() {
       <div
         className="relative min-h-[500px] cursor-crosshair overflow-hidden bg-[#bcd790] sm:min-h-[620px]"
         onClick={handleTreeClick}
+        onPointerDown={handleTreePointerDown}
+        onPointerMove={handleTreePointerMove}
+        onPointerUp={handleTreePointerEnd}
+        onPointerCancel={handleTreePointerEnd}
+        onPointerLeave={handleTreePointerEnd}
         role="application"
-        aria-label="Interactive Tree of Hope placement area"
+        aria-label="Interactive Tree of Hope placement and turning area"
       >
         <div
           className="absolute inset-0 transition-transform duration-300 ease-out"
@@ -575,7 +608,7 @@ export default function TreeOfHopeScene() {
             Tree of Hope
           </h3>
           <p className="mt-2 text-sm leading-relaxed text-[#4b3827]">
-            Tap the exact place on the tree where your written message or voice note should live.
+            Tap the exact place for your message, or drag the tree to turn it.
           </p>
         </div>
 
@@ -588,7 +621,7 @@ export default function TreeOfHopeScene() {
             }}
             className="h-10 rounded-md bg-white/12 px-2 text-xs font-black transition hover:bg-white/18"
           >
-            {autoTurn ? "Stop turn" : "360 turn"}
+            {autoTurn ? "Stop" : "Auto"}
           </button>
           <button
             type="button"
