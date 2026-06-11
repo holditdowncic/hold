@@ -1,331 +1,528 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import * as THREE from "three/webgpu";
-import { buildTree } from "./CommunityTreePreview";
-import { createGpuGrassField } from "./gpuGrassField";
+import Image from "next/image";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+type TreeZone = {
+  id: string;
+  label: string;
+  part: string;
+  prompt: string;
+  x: number;
+  y: number;
+};
+
+type TreeContribution = {
+  id: string;
+  zoneId: string;
+  author: string;
+  message: string;
+  audioDataUrl?: string;
+  audioType?: string;
+  createdAt: string;
+  x: number;
+  y: number;
+};
+
+const storageKey = "hold-tree-of-hope-contributions-v1";
+
+const zones: TreeZone[] = [
+  {
+    id: "roots",
+    label: "Roots",
+    part: "What shaped us",
+    prompt: "Add a memory, value, lesson, or person that helped shape you.",
+    x: 46,
+    y: 82,
+  },
+  {
+    id: "trunk",
+    label: "Trunk",
+    part: "What keeps us strong",
+    prompt: "Share a message about strength, support, and what keeps families steady.",
+    x: 49,
+    y: 60,
+  },
+  {
+    id: "left-branch",
+    label: "Left branch",
+    part: "Messages to others",
+    prompt: "Leave a message, reflection, or encouragement for someone else.",
+    x: 33,
+    y: 42,
+  },
+  {
+    id: "canopy",
+    label: "Leaves",
+    part: "Community hopes",
+    prompt: "Add a hope, promise, or short voice note to the living canopy.",
+    x: 51,
+    y: 25,
+  },
+  {
+    id: "right-branch",
+    label: "Right branch",
+    part: "Wings and future",
+    prompt: "Share what you want the next generation to grow into.",
+    x: 68,
+    y: 43,
+  },
+];
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
+function readFileAsDataUrl(blob: Blob) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(blob);
+  });
+}
+
+function makeContributionPosition(zone: TreeZone, index: number) {
+  const angle = index * 2.399963229728653;
+  const radius = Math.min(14, 4 + index * 0.75);
+  return {
+    x: Math.min(92, Math.max(8, zone.x + Math.cos(angle) * radius)),
+    y: Math.min(90, Math.max(10, zone.y + Math.sin(angle) * radius * 0.58)),
+  };
+}
+
+function Icon({ name }: { name: "mic" | "stop" | "play" | "trash" | "download" }) {
+  if (name === "mic") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z" />
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+        <path d="M12 19v3" />
+      </svg>
+    );
+  }
+
+  if (name === "stop") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+        <rect x="7" y="7" width="10" height="10" rx="1.5" />
+      </svg>
+    );
+  }
+
+  if (name === "play") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M8 5.5v13l10-6.5-10-6.5Z" />
+      </svg>
+    );
+  }
+
+  if (name === "trash") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M3 6h18" />
+        <path d="M8 6V4h8v2" />
+        <path d="m19 6-1 14H6L5 6" />
+        <path d="M10 11v5" />
+        <path d="M14 11v5" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 3v12" />
+      <path d="m7 10 5 5 5-5" />
+      <path d="M5 21h14" />
+    </svg>
+  );
+}
 
 export default function TreeOfHopeScene() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const controlsApiRef = useRef<{ zoomIn: () => void; zoomOut: () => void; reset: () => void } | null>(null);
-  const [renderError, setRenderError] = useState(false);
-  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [selectedZoneId, setSelectedZoneId] = useState(zones[3].id);
+  const [contributions, setContributions] = useState<TreeContribution[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const saved = window.localStorage.getItem(storageKey);
+      if (!saved) return [];
+      const parsed = JSON.parse(saved) as TreeContribution[];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  });
+  const [author, setAuthor] = useState("");
+  const [message, setMessage] = useState("");
+  const [audioDraft, setAudioDraft] = useState<{ dataUrl: string; type: string } | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingError, setRecordingError] = useState("");
+  const [syncStatus, setSyncStatus] = useState("Loading community archive...");
+  const [isSaving, setIsSaving] = useState(false);
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const chunksRef = useRef<BlobPart[]>([]);
+
+  const selectedZone = zones.find((zone) => zone.id === selectedZoneId) ?? zones[3];
+  const selectedZoneContributions = contributions.filter((item) => item.zoneId === selectedZone.id);
+  const recorderSupported = typeof window !== "undefined" && "MediaRecorder" in window && !!navigator.mediaDevices;
+  const canSave = (message.trim().length > 0 || audioDraft !== null) && !isSaving;
+
+  const zoneCounts = useMemo(() => {
+    return zones.reduce<Record<string, number>>((counts, zone) => {
+      counts[zone.id] = contributions.filter((item) => item.zoneId === zone.id).length;
+      return counts;
+    }, {});
+  }, [contributions]);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    window.localStorage.setItem(storageKey, JSON.stringify(contributions));
+  }, [contributions]);
 
-    let disposed = false;
-    let width = 1;
-    let height = 1;
-    let targetRotationY = -0.32;
-    let currentRotationY = -0.32;
-    let targetRotationX = -0.05;
-    let currentRotationX = -0.05;
-    let targetZoom = 1;
-    let currentZoom = 1;
-    let dragging = false;
-    let lastX = 0;
-    let lastY = 0;
-    const clampZoom = (value: number) => Math.min(1.85, Math.max(0.72, value));
+  useEffect(() => {
+    let cancelled = false;
 
-    const renderer = new THREE.WebGPURenderer({
-      canvas,
-      alpha: true,
-      antialias: true,
-      powerPreference: "high-performance",
-    });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.65));
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFShadowMap;
-
-    const scene = new THREE.Scene();
-
-    const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 90);
-    const ambient = new THREE.HemisphereLight("#f9fff2", "#7a5a43", 2.25);
-    scene.add(ambient);
-
-    const sun = new THREE.DirectionalLight("#fff1d0", 3.5);
-    sun.position.set(4, 7, 5);
-    sun.castShadow = true;
-    sun.shadow.camera.near = 0.1;
-    sun.shadow.camera.far = 24;
-    sun.shadow.camera.left = -7;
-    sun.shadow.camera.right = 7;
-    sun.shadow.camera.top = 7;
-    sun.shadow.camera.bottom = -7;
-    scene.add(sun);
-
-    const fill = new THREE.PointLight("#b7e07b", 1.6, 14);
-    fill.position.set(-3.5, 3.4, 5);
-    scene.add(fill);
-
-    const isSmallScreen = window.matchMedia("(max-width: 760px)").matches;
-    const gpuGrass = createGpuGrassField({
-      bladeCount: isSmallScreen ? 36000 : 70000,
-      fieldSize: isSmallScreen ? 15 : 18,
-    });
-    gpuGrass.root.position.y = -1.24;
-    scene.add(gpuGrass.root);
-
-    const tree = new THREE.Group();
-    buildTree(tree);
-    scene.add(tree);
-
-    const treeBaseLocalY = -1.22;
-    const treeBaseWorldY = -1.09;
-    const treeScale = isSmallScreen ? 0.9 : 0.98;
-    tree.scale.setScalar(treeScale);
-    tree.position.y = treeBaseWorldY - treeBaseLocalY * treeScale;
-
-    controlsApiRef.current = {
-      zoomIn: () => {
-        targetZoom = clampZoom(targetZoom + 0.18);
-      },
-      zoomOut: () => {
-        targetZoom = clampZoom(targetZoom - 0.18);
-      },
-      reset: () => {
-        targetZoom = 1;
-        targetRotationY = -0.32;
-        targetRotationX = -0.05;
-      },
-    };
-
-    const resize = () => {
-      const rect = canvas.getBoundingClientRect();
-      width = Math.max(1, rect.width);
-      height = Math.max(1, rect.height);
-      renderer.setSize(width, height, false);
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-    };
-
-    const updateCamera = () => {
-      currentRotationY += (targetRotationY - currentRotationY) * 0.035;
-      currentRotationX += (targetRotationX - currentRotationX) * 0.055;
-      currentZoom += (targetZoom - currentZoom) * 0.08;
-      const distance = (width < 760 ? 15.2 : 12.8) / currentZoom;
-      const orbitDistance = distance * Math.cos(currentRotationX * 0.7);
-      camera.position.set(
-        Math.sin(currentRotationY) * orbitDistance,
-        (width < 760 ? 4.15 : 3.65) + Math.sin(currentRotationX) * 3.4,
-        Math.cos(currentRotationY) * orbitDistance,
-      );
-      camera.lookAt(0, 2.25, 0);
-    };
-
-    const onPointerDown = (event: PointerEvent) => {
-      dragging = true;
-      lastX = event.clientX;
-      lastY = event.clientY;
-      gpuGrass.setMouseFromEvent(event, camera, canvas);
-      canvas.setPointerCapture(event.pointerId);
-    };
-
-    const onPointerMove = (event: PointerEvent) => {
-      gpuGrass.setMouseFromEvent(event, camera, canvas);
-      if (!dragging) return;
-      targetRotationY -= (event.clientX - lastX) * 0.008;
-      targetRotationX = Math.min(0.42, Math.max(-0.34, targetRotationX + (event.clientY - lastY) * 0.004));
-      lastX = event.clientX;
-      lastY = event.clientY;
-    };
-
-    const onPointerUp = (event: PointerEvent) => {
-      dragging = false;
-      gpuGrass.clearMouse();
-      if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
-    };
-
-    const onPointerLeave = () => {
-      gpuGrass.clearMouse();
-    };
-
-    const onWheel = (event: WheelEvent) => {
-      event.preventDefault();
-      targetZoom = clampZoom(targetZoom - event.deltaY * 0.0014);
-    };
-
-    const observer = new ResizeObserver(resize);
-    observer.observe(canvas);
-    canvas.addEventListener("pointerdown", onPointerDown);
-    canvas.addEventListener("pointermove", onPointerMove);
-    canvas.addEventListener("pointerup", onPointerUp);
-    canvas.addEventListener("pointercancel", onPointerUp);
-    canvas.addEventListener("pointerleave", onPointerLeave);
-    canvas.addEventListener("wheel", onWheel, { passive: false });
-    resize();
-
-    const animate = () => {
-      updateCamera();
-      gpuGrass.update(renderer);
-      renderer.render(scene, camera);
-    };
-
-    const start = async () => {
+    const loadContributions = async () => {
       try {
-        await renderer.init();
-        if (disposed) return;
-        await gpuGrass.init(renderer);
-        if (disposed) return;
-        renderer.setAnimationLoop(animate);
-      } catch (error) {
-        console.error("Tree of Hope WebGPU scene failed", error);
-        if (!disposed) setRenderError(true);
+        const response = await fetch("/api/tree-of-hope", { cache: "no-store" });
+        if (!response.ok) throw new Error("Archive request failed");
+        const data = (await response.json()) as { contributions?: TreeContribution[] };
+        if (cancelled) return;
+
+        const remoteContributions = Array.isArray(data.contributions) ? data.contributions : [];
+        setContributions((current) => {
+          const byId = new Map<string, TreeContribution>();
+          [...remoteContributions, ...current].forEach((item) => byId.set(item.id, item));
+          return Array.from(byId.values()).sort(
+            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          );
+        });
+        setSyncStatus(
+          remoteContributions.length > 0
+            ? "Live community archive loaded"
+            : "Ready to collect the first message",
+        );
+      } catch {
+        if (!cancelled) setSyncStatus("Offline mode: saving on this browser");
       }
     };
 
-    void start();
-
+    void loadContributions();
     return () => {
-      disposed = true;
-      renderer.setAnimationLoop(null);
-      observer.disconnect();
-      canvas.removeEventListener("pointerdown", onPointerDown);
-      canvas.removeEventListener("pointermove", onPointerMove);
-      canvas.removeEventListener("pointerup", onPointerUp);
-      canvas.removeEventListener("pointercancel", onPointerUp);
-      canvas.removeEventListener("pointerleave", onPointerLeave);
-      canvas.removeEventListener("wheel", onWheel);
-      controlsApiRef.current = null;
-      scene.traverse((object) => {
-        const mesh = object as THREE.Mesh;
-        mesh.geometry?.dispose();
-        const material = mesh.material as THREE.Material | THREE.Material[] | undefined;
-        if (Array.isArray(material)) {
-          material.forEach((entry) => entry.dispose());
-        } else {
-          material?.dispose();
-        }
-      });
-      renderer.dispose();
+      cancelled = true;
     };
   }, []);
 
   useEffect(() => {
-    if (!isInfoOpen) return;
+    return () => {
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+      audioRef.current?.pause();
+    };
+  }, []);
 
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setIsInfoOpen(false);
+  const startRecording = async () => {
+    setRecordingError("");
+    if (!recorderSupported) {
+      setRecordingError("Voice recording needs a modern browser with microphone access.");
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      chunksRef.current = [];
+      const recorder = new MediaRecorder(stream);
+      recorderRef.current = recorder;
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) chunksRef.current.push(event.data);
+      };
+
+      recorder.onstop = async () => {
+        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
+        stream.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+        if (blob.size > 0) {
+          const dataUrl = await readFileAsDataUrl(blob);
+          setAudioDraft({ dataUrl, type: blob.type });
+        }
+      };
+
+      recorder.start();
+      setIsRecording(true);
+    } catch {
+      setRecordingError("Microphone access was blocked or unavailable.");
+    }
+  };
+
+  const stopRecording = () => {
+    recorderRef.current?.stop();
+    recorderRef.current = null;
+    setIsRecording(false);
+  };
+
+  const saveContribution = async () => {
+    if (!canSave) return;
+
+    const position = makeContributionPosition(selectedZone, selectedZoneContributions.length);
+    const nextContribution: TreeContribution = {
+      id: crypto.randomUUID(),
+      zoneId: selectedZone.id,
+      author: author.trim() || "Community voice",
+      message: message.trim(),
+      audioDataUrl: audioDraft?.dataUrl,
+      audioType: audioDraft?.type,
+      createdAt: new Date().toISOString(),
+      x: position.x,
+      y: position.y,
     };
 
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isInfoOpen]);
+    setIsSaving(true);
+    setSyncStatus("Saving to the tree...");
+
+    try {
+      const response = await fetch("/api/tree-of-hope", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nextContribution),
+      });
+
+      if (!response.ok) throw new Error("Archive save failed");
+      const data = (await response.json()) as { contribution?: TreeContribution };
+      const savedContribution = data.contribution ?? nextContribution;
+      setContributions((current) => [savedContribution, ...current.filter((item) => item.id !== savedContribution.id)]);
+      setSyncStatus("Saved to the community archive");
+      setMessage("");
+      setAudioDraft(null);
+    } catch {
+      setContributions((current) => [nextContribution, ...current]);
+      setSyncStatus("Saved on this browser; online archive unavailable");
+      setMessage("");
+      setAudioDraft(null);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const playAudio = (item: TreeContribution) => {
+    if (!item.audioDataUrl) return;
+    audioRef.current?.pause();
+    if (playingId === item.id) {
+      setPlayingId(null);
+      return;
+    }
+
+    const audio = new Audio(item.audioDataUrl);
+    audioRef.current = audio;
+    setPlayingId(item.id);
+    audio.onended = () => setPlayingId(null);
+    void audio.play();
+  };
+
+  const deleteContribution = (id: string) => {
+    setContributions((current) => current.filter((item) => item.id !== id));
+    if (playingId === id) setPlayingId(null);
+  };
+
+  const downloadArchive = () => {
+    const blob = new Blob([JSON.stringify(contributions, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "tree-of-hope-archive.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
-    <div className="relative min-h-[420px] overflow-hidden rounded-2xl border border-border bg-[linear-gradient(180deg,#f8f5e8_0%,#e6efd9_48%,#b7b184_100%)] sm:min-h-[500px] lg:min-h-[560px]">
-      <div className="absolute right-4 top-4 z-20 flex items-center gap-2 rounded-full bg-white/72 p-1.5 shadow-lg shadow-black/10 backdrop-blur-md sm:right-5 sm:top-5">
-        <button
-          type="button"
-          aria-label="Zoom out"
-          title="Zoom out"
-          onClick={() => controlsApiRef.current?.zoomOut()}
-          className="grid h-9 w-9 place-items-center rounded-full bg-white text-lg font-bold text-[#2b2118] shadow-sm shadow-black/5 transition hover:-translate-y-0.5 hover:bg-[#f1eadc]"
-        >
-          -
-        </button>
-        <button
-          type="button"
-          aria-label="Reset zoom"
-          title="Reset zoom"
-          onClick={() => controlsApiRef.current?.reset()}
-          className="h-9 rounded-full bg-[#f1eadc] px-3 text-xs font-bold uppercase tracking-[0.14em] text-[#5a3f27] transition hover:-translate-y-0.5 hover:bg-white"
-        >
-          1x
-        </button>
-        <button
-          type="button"
-          aria-label="Zoom in"
-          title="Zoom in"
-          onClick={() => controlsApiRef.current?.zoomIn()}
-          className="grid h-9 w-9 place-items-center rounded-full bg-[#20170f] text-lg font-bold text-white shadow-sm shadow-black/10 transition hover:-translate-y-0.5 hover:bg-[#3a2a1d]"
-        >
-          +
-        </button>
+    <div className="grid overflow-hidden rounded-2xl border border-border bg-[#f5f1e5] shadow-xl shadow-black/5 lg:grid-cols-[minmax(0,1fr)_23rem]">
+      <div className="relative min-h-[500px] overflow-hidden bg-[#bcd790] sm:min-h-[620px]">
+        <Image
+          src="/media/tree-of-hope-field.jpg"
+          alt="Large tree in a green field for the Tree of Hope"
+          fill
+          priority={false}
+          className="object-cover"
+          sizes="(max-width: 1024px) 100vw, 760px"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(30,22,12,0.18)_64%,rgba(20,16,9,0.42))]" />
+
+        <div className="absolute left-4 right-4 top-4 z-10 rounded-lg bg-white/86 p-4 text-[#21180f] shadow-xl shadow-black/15 backdrop-blur-md sm:left-5 sm:right-auto sm:max-w-sm">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#79522d]">Interactive archive</p>
+          <h3 className="mt-1 font-[family-name:var(--font-heading)] text-2xl font-bold leading-tight">
+            Tree of Hope
+          </h3>
+          <p className="mt-2 text-sm leading-relaxed text-[#4b3827]">
+            Tap roots, trunk, branches, or leaves to attach a written message or short voice note to that
+            part of the tree.
+          </p>
+        </div>
+
+        {zones.map((zone) => (
+          <button
+            key={zone.id}
+            type="button"
+            aria-pressed={selectedZone.id === zone.id}
+            onClick={() => setSelectedZoneId(zone.id)}
+            className={`absolute z-20 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 shadow-xl shadow-black/20 transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#f2c94c] focus:ring-offset-2 ${
+              selectedZone.id === zone.id
+                ? "border-white bg-[#f2c94c] text-[#20170f]"
+                : "border-white/80 bg-[#214d27] text-white"
+            }`}
+            style={{ left: `${zone.x}%`, top: `${zone.y}%` }}
+            title={`${zone.label}: ${zone.part}`}
+          >
+            <span className="text-sm font-black">{zoneCounts[zone.id] || "+"}</span>
+          </button>
+        ))}
+
+        {contributions.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setSelectedZoneId(item.zoneId)}
+            className="absolute z-10 min-h-8 min-w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/80 bg-[#7fb33f] px-2 text-xs font-black text-white shadow-lg shadow-black/20 transition hover:scale-110"
+            style={{ left: `${item.x}%`, top: `${item.y}%` }}
+            title={item.message || "Voice note"}
+          >
+            {item.audioDataUrl ? "A" : "M"}
+          </button>
+        ))}
       </div>
-      <button
-        type="button"
-        aria-expanded={isInfoOpen}
-        aria-controls="tree-of-hope-info"
-        onClick={() => setIsInfoOpen((open) => !open)}
-        className="absolute bottom-4 left-4 z-30 h-9 rounded-full bg-[#20170f] px-4 text-xs font-bold uppercase tracking-[0.12em] text-white shadow-lg shadow-black/15 transition hover:-translate-y-0.5 hover:bg-[#3a2a1d] focus:outline-none focus:ring-2 focus:ring-[#f2c94c] focus:ring-offset-2 focus:ring-offset-[#d7e2c2] sm:bottom-5 sm:left-5"
-      >
-        Read more
-      </button>
-      {isInfoOpen ? (
-        <div
-          id="tree-of-hope-info"
-          role="dialog"
-          aria-labelledby="tree-of-hope-info-title"
-          className="absolute bottom-16 left-4 right-4 z-30 max-h-[calc(100%-5.5rem)] overflow-y-auto rounded-lg border border-[#20170f]/15 bg-white/94 p-4 text-[#20170f] shadow-2xl shadow-black/20 backdrop-blur-md sm:bottom-[4.75rem] sm:left-5 sm:right-auto sm:max-w-[25rem] sm:p-5"
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#79522d]">Roots & Wings 2026</p>
-              <h3 id="tree-of-hope-info-title" className="mt-1 text-xl font-bold leading-tight">
-                Tree of Hope Journey
-              </h3>
-            </div>
+
+      <aside className="flex min-h-[500px] flex-col bg-[#20170f] p-5 text-white sm:p-6">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#d7b56d]">{selectedZone.label}</p>
+          <h3 className="mt-1 text-2xl font-bold">{selectedZone.part}</h3>
+          <p className="mt-2 text-sm leading-relaxed text-white/74">{selectedZone.prompt}</p>
+        </div>
+
+        <div className="mt-5 grid gap-3">
+          <input
+            value={author}
+            onChange={(event) => setAuthor(event.target.value)}
+            placeholder="Name or initials"
+            className="h-11 rounded-lg border border-white/12 bg-white/10 px-3 text-sm text-white outline-none transition placeholder:text-white/48 focus:border-[#f2c94c]"
+          />
+          <textarea
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+            placeholder="Write a message for this part of the tree"
+            rows={4}
+            className="min-h-28 resize-none rounded-lg border border-white/12 bg-white/10 px-3 py-3 text-sm leading-relaxed text-white outline-none transition placeholder:text-white/48 focus:border-[#f2c94c]"
+          />
+
+          <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
-              aria-label="Close Tree of Hope information"
-              onClick={() => setIsInfoOpen(false)}
-              className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#f1eadc] text-lg font-bold leading-none text-[#3a2a1d] transition hover:bg-[#20170f] hover:text-white"
+              onClick={isRecording ? stopRecording : startRecording}
+              className={`inline-flex h-11 items-center justify-center gap-2 rounded-lg px-3 text-sm font-bold transition ${
+                isRecording
+                  ? "bg-[#c84630] text-white hover:bg-[#a93423]"
+                  : "bg-white/12 text-white hover:bg-white/18"
+              }`}
             >
-              x
+              <span className="h-4 w-4">
+                <Icon name={isRecording ? "stop" : "mic"} />
+              </span>
+              {isRecording ? "Stop" : audioDraft ? "Record again" : "Voice"}
+            </button>
+
+            <button
+              type="button"
+              onClick={saveContribution}
+              disabled={!canSave}
+              className="h-11 rounded-lg bg-[#f2c94c] px-4 text-sm font-black text-[#20170f] transition hover:bg-[#ffe071] disabled:cursor-not-allowed disabled:opacity-45"
+            >
+              {isSaving ? "Saving" : "Add to tree"}
             </button>
           </div>
 
-          <p className="mt-3 text-sm leading-relaxed text-[#463628]">
-            A creative space where children, young people, parents, fathers, and the wider community can
-            share messages, hopes, reflections, and experiences around the living tree at Heavers Farm
-            Primary School.
-          </p>
-
-          <div className="mt-4 grid gap-3 text-sm leading-relaxed text-[#463628]">
-            <div>
-              <p className="font-bold text-[#20170f]">Participants can:</p>
-              <ul className="mt-1 list-disc space-y-1 pl-5">
-                <li>write messages or draw</li>
-                <li>exchange reflections with loved ones</li>
-                <li>leave short voice notes</li>
-              </ul>
+          {audioDraft ? (
+            <div className="rounded-lg border border-[#f2c94c]/30 bg-[#f2c94c]/12 p-3 text-sm text-[#f9e7a9]">
+              Voice note ready. Add it to the tree or record again.
             </div>
+          ) : null}
 
-            <div className="grid gap-2">
-              <p><span className="font-bold text-[#20170f]">Roots</span> - what has shaped us</p>
-              <p><span className="font-bold text-[#20170f]">The Trunk</span> - what keeps us strong</p>
-              <p><span className="font-bold text-[#20170f]">Wings</span> - what we hope for in the future</p>
+          {recordingError ? (
+            <div className="rounded-lg border border-[#ff8a7a]/30 bg-[#ff8a7a]/12 p-3 text-sm text-[#ffd2cc]">
+              {recordingError}
             </div>
+          ) : null}
+        </div>
 
-            <p>
-              The journey encourages connection, conversation, creativity, and community reflection in a calm
-              and welcoming environment.
-            </p>
+        <div className="mt-6 flex items-center justify-between gap-3 border-t border-white/10 pt-5">
+          <div>
+            <p className="text-sm font-bold">{contributions.length} contributions</p>
+            <p className="text-xs text-white/56">{syncStatus}</p>
+          </div>
+          <button
+            type="button"
+            onClick={downloadArchive}
+            disabled={contributions.length === 0}
+            className="grid h-10 w-10 place-items-center rounded-lg bg-white/10 text-white transition hover:bg-white/16 disabled:cursor-not-allowed disabled:opacity-40"
+            title="Download archive"
+            aria-label="Download archive"
+          >
+            <span className="h-4 w-4">
+              <Icon name="download" />
+            </span>
+          </button>
+        </div>
 
-            <p>
-              Participants can also contribute to <span className="font-bold text-[#20170f]">Sound of Hope</span>,
-              a QR-linked digital voice archive preserving community stories and reflections beyond the event.
-            </p>
+        <div className="mt-4 min-h-0 flex-1 overflow-y-auto pr-1">
+          <div className="grid gap-3">
+            {selectedZoneContributions.length > 0 ? (
+              selectedZoneContributions.map((item) => (
+                <article key={item.id} className="rounded-lg border border-white/10 bg-white/[0.07] p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-bold">{item.author}</p>
+                      <p className="text-xs text-white/50">{formatDate(item.createdAt)}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => deleteContribution(item.id)}
+                      className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/8 text-white/70 transition hover:bg-[#c84630] hover:text-white"
+                      title="Delete contribution"
+                      aria-label="Delete contribution"
+                    >
+                      <span className="h-4 w-4">
+                        <Icon name="trash" />
+                      </span>
+                    </button>
+                  </div>
+                  {item.message ? <p className="mt-2 text-sm leading-relaxed text-white/78">{item.message}</p> : null}
+                  {item.audioDataUrl ? (
+                    <button
+                      type="button"
+                      onClick={() => playAudio(item)}
+                      className="mt-3 inline-flex h-9 items-center gap-2 rounded-lg bg-[#f2c94c] px-3 text-xs font-black text-[#20170f] transition hover:bg-[#ffe071]"
+                    >
+                      <span className="h-3.5 w-3.5">
+                        <Icon name={playingId === item.id ? "stop" : "play"} />
+                      </span>
+                      {playingId === item.id ? "Stop voice" : "Play voice"}
+                    </button>
+                  ) : null}
+                </article>
+              ))
+            ) : (
+              <div className="rounded-lg border border-dashed border-white/18 p-4 text-sm leading-relaxed text-white/62">
+                Nothing has been added here yet. Choose this part of the tree, write a message, record a
+                voice note, and add it.
+              </div>
+            )}
           </div>
         </div>
-      ) : null}
-      <canvas
-        ref={canvasRef}
-        aria-label="Tree of Hope 3D scene"
-        className="absolute inset-0 h-full w-full cursor-grab active:cursor-grabbing"
-        style={{ touchAction: "none" }}
-      />
-      {renderError ? (
-        <div className="absolute inset-0 grid place-items-center px-6 text-center">
-          <p className="max-w-sm text-sm font-semibold text-[#21180f]">
-            Tree of Hope needs a browser with WebGPU support.
-          </p>
-        </div>
-      ) : null}
+      </aside>
     </div>
   );
 }
