@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import type { MouseEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type TreeZone = {
@@ -135,6 +136,7 @@ function Icon({ name }: { name: "mic" | "stop" | "play" | "download" }) {
 
 export default function TreeOfHopeScene() {
   const [selectedZoneId, setSelectedZoneId] = useState(zones[3].id);
+  const [selectedPoint, setSelectedPoint] = useState<{ x: number; y: number } | null>(null);
   const [contributions, setContributions] = useState<TreeContribution[]>([]);
   const [author, setAuthor] = useState("");
   const [message, setMessage] = useState("");
@@ -156,7 +158,7 @@ export default function TreeOfHopeScene() {
   const selectedZoneContributions = contributions.filter((item) => item.zoneId === selectedZone.id);
   const recorderSupported = typeof window !== "undefined" && "MediaRecorder" in window && !!navigator.mediaDevices;
   const voiceContributions = contributions.filter((item) => item.audioDataUrl);
-  const canSave = (message.trim().length > 0 || audioDraft !== null) && consentAccepted && !isSaving;
+  const canSave = (message.trim().length > 0 || audioDraft !== null) && selectedPoint !== null && consentAccepted && !isSaving;
 
   const zoneCounts = useMemo(() => {
     return zones.reduce<Record<string, number>>((counts, zone) => {
@@ -249,6 +251,31 @@ export default function TreeOfHopeScene() {
     setIsRecording(false);
   };
 
+  const selectTreePoint = (x: number, y: number) => {
+    const nearestZone = zones.reduce((best, zone) => {
+      const bestDistance = Math.hypot(best.x - x, best.y - y);
+      const nextDistance = Math.hypot(zone.x - x, zone.y - y);
+      return nextDistance < bestDistance ? zone : best;
+    }, zones[0]);
+
+    setSelectedZoneId(nearestZone.id);
+    setSelectedPoint({
+      x: Math.min(96, Math.max(4, x)),
+      y: Math.min(94, Math.max(6, y)),
+    });
+  };
+
+  const handleTreeClick = (event: MouseEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement;
+    if (target.closest("button,a,input,textarea,label")) return;
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    selectTreePoint(
+      ((event.clientX - rect.left) / rect.width) * 100,
+      ((event.clientY - rect.top) / rect.height) * 100,
+    );
+  };
+
   const playSoundscape = () => {
     if (voiceContributions.length === 0) return;
     audioRef.current?.pause();
@@ -270,7 +297,7 @@ export default function TreeOfHopeScene() {
   const saveContribution = async () => {
     if (!canSave) return;
 
-    const position = makeContributionPosition(selectedZone, selectedZoneContributions.length);
+    const position = selectedPoint ?? makeContributionPosition(selectedZone, selectedZoneContributions.length);
     const nextContribution: TreeContribution = {
       id: crypto.randomUUID(),
       zoneId: selectedZone.id,
@@ -300,6 +327,7 @@ export default function TreeOfHopeScene() {
       setMessage("");
       setAudioDraft(null);
       setConsentAccepted(false);
+      setSelectedPoint(null);
     } catch {
       setSyncStatus("Could not send for approval. Please try again.");
     } finally {
@@ -345,7 +373,12 @@ export default function TreeOfHopeScene() {
 
   return (
     <div className="grid overflow-hidden rounded-2xl border border-border bg-[#f5f1e5] shadow-xl shadow-black/5 lg:grid-cols-[minmax(0,1fr)_23rem]">
-      <div className="relative min-h-[500px] overflow-hidden bg-[#bcd790] sm:min-h-[620px]">
+      <div
+        className="relative min-h-[500px] cursor-crosshair overflow-hidden bg-[#bcd790] sm:min-h-[620px]"
+        onClick={handleTreeClick}
+        role="application"
+        aria-label="Interactive Tree of Hope placement area"
+      >
         <Image
           src="/media/tree-of-hope-field.jpg"
           alt="Large tree in a green field for the Tree of Hope"
@@ -362,8 +395,7 @@ export default function TreeOfHopeScene() {
             Tree of Hope
           </h3>
           <p className="mt-2 text-sm leading-relaxed text-[#4b3827]">
-            Tap roots, trunk, branches, or leaves to submit a written message or short voice note for
-            approval.
+            Tap the exact place on the tree where your written message or voice note should live.
           </p>
         </div>
 
@@ -372,7 +404,10 @@ export default function TreeOfHopeScene() {
             key={zone.id}
             type="button"
             aria-pressed={selectedZone.id === zone.id}
-            onClick={() => setSelectedZoneId(zone.id)}
+            onClick={(event) => {
+              event.stopPropagation();
+              selectTreePoint(zone.x, zone.y);
+            }}
             className={`absolute z-20 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 shadow-xl shadow-black/20 transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#f2c94c] focus:ring-offset-2 ${
               selectedZone.id === zone.id
                 ? "border-white bg-[#f2c94c] text-[#20170f]"
@@ -385,11 +420,24 @@ export default function TreeOfHopeScene() {
           </button>
         ))}
 
+        {selectedPoint ? (
+          <div
+            className="pointer-events-none absolute z-30 h-12 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[#f2c94c]/30 shadow-[0_0_0_12px_rgba(242,201,76,0.16)]"
+            style={{ left: `${selectedPoint.x}%`, top: `${selectedPoint.y}%` }}
+            aria-hidden="true"
+          >
+            <span className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f2c94c]" />
+          </div>
+        ) : null}
+
         {contributions.map((item) => (
           <button
             key={item.id}
             type="button"
-            onClick={() => setSelectedZoneId(item.zoneId)}
+            onClick={(event) => {
+              event.stopPropagation();
+              setSelectedZoneId(item.zoneId);
+            }}
             className="absolute z-10 min-h-8 min-w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/80 bg-[#7fb33f] px-2 text-xs font-black text-white shadow-lg shadow-black/20 transition hover:scale-110"
             style={{ left: `${item.x}%`, top: `${item.y}%` }}
             title={item.message || "Voice note"}
@@ -404,6 +452,11 @@ export default function TreeOfHopeScene() {
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#d7b56d]">{selectedZone.label}</p>
           <h3 className="mt-1 text-2xl font-bold">{selectedZone.part}</h3>
           <p className="mt-2 text-sm leading-relaxed text-white/74">{selectedZone.prompt}</p>
+          <p className="mt-3 rounded-lg border border-[#f2c94c]/24 bg-[#f2c94c]/10 p-3 text-xs leading-relaxed text-[#f9e7a9]">
+            {selectedPoint
+              ? `Placement selected on the ${selectedZone.label.toLowerCase()} area.`
+              : "Tap the exact spot on the tree first, then add your message or voice note."}
+          </p>
         </div>
 
         <div className="mt-5 grid gap-3">
