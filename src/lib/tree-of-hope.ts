@@ -8,7 +8,10 @@ export type TreeContributionPayload = {
   author?: string;
   message?: string;
   audioDataUrl?: string;
+  audioUrl?: string;
+  audioPath?: string;
   audioType?: string;
+  audioDurationSeconds?: number;
   createdAt?: string;
   x?: number;
   y?: number;
@@ -30,6 +33,14 @@ function cleanStatus(value: unknown): TreeModerationStatus | undefined {
     : undefined;
 }
 
+function cleanAudioUrl(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  if (trimmed.startsWith("https://") || trimmed.startsWith("/")) return trimmed.slice(0, 1200);
+  return undefined;
+}
+
 export function cleanTreeContribution(
   value: unknown,
   options: { fallbackId?: string; fallbackCreatedAt?: string; requireApproved?: boolean } = {},
@@ -41,9 +52,15 @@ export function cleanTreeContribution(
   const audioDataUrl = typeof input.audioDataUrl === "string" && input.audioDataUrl.startsWith("data:audio/")
     ? input.audioDataUrl
     : undefined;
+  const audioUrl = cleanAudioUrl(input.audioUrl);
+  const audioPath = cleanText(input.audioPath).slice(0, 260) || undefined;
   const moderationStatus = cleanStatus(input.moderationStatus) || "pending";
+  const audioDurationSeconds =
+    typeof input.audioDurationSeconds === "number" && Number.isFinite(input.audioDurationSeconds)
+      ? Math.max(0, Math.min(60, input.audioDurationSeconds))
+      : undefined;
 
-  if (!message && !audioDataUrl) return null;
+  if (!message && !audioDataUrl && !audioUrl) return null;
   if (options.requireApproved && moderationStatus !== "approved") return null;
 
   return {
@@ -52,7 +69,10 @@ export function cleanTreeContribution(
     author: cleanText(input.author, "Community voice").slice(0, 80) || "Community voice",
     message,
     audioDataUrl,
+    audioUrl,
+    audioPath,
     audioType: cleanText(input.audioType).slice(0, 80) || undefined,
+    audioDurationSeconds,
     createdAt: cleanText(input.createdAt, options.fallbackCreatedAt || new Date().toISOString()),
     x: typeof input.x === "number" ? input.x : undefined,
     y: typeof input.y === "number" ? input.y : undefined,

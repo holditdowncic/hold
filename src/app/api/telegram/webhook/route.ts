@@ -510,7 +510,8 @@ function treeContributionSummary(row: FormSubmissionRow) {
     `Part: <b>${escapeHtml(treeZoneLabel(contribution.zoneId))}</b>`,
     `From: ${escapeHtml(contribution.author || "Community voice")}`,
     contribution.message ? `Message: ${escapeHtml(truncate(contribution.message, 220))}` : "Message: <i>voice note only</i>",
-    contribution.audioDataUrl ? "Voice note: <b>yes</b>" : "",
+    contribution.audioDataUrl || contribution.audioUrl ? "Voice note: <b>yes</b>" : "",
+    contribution.audioUrl ? `Audio URL: ${escapeHtml(contribution.audioUrl)}` : "",
     `Status: <b>${escapeHtml(contribution.moderationStatus || "pending")}</b>`,
   ].filter(Boolean).join("\n");
 }
@@ -540,9 +541,30 @@ async function sendTelegramTreeAudio(
     fallbackId: row.id,
     fallbackCreatedAt: row.created_at,
   });
-  if (!contribution?.audioDataUrl || !process.env.TELEGRAM_BOT_TOKEN) return false;
+  if (!contribution || (!contribution.audioDataUrl && !contribution.audioUrl) || !process.env.TELEGRAM_BOT_TOKEN) return false;
 
-  const blob = dataUrlToBlob(contribution.audioDataUrl);
+  if (contribution.audioUrl) {
+    const res = await fetch(`${TELEGRAM_API}/sendAudio`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        audio: contribution.audioUrl,
+        caption,
+        parse_mode: "HTML",
+        reply_markup: { inline_keyboard: buttons },
+      }),
+    });
+    if (!res.ok) {
+      console.error("Telegram tree audio URL failed:", res.status, await res.text());
+      return false;
+    }
+    return true;
+  }
+
+  const audioDataUrl = contribution.audioDataUrl;
+  if (!audioDataUrl) return false;
+  const blob = dataUrlToBlob(audioDataUrl);
   if (!blob) return false;
 
   const form = new FormData();

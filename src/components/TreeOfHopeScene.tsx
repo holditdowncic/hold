@@ -19,7 +19,9 @@ type TreeContribution = {
   author: string;
   message: string;
   audioDataUrl?: string;
+  audioUrl?: string;
   audioType?: string;
+  audioDurationSeconds?: number;
   createdAt: string;
   x: number;
   y: number;
@@ -27,6 +29,7 @@ type TreeContribution = {
 };
 
 const storageKey = "hold-tree-of-hope-approved-contributions-v1";
+const offlineQueueKey = "hold-tree-of-hope-offline-queue-v1";
 
 const zones: TreeZone[] = [
   {
@@ -140,7 +143,7 @@ export default function TreeOfHopeScene() {
   const [contributions, setContributions] = useState<TreeContribution[]>([]);
   const [author, setAuthor] = useState("");
   const [message, setMessage] = useState("");
-  const [audioDraft, setAudioDraft] = useState<{ dataUrl: string; type: string } | null>(null);
+  const [audioDraft, setAudioDraft] = useState<{ dataUrl: string; type: string; durationSeconds: number } | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingError, setRecordingError] = useState("");
   const [consentAccepted, setConsentAccepted] = useState(false);
@@ -152,12 +155,14 @@ export default function TreeOfHopeScene() {
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
+  const recordingStartedAtRef = useRef(0);
+  const recordingTimeoutRef = useRef<number | null>(null);
   const soundscapeIndexRef = useRef(0);
 
   const selectedZone = zones.find((zone) => zone.id === selectedZoneId) ?? zones[3];
   const selectedZoneContributions = contributions.filter((item) => item.zoneId === selectedZone.id);
   const recorderSupported = typeof window !== "undefined" && "MediaRecorder" in window && !!navigator.mediaDevices;
-  const voiceContributions = contributions.filter((item) => item.audioDataUrl);
+  const voiceContributions = contributions.filter((item) => item.audioDataUrl || item.audioUrl);
   const canSave = (message.trim().length > 0 || audioDraft !== null) && selectedPoint !== null && consentAccepted && !isSaving;
 
   const zoneCounts = useMemo(() => {
@@ -204,9 +209,59 @@ export default function TreeOfHopeScene() {
   }, []);
 
   useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/tree-sw.js").catch(() => undefined);
+    }
+  }, []);
+
+  const flushOfflineQueue = async () => {
+    const raw = window.localStorage.getItem(offlineQueueKey);
+    if (!raw) return;
+
+    let queued: TreeContribution[] = [];
+    try {
+      queued = JSON.parse(raw) as TreeContribution[];
+    } catch {
+      window.localStorage.removeItem(offlineQueueKey);
+      return;
+    }
+
+    if (!queued.length) return;
+
+    const remaining: TreeContribution[] = [];
+    for (const item of queued) {
+      try {
+        const response = await fetch("/api/tree-of-hope", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(item),
+        });
+        if (!response.ok) remaining.push(item);
+      } catch {
+        remaining.push(item);
+      }
+    }
+
+    if (remaining.length > 0) {
+      window.localStorage.setItem(offlineQueueKey, JSON.stringify(remaining));
+      setSyncStatus(`${remaining.length} saved offline; will sync when online`);
+    } else {
+      window.localStorage.removeItem(offlineQueueKey);
+      setSyncStatus("Offline submissions synced for approval");
+    }
+  };
+
+  useEffect(() => {
+    void flushOfflineQueue();
+    window.addEventListener("online", flushOfflineQueue);
+    return () => window.removeEventListener("online", flushOfflineQueue);
+  }, []);
+
+  useEffect(() => {
     return () => {
       streamRef.current?.getTracks().forEach((track) => track.stop());
       audioRef.current?.pause();
+      if (recordingTimeoutRef.current) window.clearTimeout(recordingTimeoutRef.current);
     };
   }, []);
 
@@ -221,8 +276,10 @@ export default function TreeOfHopeScene() {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
       chunksRef.current = [];
-      const recorder = new MediaRecorder(stream);
+      const mimeType = MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm" : undefined;
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       recorderRef.current = recorder;
+      recordingStartedAtRef.current = Date.now();
 
       recorder.ondataavailable = (event) => {
         if (event.data.size > 0) chunksRef.current.push(event.data);
@@ -234,18 +291,27 @@ export default function TreeOfHopeScene() {
         streamRef.current = null;
         if (blob.size > 0) {
           const dataUrl = await readFileAsDataUrl(blob);
-          setAudioDraft({ dataUrl, type: blob.type });
+          const audioDurationSeconds = Math.min(60, Math.ceil((Date.now() - recordingStartedAtRef.current) / 1000));
+          setAudioDraft({ dataUrl, type: blob.type, durationSeconds: audioDurationSeconds });
+          setSyncStatus(`Voice note ready (${audioDurationSeconds}s).`);
         }
       };
 
       recorder.start();
       setIsRecording(true);
+      recordingTimeoutRef.current = window.setTimeout(() => {
+        stopRecording();
+      }, 60_000);
     } catch {
       setRecordingError("Microphone access was blocked or unavailable.");
     }
   };
 
   const stopRecording = () => {
+    if (recordingTimeoutRef.current) {
+      window.clearTimeout(recordingTimeoutRef.current);
+      recordingTimeoutRef.current = null;
+    }
     recorderRef.current?.stop();
     recorderRef.current = null;
     setIsRecording(false);
@@ -281,10 +347,11 @@ export default function TreeOfHopeScene() {
     audioRef.current?.pause();
 
     const item = voiceContributions[soundscapeIndexRef.current % voiceContributions.length];
-    if (!item.audioDataUrl) return;
+    const source = item.audioUrl || item.audioDataUrl;
+    if (!source) return;
     soundscapeIndexRef.current += 1;
 
-    const audio = new Audio(item.audioDataUrl);
+    const audio = new Audio(source);
     audioRef.current = audio;
     setPlayingId(item.id);
     audio.onended = () => {
@@ -305,6 +372,7 @@ export default function TreeOfHopeScene() {
       message: message.trim(),
       audioDataUrl: audioDraft?.dataUrl,
       audioType: audioDraft?.type,
+      audioDurationSeconds: audioDraft?.durationSeconds,
       createdAt: new Date().toISOString(),
       x: position.x,
       y: position.y,
@@ -329,21 +397,30 @@ export default function TreeOfHopeScene() {
       setConsentAccepted(false);
       setSelectedPoint(null);
     } catch {
-      setSyncStatus("Could not send for approval. Please try again.");
+      const raw = window.localStorage.getItem(offlineQueueKey);
+      const queued = raw ? (JSON.parse(raw) as TreeContribution[]) : [];
+      queued.push(nextContribution);
+      window.localStorage.setItem(offlineQueueKey, JSON.stringify(queued));
+      setSyncStatus("Saved offline. It will send for approval when connection returns.");
+      setMessage("");
+      setAudioDraft(null);
+      setConsentAccepted(false);
+      setSelectedPoint(null);
     } finally {
       setIsSaving(false);
     }
   };
 
   const playAudio = (item: TreeContribution) => {
-    if (!item.audioDataUrl) return;
+    const source = item.audioUrl || item.audioDataUrl;
+    if (!source) return;
     audioRef.current?.pause();
     if (playingId === item.id) {
       setPlayingId(null);
       return;
     }
 
-    const audio = new Audio(item.audioDataUrl);
+    const audio = new Audio(source);
     audioRef.current = audio;
     setPlayingId(item.id);
     setSoundscapeActive(false);
@@ -442,7 +519,7 @@ export default function TreeOfHopeScene() {
             style={{ left: `${item.x}%`, top: `${item.y}%` }}
             title={item.message || "Voice note"}
           >
-            {item.audioDataUrl ? "A" : "M"}
+            {item.audioUrl || item.audioDataUrl ? "A" : "M"}
           </button>
         ))}
       </div>
@@ -583,7 +660,7 @@ export default function TreeOfHopeScene() {
                     <p className="text-xs text-white/50">{formatDate(item.createdAt)}</p>
                   </div>
                   {item.message ? <p className="mt-2 text-sm leading-relaxed text-white/78">{item.message}</p> : null}
-                  {item.audioDataUrl ? (
+                  {item.audioUrl || item.audioDataUrl ? (
                     <button
                       type="button"
                       onClick={() => playAudio(item)}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { saveFormSubmission } from "@/lib/form-submissions";
 import { cleanTreeContribution, TREE_OF_HOPE_FORM_TYPE, treeZoneLabel } from "@/lib/tree-of-hope";
+import { uploadTreeVoiceNote } from "@/lib/tree-of-hope-server";
 
 export const runtime = "nodejs";
 
@@ -48,6 +49,12 @@ function audioFilename(mimeType?: string) {
   if (mimeType?.includes("mpeg")) return "tree-of-hope.mp3";
   if (mimeType?.includes("mp4")) return "tree-of-hope.m4a";
   return "tree-of-hope.webm";
+}
+
+function siteUrl(request: NextRequest) {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL;
+  if (configured) return configured.replace(/\/$/, "");
+  return new URL(request.url).origin;
 }
 
 async function sendTelegramAudio(
@@ -120,6 +127,7 @@ async function notifyTreeModerators(submissionId: string, contribution: NonNulla
     `From: ${escapeHtml(contribution.author || "Community voice")}`,
     contribution.message ? `Message: ${escapeHtml(truncate(contribution.message))}` : "Message: <i>voice note only</i>",
     contribution.audioDataUrl ? "Voice note: <b>preview attached</b>" : "",
+    contribution.audioUrl ? `Voice note: ${escapeHtml(contribution.audioUrl)}` : "",
     "",
     "Approve it to place it on the public tree.",
   ].filter(Boolean).join("\n");
@@ -154,6 +162,69 @@ async function notifyTreeModerators(submissionId: string, contribution: NonNulla
       console.error("Tree of Hope moderation notice exception:", error);
     }
   }));
+}
+
+async function sendTreeEmailNotification(
+  request: NextRequest,
+  submissionId: string,
+  contribution: NonNullable<ReturnType<typeof cleanTreeContribution>>,
+) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.error("Tree email skipped: RESEND_API_KEY missing");
+    return;
+  }
+
+  const from = process.env.TREE_EMAIL_FROM || "Hold It Down <onboarding@resend.dev>";
+  const to = process.env.TREE_EMAIL_TO || "info@holditdown.uk";
+  const baseUrl = siteUrl(request);
+  const emailToken = process.env.TREE_ADMIN_EMAIL_TOKEN || process.env.TREE_ADMIN_TOKEN || process.env.TREE_ADMIN_PASSWORD;
+  const approveUrl = emailToken
+    ? `${baseUrl}/api/tree-admin?id=${encodeURIComponent(submissionId)}&status=approved&token=${encodeURIComponent(emailToken)}`
+    : `${baseUrl}/tree-admin?id=${encodeURIComponent(submissionId)}`;
+  const rejectUrl = emailToken
+    ? `${baseUrl}/api/tree-admin?id=${encodeURIComponent(submissionId)}&status=rejected&token=${encodeURIComponent(emailToken)}`
+    : `${baseUrl}/tree-admin?id=${encodeURIComponent(submissionId)}`;
+
+  const message = contribution.message || "Voice note only";
+  const html = [
+    "<h2>New Tree of Hope leaf</h2>",
+    `<p><strong>From:</strong> ${escapeHtml(contribution.author || "Community voice")}</p>`,
+    `<p><strong>Part:</strong> ${escapeHtml(treeZoneLabel(contribution.zoneId))}</p>`,
+    `<p><strong>Message preview:</strong><br>${escapeHtml(truncate(message, 280))}</p>`,
+    contribution.audioUrl ? `<p><strong>Voice note:</strong> <a href="${escapeHtml(contribution.audioUrl)}">Play voice note</a></p>` : "",
+    `<p><a href="${escapeHtml(approveUrl)}">Approve this leaf</a></p>`,
+    `<p><a href="${escapeHtml(rejectUrl)}">Reject this leaf</a></p>`,
+    `<p><a href="${escapeHtml(`${baseUrl}/tree-admin`)}">Open Tree admin</a></p>`,
+  ].filter(Boolean).join("\n");
+
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from,
+      to,
+      subject: `New Tree of Hope leaf from ${contribution.author || "Community voice"}`,
+      html,
+      text: [
+        "New Tree of Hope leaf",
+        `From: ${contribution.author || "Community voice"}`,
+        `Part: ${treeZoneLabel(contribution.zoneId)}`,
+        `Message preview: ${truncate(message, 280)}`,
+        contribution.audioUrl ? `Voice note: ${contribution.audioUrl}` : "",
+        `Approve: ${approveUrl}`,
+        `Reject: ${rejectUrl}`,
+        `Admin: ${baseUrl}/tree-admin`,
+      ].filter(Boolean).join("\n"),
+    }),
+  });
+
+  if (!res.ok) {
+    console.error("Tree email failed:", res.status, await res.text());
+  }
 }
 
 export async function GET() {
@@ -222,13 +293,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    let payloadToSave = contribution;
+    if (contribution.audioDataUrl) {
+      const duration = contribution.audioDurationSeconds ?? 0;
+      if (duration > 60) {
+        return NextResponse.json(
+          { error: "Voice notes must be 60 seconds or less." },
+          { status: 400 },
+        );
+      }
+
+      const uploaded = await uploadTreeVoiceNote(contribution.audioDataUrl, contribution.id || crypto.randomUUID());
+      payloadToSave = {
+        ...contribution,
+        ...uploaded,
+        audioDataUrl: undefined,
+      };
+    }
+
     const savedSubmission = await saveFormSubmission({
       formType: TREE_OF_HOPE_FORM_TYPE,
       sourcePath: "/tree-of-hope",
-      payload: contribution,
+      payload: payloadToSave,
       request,
-      contactName: contribution.author,
-      subject: `Tree of Hope - ${contribution.zoneId}`,
+      contactName: payloadToSave.author,
+      subject: `Tree of Hope - ${payloadToSave.zoneId}`,
     });
 
     if (!savedSubmission.saved) {
@@ -239,7 +328,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (savedSubmission.backend === "table" && savedSubmission.id) {
-      await notifyTreeModerators(savedSubmission.id, contribution);
+      await Promise.all([
+        notifyTreeModerators(savedSubmission.id, payloadToSave),
+        sendTreeEmailNotification(request, savedSubmission.id, payloadToSave),
+      ]);
     }
 
     return NextResponse.json({ success: true, pendingApproval: true });

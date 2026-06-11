@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3508" viewBox="0 0 2480 3508">
+  <rect width="2480" height="3508" fill="#f5f1e5"/>
+  <rect x="120" y="120" width="2240" height="3268" rx="48" fill="#20170f"/>
+  <rect x="186" y="186" width="2108" height="3136" rx="36" fill="#f5f1e5" stroke="#f2c94c" stroke-width="10"/>
+  <text x="1240" y="500" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="120" font-weight="900" letter-spacing="8" fill="#214d27">TREE OF HOPE</text>
+  <text x="1240" y="760" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="92" font-weight="700" fill="#20170f">
+    <tspan x="1240" dy="0">What was given to you</tspan>
+    <tspan x="1240" dy="120">that you want to pass on?</tspan>
+  </text>
+  <rect x="590" y="1030" width="1300" height="1300" rx="42" fill="#ffffff" stroke="#d7c9a3" stroke-width="8"/>
+  <image href="tree-of-hope-qr.png" x="690" y="1130" width="1100" height="1100"/>
+  <text x="1240" y="2520" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="76" font-weight="900" fill="#20170f">Scan to add your leaf</text>
+  <text x="1240" y="2640" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="700" fill="#79522d">Write it or record your voice note</text>
+  <text x="1240" y="2825" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="48" font-weight="700" fill="#20170f">www.holditdown.uk/tree-of-hope</text>
+  <text x="1240" y="3085" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="700" fill="#79522d">Hold It Down CIC · Culturally Rooted. Community Driven.</text>
+</svg>

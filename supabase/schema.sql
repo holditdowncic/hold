@@ -260,6 +260,24 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('form-submissions', 'form-submissions', false)
 ON CONFLICT (id) DO NOTHING;
 
+-- Public voice-note bucket for approved Tree of Hope leaves.
+-- Pending submissions keep URLs private by obscurity until approved; the public tree only lists approved rows.
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('tree-of-hope-voice-notes', 'tree-of-hope-voice-notes', true)
+ON CONFLICT (id) DO NOTHING;
+
+CREATE POLICY "Public read tree-of-hope-voice-notes" ON storage.objects
+  FOR SELECT USING (bucket_id = 'tree-of-hope-voice-notes');
+
+CREATE POLICY "Service upload tree-of-hope-voice-notes" ON storage.objects
+  FOR INSERT WITH CHECK (bucket_id = 'tree-of-hope-voice-notes');
+
+CREATE POLICY "Service update tree-of-hope-voice-notes" ON storage.objects
+  FOR UPDATE USING (bucket_id = 'tree-of-hope-voice-notes');
+
+CREATE POLICY "Service delete tree-of-hope-voice-notes" ON storage.objects
+  FOR DELETE USING (bucket_id = 'tree-of-hope-voice-notes');
+
 -- Insert voting categories for Roots & Wings 2026
 INSERT INTO voting_categories (key, title, description, sort_order) VALUES
   ('community_father', 'Community Father Figure', 'A father who makes a positive impact in the community', 1),

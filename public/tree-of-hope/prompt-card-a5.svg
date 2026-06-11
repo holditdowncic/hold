@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1748" height="1240" viewBox="0 0 1748 1240">
+  <rect width="1748" height="1240" fill="#f5f1e5"/>
+  <rect x="64" y="64" width="1620" height="1112" rx="32" fill="#20170f"/>
+  <rect x="102" y="102" width="1544" height="1036" rx="24" fill="#f5f1e5" stroke="#f2c94c" stroke-width="8"/>
+  <text x="874" y="270" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="76" font-weight="900" letter-spacing="6" fill="#214d27">TREE OF HOPE</text>
+  <text x="874" y="520" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="84" font-weight="700" fill="#20170f">
+    <tspan x="874" dy="0">“What was given to you</tspan>
+    <tspan x="874" dy="110">that you want to pass on?”</tspan>
+  </text>
+  <text x="874" y="835" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="800" fill="#79522d">Write it or say it.</text>
+  <text x="874" y="925" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="700" fill="#20170f">Your leaf joins the tree at holditdown.uk/tree-of-hope</text>
+  <circle cx="874" cy="1045" r="38" fill="#f2c94c"/>
+  <path d="M874 1018c36 26 51 55 36 88-34 0-61-16-82-49 13-20 28-33 46-39Z" fill="#214d27"/>
+</svg>
