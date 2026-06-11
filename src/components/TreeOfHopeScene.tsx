@@ -28,8 +28,52 @@ type TreeContribution = {
   consentAccepted?: boolean;
 };
 
+type SeasonId = "spring" | "summer" | "autumn" | "winter";
+
 const storageKey = "hold-tree-of-hope-approved-contributions-v1";
 const offlineQueueKey = "hold-tree-of-hope-offline-queue-v1";
+
+const seasons: Array<{
+  id: SeasonId;
+  label: string;
+  tint: string;
+  marker: string;
+  leaf: string;
+  particle: string;
+}> = [
+  {
+    id: "spring",
+    label: "Spring",
+    tint: "bg-[linear-gradient(180deg,rgba(249,244,222,0.05),rgba(188,215,144,0.28)_62%,rgba(48,93,45,0.36))]",
+    marker: "bg-[#f6b6c7]",
+    leaf: "bg-[#8fbd4a]",
+    particle: "bg-[#f6b6c7]",
+  },
+  {
+    id: "summer",
+    label: "Summer",
+    tint: "bg-[linear-gradient(180deg,rgba(255,230,140,0.12),rgba(84,142,58,0.2)_62%,rgba(30,68,34,0.38))]",
+    marker: "bg-[#f2c94c]",
+    leaf: "bg-[#7fb33f]",
+    particle: "bg-[#f2c94c]",
+  },
+  {
+    id: "autumn",
+    label: "Autumn",
+    tint: "bg-[linear-gradient(180deg,rgba(255,180,74,0.14),rgba(176,83,36,0.24)_62%,rgba(75,42,22,0.45))]",
+    marker: "bg-[#d7792f]",
+    leaf: "bg-[#c8642b]",
+    particle: "bg-[#d7792f]",
+  },
+  {
+    id: "winter",
+    label: "Winter",
+    tint: "bg-[linear-gradient(180deg,rgba(237,247,255,0.3),rgba(154,187,197,0.16)_62%,rgba(34,50,58,0.48))]",
+    marker: "bg-[#d9edf2]",
+    leaf: "bg-[#6c9aa3]",
+    particle: "bg-white",
+  },
+];
 
 const zones: TreeZone[] = [
   {
@@ -101,6 +145,23 @@ function makeContributionPosition(zone: TreeZone, index: number) {
   };
 }
 
+function projectTreePoint(x: number, y: number, angle: number) {
+  const radians = (angle * Math.PI) / 180;
+  const centeredX = x - 50;
+  const depth = Math.sin(radians) * centeredX;
+  const projectedX = 50 + centeredX * Math.cos(radians) * 0.72;
+  const projectedY = y + depth * 0.055;
+  const scale = Math.max(0.72, Math.min(1.18, 0.95 + depth / 180));
+
+  return {
+    x: Math.min(96, Math.max(4, projectedX)),
+    y: Math.min(94, Math.max(6, projectedY)),
+    scale,
+    opacity: Math.max(0.52, Math.min(1, 0.88 + depth / 140)),
+    zIndex: depth >= 0 ? 28 : 12,
+  };
+}
+
 function Icon({ name }: { name: "mic" | "stop" | "play" | "download" }) {
   if (name === "mic") {
     return (
@@ -151,6 +212,9 @@ export default function TreeOfHopeScene() {
   const [isSaving, setIsSaving] = useState(false);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [soundscapeActive, setSoundscapeActive] = useState(false);
+  const [viewAngle, setViewAngle] = useState(0);
+  const [autoTurn, setAutoTurn] = useState(false);
+  const [seasonId, setSeasonId] = useState<SeasonId>("summer");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -164,6 +228,7 @@ export default function TreeOfHopeScene() {
   const recorderSupported = typeof window !== "undefined" && "MediaRecorder" in window && !!navigator.mediaDevices;
   const voiceContributions = contributions.filter((item) => item.audioDataUrl || item.audioUrl);
   const canSave = (message.trim().length > 0 || audioDraft !== null) && selectedPoint !== null && consentAccepted && !isSaving;
+  const currentSeason = seasons.find((season) => season.id === seasonId) ?? seasons[1];
 
   const zoneCounts = useMemo(() => {
     return zones.reduce<Record<string, number>>((counts, zone) => {
@@ -207,6 +272,14 @@ export default function TreeOfHopeScene() {
       window.clearInterval(interval);
     };
   }, []);
+
+  useEffect(() => {
+    if (!autoTurn) return;
+    const interval = window.setInterval(() => {
+      setViewAngle((angle) => (angle + 2) % 360);
+    }, 80);
+    return () => window.clearInterval(interval);
+  }, [autoTurn]);
 
   useEffect(() => {
     if ("serviceWorker" in navigator) {
@@ -448,6 +521,13 @@ export default function TreeOfHopeScene() {
     URL.revokeObjectURL(url);
   };
 
+  const nextSeason = () => {
+    setSeasonId((active) => {
+      const index = seasons.findIndex((season) => season.id === active);
+      return seasons[(index + 1) % seasons.length].id;
+    });
+  };
+
   return (
     <div className="grid overflow-hidden rounded-2xl border border-border bg-[#f5f1e5] shadow-xl shadow-black/5 lg:grid-cols-[minmax(0,1fr)_23rem]">
       <div
@@ -456,15 +536,38 @@ export default function TreeOfHopeScene() {
         role="application"
         aria-label="Interactive Tree of Hope placement area"
       >
-        <Image
-          src="/media/tree-of-hope-field.jpg"
-          alt="Large tree in a green field for the Tree of Hope"
-          fill
-          priority={false}
-          className="object-cover"
-          sizes="(max-width: 1024px) 100vw, 760px"
-        />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(30,22,12,0.18)_64%,rgba(20,16,9,0.42))]" />
+        <div
+          className="absolute inset-0 transition-transform duration-300 ease-out"
+          style={{
+            transform: `perspective(1200px) rotateY(${Math.sin((viewAngle * Math.PI) / 180) * 8}deg) scale(${autoTurn ? 1.03 : 1})`,
+            transformStyle: "preserve-3d",
+          }}
+        >
+          <Image
+            src="/media/tree-of-hope-field.jpg"
+            alt="Large tree in a green field for the Tree of Hope"
+            fill
+            priority={false}
+            className="object-cover"
+            sizes="(max-width: 1024px) 100vw, 760px"
+          />
+        </div>
+        <div className={`absolute inset-0 transition-colors duration-500 ${currentSeason.tint}`} />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(30,22,12,0.16)_64%,rgba(20,16,9,0.38))]" />
+
+        <div className="pointer-events-none absolute inset-0 z-[4] overflow-hidden">
+          {Array.from({ length: currentSeason.id === "winter" ? 16 : 12 }).map((_, index) => (
+            <span
+              key={`${currentSeason.id}-${index}`}
+              className={`absolute h-2 w-2 rounded-full ${currentSeason.particle} shadow-sm opacity-70 transition-colors duration-500`}
+              style={{
+                left: `${8 + ((index * 17 + viewAngle / 4) % 84)}%`,
+                top: `${10 + ((index * 23 + viewAngle / 8) % 74)}%`,
+                transform: `translateY(${Math.sin((viewAngle + index * 33) * Math.PI / 180) * 9}px)`,
+              }}
+            />
+          ))}
+        </div>
 
         <div className="absolute left-4 right-4 top-4 z-10 rounded-lg bg-white/86 p-4 text-[#21180f] shadow-xl shadow-black/15 backdrop-blur-md sm:left-5 sm:right-auto sm:max-w-sm">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#79522d]">Moderated archive</p>
@@ -476,51 +579,115 @@ export default function TreeOfHopeScene() {
           </p>
         </div>
 
-        {zones.map((zone) => (
+        <div className="absolute bottom-4 left-4 right-4 z-30 grid grid-cols-3 gap-2 rounded-lg bg-[#20170f]/86 p-2 text-white shadow-xl shadow-black/20 backdrop-blur-md sm:left-auto sm:right-4 sm:w-[22rem]">
           <button
-            key={zone.id}
             type="button"
-            aria-pressed={selectedZone.id === zone.id}
             onClick={(event) => {
               event.stopPropagation();
-              selectTreePoint(zone.x, zone.y);
+              setAutoTurn((active) => !active);
             }}
-            className={`absolute z-20 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 shadow-xl shadow-black/20 transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#f2c94c] focus:ring-offset-2 ${
-              selectedZone.id === zone.id
-                ? "border-white bg-[#f2c94c] text-[#20170f]"
-                : "border-white/80 bg-[#214d27] text-white"
-            }`}
-            style={{ left: `${zone.x}%`, top: `${zone.y}%` }}
-            title={`${zone.label}: ${zone.part}`}
+            className="h-10 rounded-md bg-white/12 px-2 text-xs font-black transition hover:bg-white/18"
           >
-            <span className="text-sm font-black">{zoneCounts[zone.id] || "+"}</span>
+            {autoTurn ? "Stop turn" : "360 turn"}
           </button>
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              setViewAngle((angle) => (angle + 45) % 360);
+            }}
+            className="h-10 rounded-md bg-white/12 px-2 text-xs font-black transition hover:bg-white/18"
+          >
+            Rotate
+          </button>
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              nextSeason();
+            }}
+            className="h-10 rounded-md bg-[#f2c94c] px-2 text-xs font-black text-[#20170f] transition hover:bg-[#ffe071]"
+          >
+            {currentSeason.label}
+          </button>
+        </div>
+
+        {zones.map((zone) => (
+          (() => {
+            const point = projectTreePoint(zone.x, zone.y, viewAngle);
+            return (
+              <button
+                key={zone.id}
+                type="button"
+                aria-pressed={selectedZone.id === zone.id}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  selectTreePoint(zone.x, zone.y);
+                }}
+                className={`absolute grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 shadow-xl shadow-black/20 transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#f2c94c] focus:ring-offset-2 ${
+                  selectedZone.id === zone.id
+                    ? `border-white ${currentSeason.marker} text-[#20170f]`
+                    : "border-white/80 bg-[#214d27] text-white"
+                }`}
+                style={{
+                  left: `${point.x}%`,
+                  top: `${point.y}%`,
+                  opacity: point.opacity,
+                  zIndex: point.zIndex,
+                  transform: `translate(-50%, -50%) scale(${point.scale})`,
+                }}
+                title={`${zone.label}: ${zone.part}`}
+              >
+                <span className="text-sm font-black">{zoneCounts[zone.id] || "+"}</span>
+              </button>
+            );
+          })()
         ))}
 
         {selectedPoint ? (
+          (() => {
+            const point = projectTreePoint(selectedPoint.x, selectedPoint.y, viewAngle);
+            return (
           <div
             className="pointer-events-none absolute z-30 h-12 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[#f2c94c]/30 shadow-[0_0_0_12px_rgba(242,201,76,0.16)]"
-            style={{ left: `${selectedPoint.x}%`, top: `${selectedPoint.y}%` }}
+            style={{
+              left: `${point.x}%`,
+              top: `${point.y}%`,
+              transform: `translate(-50%, -50%) scale(${point.scale})`,
+            }}
             aria-hidden="true"
           >
             <span className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f2c94c]" />
           </div>
+            );
+          })()
         ) : null}
 
         {contributions.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              setSelectedZoneId(item.zoneId);
-            }}
-            className="absolute z-10 min-h-8 min-w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/80 bg-[#7fb33f] px-2 text-xs font-black text-white shadow-lg shadow-black/20 transition hover:scale-110"
-            style={{ left: `${item.x}%`, top: `${item.y}%` }}
-            title={item.message || "Voice note"}
-          >
-            {item.audioUrl || item.audioDataUrl ? "A" : "M"}
-          </button>
+          (() => {
+            const point = projectTreePoint(item.x, item.y, viewAngle);
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setSelectedZoneId(item.zoneId);
+                }}
+                className={`absolute min-h-8 min-w-8 rounded-full border border-white/80 px-2 text-xs font-black text-white shadow-lg shadow-black/20 transition hover:scale-110 ${currentSeason.leaf}`}
+                style={{
+                  left: `${point.x}%`,
+                  top: `${point.y}%`,
+                  opacity: point.opacity,
+                  zIndex: point.zIndex - 2,
+                  transform: `translate(-50%, -50%) scale(${point.scale})`,
+                }}
+                title={item.message || "Voice note"}
+              >
+                {item.audioUrl || item.audioDataUrl ? "A" : "M"}
+              </button>
+            );
+          })()
         ))}
       </div>
 
