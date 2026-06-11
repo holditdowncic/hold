@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 import type {
   CMSAction,
   ContactItem,
@@ -25,12 +26,23 @@ import {
   putGitHubFile,
   revertCommit,
 } from "@/lib/github";
+import {
+  cleanTreeContribution,
+  TREE_OF_HOPE_FORM_TYPE,
+  treeZoneLabel,
+  type TreeModerationStatus,
+} from "@/lib/tree-of-hope";
 
 // This route uses Node-only APIs (Buffer). Force Node runtime on Vercel.
 export const runtime = "nodejs";
 
 const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 const TELEGRAM_FILE_API = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}`;
+const supabaseUrl =
+  process.env.SUPABASE_URL ||
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  "https://krqghaxflwyxwcapbedf.supabase.co";
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 type TelegramInlineButton =
   | { text: string; callback_data: string; url?: never }
@@ -470,6 +482,122 @@ async function answerCallback(callbackId: string, text?: string) {
     });
   } catch {
     // Non-critical
+  }
+}
+
+type FormSubmissionRow = {
+  id: string;
+  payload: unknown;
+  created_at?: string;
+};
+
+function getTreeModerationClient() {
+  if (!supabaseServiceKey) {
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY missing");
+  }
+  return createClient(supabaseUrl, supabaseServiceKey);
+}
+
+function treeContributionSummary(row: FormSubmissionRow) {
+  const contribution = cleanTreeContribution(row.payload, {
+    fallbackId: row.id,
+    fallbackCreatedAt: row.created_at,
+  });
+  if (!contribution) return null;
+
+  return [
+    `ID: ${codeInline(row.id)}`,
+    `Part: <b>${escapeHtml(treeZoneLabel(contribution.zoneId))}</b>`,
+    `From: ${escapeHtml(contribution.author || "Community voice")}`,
+    contribution.message ? `Message: ${escapeHtml(truncate(contribution.message, 220))}` : "Message: <i>voice note only</i>",
+    contribution.audioDataUrl ? "Voice note: <b>yes</b>" : "",
+    `Status: <b>${escapeHtml(contribution.moderationStatus || "pending")}</b>`,
+  ].filter(Boolean).join("\n");
+}
+
+async function updateTreeContributionStatus(
+  submissionId: string,
+  status: TreeModerationStatus,
+  moderatorId: number,
+) {
+  const supabase = getTreeModerationClient();
+  const { data, error } = await supabase
+    .from("form_submissions")
+    .select("id,payload,created_at")
+    .eq("id", submissionId)
+    .eq("form_type", TREE_OF_HOPE_FORM_TYPE)
+    .single();
+
+  if (error || !data) {
+    throw new Error(error?.message || "Tree submission not found");
+  }
+
+  const row = data as FormSubmissionRow;
+  const contribution = cleanTreeContribution(row.payload, {
+    fallbackId: row.id,
+    fallbackCreatedAt: row.created_at,
+  });
+  if (!contribution) {
+    throw new Error("Tree submission payload is invalid");
+  }
+
+  const nextPayload = {
+    ...contribution,
+    moderationStatus: status,
+    moderatedAt: new Date().toISOString(),
+    moderatedBy: String(moderatorId),
+  };
+
+  const { error: updateError } = await supabase
+    .from("form_submissions")
+    .update({
+      payload: nextPayload,
+      subject: `Tree of Hope - ${treeZoneLabel(contribution.zoneId)} - ${status}`,
+    })
+    .eq("id", submissionId)
+    .eq("form_type", TREE_OF_HOPE_FORM_TYPE);
+
+  if (updateError) throw new Error(updateError.message);
+  return nextPayload;
+}
+
+async function handleTreePending(chatId: number) {
+  try {
+    const supabase = getTreeModerationClient();
+    const { data, error } = await supabase
+      .from("form_submissions")
+      .select("id,payload,created_at")
+      .eq("form_type", TREE_OF_HOPE_FORM_TYPE)
+      .order("created_at", { ascending: false })
+      .limit(25);
+
+    if (error) throw new Error(error.message);
+
+    const pending = ((data || []) as FormSubmissionRow[])
+      .map((row) => ({ row, contribution: cleanTreeContribution(row.payload, { fallbackId: row.id, fallbackCreatedAt: row.created_at }) }))
+      .filter(({ contribution }) => contribution?.moderationStatus === "pending")
+      .slice(0, 10);
+
+    if (pending.length === 0) {
+      await sendTelegram(chatId, "🌳 No Tree of Hope posts are waiting for approval.");
+      return;
+    }
+
+    for (const { row } of pending) {
+      const summary = treeContributionSummary(row);
+      if (!summary) continue;
+      await sendTelegram(
+        chatId,
+        `🌳 <b>Tree of Hope pending approval</b>\n${summary}`,
+        [[
+          { text: "✅ Approve tree post", callback_data: `treeok:${row.id}` },
+          { text: "❌ Reject", callback_data: `treeno:${row.id}` },
+        ]],
+      );
+    }
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    await sendTelegram(chatId, `Tree moderation failed: ${codeInline(msg)}`);
   }
 }
 
@@ -2028,6 +2156,33 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ ok: true });
       }
 
+      if (data.startsWith("treeok:") || data.startsWith("treeno:")) {
+        const approving = data.startsWith("treeok:");
+        const submissionId = data.slice((approving ? "treeok:" : "treeno:").length).trim();
+        await answerCallback(cb.id, approving ? "Approving tree post..." : "Rejecting tree post...");
+        try {
+          const contribution = await updateTreeContributionStatus(
+            submissionId,
+            approving ? "approved" : "rejected",
+            fromId,
+          );
+          await sendTelegram(
+            chatId,
+            [
+              approving ? "✅ <b>Tree post approved</b>" : "❌ <b>Tree post rejected</b>",
+              `Part: <b>${escapeHtml(treeZoneLabel(contribution.zoneId))}</b>`,
+              `From: ${escapeHtml(contribution.author || "Community voice")}`,
+              contribution.message ? `Message: ${escapeHtml(truncate(contribution.message, 220))}` : "Message: <i>voice note only</i>",
+              approving ? "It will now appear on the public Tree of Hope." : "It will stay hidden from the public tree.",
+            ].filter(Boolean).join("\n"),
+          );
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : "Unknown error";
+          await sendTelegram(chatId, `Tree approval failed: ${codeInline(msg)}`);
+        }
+        return NextResponse.json({ ok: true });
+      }
+
       if (data.startsWith("prmerge:")) {
         const num = Number(data.slice("prmerge:".length).trim());
         await answerCallback(cb.id, "Merging PR...");
@@ -2310,6 +2465,10 @@ export async function POST(request: NextRequest) {
     }
     if (normalizedText.startsWith("/event")) {
       await handleEventCommand(chatId, fromId, normalizedText);
+      return NextResponse.json({ ok: true });
+    }
+    if (normalizedText === "/tree" || normalizedText === "/tree pending") {
+      await handleTreePending(chatId);
       return NextResponse.json({ ok: true });
     }
     if (normalizedText === "/status") {

@@ -24,7 +24,7 @@ type TreeContribution = {
   y: number;
 };
 
-const storageKey = "hold-tree-of-hope-contributions-v1";
+const storageKey = "hold-tree-of-hope-approved-contributions-v1";
 
 const zones: TreeZone[] = [
   {
@@ -96,7 +96,7 @@ function makeContributionPosition(zone: TreeZone, index: number) {
   };
 }
 
-function Icon({ name }: { name: "mic" | "stop" | "play" | "trash" | "download" }) {
+function Icon({ name }: { name: "mic" | "stop" | "play" | "download" }) {
   if (name === "mic") {
     return (
       <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -123,18 +123,6 @@ function Icon({ name }: { name: "mic" | "stop" | "play" | "trash" | "download" }
     );
   }
 
-  if (name === "trash") {
-    return (
-      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M3 6h18" />
-        <path d="M8 6V4h8v2" />
-        <path d="m19 6-1 14H6L5 6" />
-        <path d="M10 11v5" />
-        <path d="M14 11v5" />
-      </svg>
-    );
-  }
-
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M12 3v12" />
@@ -146,17 +134,7 @@ function Icon({ name }: { name: "mic" | "stop" | "play" | "trash" | "download" }
 
 export default function TreeOfHopeScene() {
   const [selectedZoneId, setSelectedZoneId] = useState(zones[3].id);
-  const [contributions, setContributions] = useState<TreeContribution[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const saved = window.localStorage.getItem(storageKey);
-      if (!saved) return [];
-      const parsed = JSON.parse(saved) as TreeContribution[];
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  });
+  const [contributions, setContributions] = useState<TreeContribution[]>([]);
   const [author, setAuthor] = useState("");
   const [message, setMessage] = useState("");
   const [audioDraft, setAudioDraft] = useState<{ dataUrl: string; type: string } | null>(null);
@@ -197,20 +175,16 @@ export default function TreeOfHopeScene() {
         if (cancelled) return;
 
         const remoteContributions = Array.isArray(data.contributions) ? data.contributions : [];
-        setContributions((current) => {
-          const byId = new Map<string, TreeContribution>();
-          [...remoteContributions, ...current].forEach((item) => byId.set(item.id, item));
-          return Array.from(byId.values()).sort(
-            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-          );
-        });
+        setContributions(
+          remoteContributions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+        );
         setSyncStatus(
           remoteContributions.length > 0
             ? "Live community archive loaded"
-            : "Ready to collect the first message",
+            : "Ready to collect the first approved message",
         );
       } catch {
-        if (!cancelled) setSyncStatus("Offline mode: saving on this browser");
+        if (!cancelled) setSyncStatus("Archive unavailable; try again shortly");
       }
     };
 
@@ -295,17 +269,12 @@ export default function TreeOfHopeScene() {
       });
 
       if (!response.ok) throw new Error("Archive save failed");
-      const data = (await response.json()) as { contribution?: TreeContribution };
-      const savedContribution = data.contribution ?? nextContribution;
-      setContributions((current) => [savedContribution, ...current.filter((item) => item.id !== savedContribution.id)]);
-      setSyncStatus("Saved to the community archive");
+      await response.json();
+      setSyncStatus("Sent for approval. It will appear after admin review.");
       setMessage("");
       setAudioDraft(null);
     } catch {
-      setContributions((current) => [nextContribution, ...current]);
-      setSyncStatus("Saved on this browser; online archive unavailable");
-      setMessage("");
-      setAudioDraft(null);
+      setSyncStatus("Could not send for approval. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -324,11 +293,6 @@ export default function TreeOfHopeScene() {
     setPlayingId(item.id);
     audio.onended = () => setPlayingId(null);
     void audio.play();
-  };
-
-  const deleteContribution = (id: string) => {
-    setContributions((current) => current.filter((item) => item.id !== id));
-    if (playingId === id) setPlayingId(null);
   };
 
   const downloadArchive = () => {
@@ -355,13 +319,13 @@ export default function TreeOfHopeScene() {
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(30,22,12,0.18)_64%,rgba(20,16,9,0.42))]" />
 
         <div className="absolute left-4 right-4 top-4 z-10 rounded-lg bg-white/86 p-4 text-[#21180f] shadow-xl shadow-black/15 backdrop-blur-md sm:left-5 sm:right-auto sm:max-w-sm">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#79522d]">Interactive archive</p>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#79522d]">Moderated archive</p>
           <h3 className="mt-1 font-[family-name:var(--font-heading)] text-2xl font-bold leading-tight">
             Tree of Hope
           </h3>
           <p className="mt-2 text-sm leading-relaxed text-[#4b3827]">
-            Tap roots, trunk, branches, or leaves to attach a written message or short voice note to that
-            part of the tree.
+            Tap roots, trunk, branches, or leaves to submit a written message or short voice note for
+            approval.
           </p>
         </div>
 
@@ -441,13 +405,13 @@ export default function TreeOfHopeScene() {
               disabled={!canSave}
               className="h-11 rounded-lg bg-[#f2c94c] px-4 text-sm font-black text-[#20170f] transition hover:bg-[#ffe071] disabled:cursor-not-allowed disabled:opacity-45"
             >
-              {isSaving ? "Saving" : "Add to tree"}
+              {isSaving ? "Sending" : "Send for approval"}
             </button>
           </div>
 
           {audioDraft ? (
             <div className="rounded-lg border border-[#f2c94c]/30 bg-[#f2c94c]/12 p-3 text-sm text-[#f9e7a9]">
-              Voice note ready. Add it to the tree or record again.
+              Voice note ready. Send it for approval or record again.
             </div>
           ) : null}
 
@@ -482,22 +446,9 @@ export default function TreeOfHopeScene() {
             {selectedZoneContributions.length > 0 ? (
               selectedZoneContributions.map((item) => (
                 <article key={item.id} className="rounded-lg border border-white/10 bg-white/[0.07] p-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-bold">{item.author}</p>
-                      <p className="text-xs text-white/50">{formatDate(item.createdAt)}</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => deleteContribution(item.id)}
-                      className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/8 text-white/70 transition hover:bg-[#c84630] hover:text-white"
-                      title="Delete contribution"
-                      aria-label="Delete contribution"
-                    >
-                      <span className="h-4 w-4">
-                        <Icon name="trash" />
-                      </span>
-                    </button>
+                  <div>
+                    <p className="text-sm font-bold">{item.author}</p>
+                    <p className="text-xs text-white/50">{formatDate(item.createdAt)}</p>
                   </div>
                   {item.message ? <p className="mt-2 text-sm leading-relaxed text-white/78">{item.message}</p> : null}
                   {item.audioDataUrl ? (
@@ -516,8 +467,8 @@ export default function TreeOfHopeScene() {
               ))
             ) : (
               <div className="rounded-lg border border-dashed border-white/18 p-4 text-sm leading-relaxed text-white/62">
-                Nothing has been added here yet. Choose this part of the tree, write a message, record a
-                voice note, and add it.
+                Nothing approved here yet. Choose this part of the tree, write a message, record a
+                voice note, and send it for approval.
               </div>
             )}
           </div>

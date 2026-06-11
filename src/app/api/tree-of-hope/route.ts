@@ -1,52 +1,77 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { saveFormSubmission } from "@/lib/form-submissions";
+import { cleanTreeContribution, TREE_OF_HOPE_FORM_TYPE, treeZoneLabel } from "@/lib/tree-of-hope";
 
 const supabaseUrl =
   process.env.SUPABASE_URL ||
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
   "https://krqghaxflwyxwcapbedf.supabase.co";
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const formType = "tree_of_hope_contribution";
 
-type TreeContributionPayload = {
-  id?: string;
-  zoneId?: string;
-  author?: string;
-  message?: string;
-  audioDataUrl?: string;
-  audioType?: string;
-  createdAt?: string;
-  x?: number;
-  y?: number;
-};
+const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 
-function cleanText(value: unknown, fallback = "") {
-  return typeof value === "string" ? value.trim().slice(0, 1200) : fallback;
+function escapeHtml(input: string): string {
+  return input
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll("\"", "&quot;")
+    .replaceAll("'", "&#39;");
 }
 
-function cleanContribution(value: unknown): TreeContributionPayload | null {
-  if (!value || typeof value !== "object") return null;
+function truncate(input: string, max = 180): string {
+  const trimmed = input.trim();
+  return trimmed.length <= max ? trimmed : `${trimmed.slice(0, max - 1)}…`;
+}
 
-  const input = value as TreeContributionPayload;
-  const message = cleanText(input.message);
-  const audioDataUrl = typeof input.audioDataUrl === "string" && input.audioDataUrl.startsWith("data:audio/")
-    ? input.audioDataUrl
-    : undefined;
+async function notifyTreeModerators(submissionId: string, contribution: NonNullable<ReturnType<typeof cleanTreeContribution>>) {
+  const botToken = process.env.TELEGRAM_BOT_TOKEN;
+  const adminIds = (process.env.TELEGRAM_ADMIN_IDS || "")
+    .split(",")
+    .map((id) => id.trim())
+    .filter(Boolean);
 
-  if (!message && !audioDataUrl) return null;
+  if (!botToken || adminIds.length === 0) {
+    console.error("Tree of Hope moderation notice skipped: Telegram bot token or admin ids missing");
+    return;
+  }
 
-  return {
-    id: cleanText(input.id, crypto.randomUUID()).slice(0, 80),
-    zoneId: cleanText(input.zoneId, "canopy").slice(0, 40),
-    author: cleanText(input.author, "Community voice").slice(0, 80) || "Community voice",
-    message,
-    audioDataUrl,
-    audioType: cleanText(input.audioType).slice(0, 80) || undefined,
-    createdAt: cleanText(input.createdAt, new Date().toISOString()),
-    x: typeof input.x === "number" ? input.x : undefined,
-    y: typeof input.y === "number" ? input.y : undefined,
-  };
+  const text = [
+    "🌳 <b>Tree of Hope approval needed</b>",
+    `Part: <b>${escapeHtml(treeZoneLabel(contribution.zoneId))}</b>`,
+    `From: ${escapeHtml(contribution.author || "Community voice")}`,
+    contribution.message ? `Message: ${escapeHtml(truncate(contribution.message))}` : "Message: <i>voice note only</i>",
+    contribution.audioDataUrl ? "Voice note: <b>attached on the website submission</b>" : "",
+    "",
+    "Approve it to place it on the public tree.",
+  ].filter(Boolean).join("\n");
+
+  await Promise.all(adminIds.map(async (chatId) => {
+    try {
+      const res = await fetch(`${TELEGRAM_API}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text,
+          parse_mode: "HTML",
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [[
+              { text: "✅ Approve tree post", callback_data: `treeok:${submissionId}` },
+              { text: "❌ Reject", callback_data: `treeno:${submissionId}` },
+            ]],
+          },
+        }),
+      });
+      if (!res.ok) {
+        console.error("Tree of Hope moderation notice failed:", res.status, await res.text());
+      }
+    } catch (error) {
+      console.error("Tree of Hope moderation notice exception:", error);
+    }
+  }));
 }
 
 export async function GET() {
@@ -58,7 +83,7 @@ export async function GET() {
   const { data, error } = await supabase
     .from("form_submissions")
     .select("id,payload,created_at")
-    .eq("form_type", formType)
+    .eq("form_type", TREE_OF_HOPE_FORM_TYPE)
     .order("created_at", { ascending: false })
     .limit(75);
 
@@ -69,7 +94,11 @@ export async function GET() {
 
   const contributions = (data || [])
     .map((entry) => {
-      const cleaned = cleanContribution(entry.payload);
+      const cleaned = cleanTreeContribution(entry.payload, {
+        fallbackId: entry.id,
+        fallbackCreatedAt: entry.created_at,
+        requireApproved: true,
+      });
       if (!cleaned) return null;
       return {
         ...cleaned,
@@ -85,7 +114,10 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const contribution = cleanContribution(body);
+    const contribution = cleanTreeContribution({
+      ...body,
+      moderationStatus: "pending",
+    });
 
     if (!contribution) {
       return NextResponse.json(
@@ -95,7 +127,7 @@ export async function POST(request: NextRequest) {
     }
 
     const savedSubmission = await saveFormSubmission({
-      formType,
+      formType: TREE_OF_HOPE_FORM_TYPE,
       sourcePath: "/#tree-of-hope",
       payload: contribution,
       request,
@@ -110,7 +142,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ success: true, contribution });
+    if (savedSubmission.backend === "table" && savedSubmission.id) {
+      await notifyTreeModerators(savedSubmission.id, contribution);
+    }
+
+    return NextResponse.json({ success: true, pendingApproval: true });
   } catch (error) {
     console.error("Tree of Hope save failed:", error);
     return NextResponse.json(
