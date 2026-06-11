@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import { Reveal, staggerContainer, fadeUp } from "@/lib/motion";
 import type { GalleryImage, GalleryContent } from "@/lib/types";
 import TreeOfHopeScene from "./TreeOfHopeScene";
@@ -152,6 +153,12 @@ export default function Gallery({ images, meta }: GalleryProps) {
                         <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3rem)] font-bold leading-tight tracking-tight text-text-primary">
                             Tree of Hope
                         </h2>
+                        <Link
+                            href="/tree-of-hope"
+                            className="mt-3 inline-flex min-h-10 items-center justify-center rounded-full border border-border bg-bg-card px-4 text-sm font-bold text-text-primary transition hover:border-accent/40 hover:text-accent"
+                        >
+                            Open full Tree of Hope page
+                        </Link>
                     </div>
                     <TreeOfHopeScene />
                 </div>

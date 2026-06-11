@@ -224,7 +224,7 @@ export async function POST(request: NextRequest) {
 
     const savedSubmission = await saveFormSubmission({
       formType: TREE_OF_HOPE_FORM_TYPE,
-      sourcePath: "/#tree-of-hope",
+      sourcePath: "/tree-of-hope",
       payload: contribution,
       request,
       contactName: contribution.author,
