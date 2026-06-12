@@ -223,12 +223,11 @@ export default function TreeOfHopeScene() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingError, setRecordingError] = useState("");
   const [consentAccepted, setConsentAccepted] = useState(false);
-  const [syncStatus, setSyncStatus] = useState("Loading community archive...");
+  const [syncStatus, setSyncStatus] = useState("Be one of the first to leave something for the tree.");
   const [isSaving, setIsSaving] = useState(false);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [soundscapeActive, setSoundscapeActive] = useState(false);
   const [viewAngle, setViewAngle] = useState(0);
-  const [autoTurn, setAutoTurn] = useState(false);
   const [seasonId, setSeasonId] = useState<SeasonId>(() => naturalSeason());
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
@@ -246,6 +245,7 @@ export default function TreeOfHopeScene() {
   const canSave = (message.trim().length > 0 || audioDraft !== null) && selectedPoint !== null && consentAccepted && !isSaving;
   const currentSeason = seasons.find((season) => season.id === seasonId) ?? seasons[1];
   const cloudContributions = useMemo(() => contributions.slice(0, cloudSlots.length), [contributions]);
+  const showPublicCount = contributions.length >= 15;
 
   const zoneCounts = useMemo(() => {
     return zones.reduce<Record<string, number>>((counts, zone) => {
@@ -274,8 +274,8 @@ export default function TreeOfHopeScene() {
         );
         setSyncStatus(
           remoteContributions.length > 0
-            ? "Live community archive loaded"
-            : "Ready to collect the first approved message",
+            ? "Choose a leaf or cloud to read what has been passed on."
+            : "Be one of the first to leave something for the tree.",
         );
       } catch {
         if (!cancelled) setSyncStatus("Archive unavailable; try again shortly");
@@ -289,14 +289,6 @@ export default function TreeOfHopeScene() {
       window.clearInterval(interval);
     };
   }, []);
-
-  useEffect(() => {
-    if (!autoTurn) return;
-    const interval = window.setInterval(() => {
-      setViewAngle((angle) => (angle + 2) % 360);
-    }, 80);
-    return () => window.clearInterval(interval);
-  }, [autoTurn]);
 
   useEffect(() => {
     const updateSeason = () => setSeasonId(naturalSeason());
@@ -564,16 +556,6 @@ export default function TreeOfHopeScene() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [soundscapeActive]);
 
-  const downloadArchive = () => {
-    const blob = new Blob([JSON.stringify(contributions, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "tree-of-hope-archive.json";
-    link.click();
-    URL.revokeObjectURL(url);
-  };
-
   return (
     <div className="grid overflow-hidden rounded-2xl border border-border bg-[#f5f1e5] shadow-xl shadow-black/5 lg:grid-cols-[minmax(0,1fr)_23rem]">
       <div
@@ -591,7 +573,7 @@ export default function TreeOfHopeScene() {
         <div
           className="absolute inset-0 transition-transform duration-300 ease-out"
           style={{
-            transform: `perspective(1200px) rotateY(${Math.sin((viewAngle * Math.PI) / 180) * 8}deg) scale(${autoTurn ? 1.03 : 1})`,
+            transform: `perspective(1200px) rotateY(${Math.sin((viewAngle * Math.PI) / 180) * 8}deg)`,
             transformStyle: "preserve-3d",
           }}
         >
@@ -622,31 +604,29 @@ export default function TreeOfHopeScene() {
         </div>
 
         <div className="absolute left-4 right-4 top-4 z-10 rounded-lg bg-white/86 p-4 text-[#21180f] shadow-xl shadow-black/15 backdrop-blur-md sm:left-5 sm:right-auto sm:max-w-sm">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#79522d]">Moderated archive</p>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#79522d]">A living community tree</p>
           <h3 className="mt-1 font-[family-name:var(--font-heading)] text-2xl font-bold leading-tight">
-            Tree of Hope
+            What was given to you that you want to pass on?
           </h3>
           <p className="mt-2 text-sm leading-relaxed text-[#4b3827]">
-            Tap the exact place for your message, or drag the tree to turn it.
+            Tap a glowing part of the tree, or swipe the branches to see it move.
           </p>
         </div>
 
-        {cloudSlots.map((slot, index) => {
+        {cloudContributions.length > 0 && cloudSlots.map((slot, index) => {
           const item = cloudContributions[index];
           const hasAudio = !!(item?.audioUrl || item?.audioDataUrl);
+          if (!item) return null;
           return (
             <button
-              key={item?.id || `cloud-${index}`}
+              key={item.id}
               type="button"
               onClick={(event) => {
                 event.stopPropagation();
-                if (item) {
-                  setSelectedZoneId(item.zoneId);
-                  if (hasAudio) playAudio(item);
-                }
+                setSelectedZoneId(item.zoneId);
+                if (hasAudio) playAudio(item);
               }}
-              disabled={!item}
-              className="absolute z-20 max-w-[14rem] rounded-[40px] border border-white/70 bg-white/82 px-5 py-3 text-left text-xs font-bold leading-snug text-[#3b2a1c] shadow-lg shadow-black/12 backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white disabled:pointer-events-none disabled:opacity-55"
+              className="absolute z-20 max-w-[14rem] rounded-[40px] border border-white/70 bg-white/82 px-5 py-3 text-left text-xs font-bold leading-snug text-[#3b2a1c] shadow-lg shadow-black/12 backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white"
               style={{
                 left: `${slot.left}%`,
                 top: `${slot.top}%`,
@@ -655,39 +635,15 @@ export default function TreeOfHopeScene() {
             >
               <span className="absolute -bottom-2 left-8 h-5 w-5 rounded-full bg-white/82" aria-hidden="true" />
               <span className="absolute -top-3 right-8 h-8 w-12 rounded-full bg-white/72" aria-hidden="true" />
-              {item ? (
-                <>
-                  <span className="block text-[0.66rem] uppercase tracking-[0.14em] text-[#79522d]">
-                    {hasAudio ? "Voice cloud" : "Message cloud"}
-                  </span>
-                  <span className="mt-1 block line-clamp-3">
-                    {item.message || `A voice note from ${item.author || "the community"}`}
-                  </span>
-                </>
-              ) : (
-                <span className="block text-[0.66rem] uppercase tracking-[0.14em] text-[#79522d]">
-                  Waiting for voices
-                </span>
-              )}
+              <span className="block text-[0.66rem] uppercase tracking-[0.14em] text-[#79522d]">
+                {hasAudio ? "Voice cloud" : "Message cloud"}
+              </span>
+              <span className="mt-1 block line-clamp-3">
+                {item.message || `A voice note from ${item.author || "the community"}`}
+              </span>
             </button>
           );
         })}
-
-        <div className="absolute bottom-4 left-4 right-4 z-30 grid grid-cols-[1fr_auto] items-center gap-2 rounded-lg bg-[#20170f]/86 p-2 text-white shadow-xl shadow-black/20 backdrop-blur-md sm:left-auto sm:right-4 sm:w-[22rem]">
-          <div className="px-2 text-xs font-bold leading-tight text-white/72">
-            {currentSeason.label} is set by the calendar.
-          </div>
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              setAutoTurn((active) => !active);
-            }}
-            className="h-10 rounded-md bg-white/12 px-2 text-xs font-black transition hover:bg-white/18"
-          >
-            {autoTurn ? "Stop" : "Auto"}
-          </button>
-        </div>
 
         {zones.map((zone) => (
           (() => {
@@ -715,7 +671,7 @@ export default function TreeOfHopeScene() {
                 }}
                 title={`${zone.label}: ${zone.part}`}
               >
-                <span className="text-sm font-black">{zoneCounts[zone.id] || "+"}</span>
+                <span className="text-sm font-black">{zoneCounts[zone.id] > 0 ? "Leaf" : "+"}</span>
               </button>
             );
           })()
@@ -771,12 +727,12 @@ export default function TreeOfHopeScene() {
       <aside className="flex min-h-[500px] flex-col bg-[#20170f] p-5 text-white sm:p-6">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#d7b56d]">{selectedZone.label}</p>
-          <h3 className="mt-1 text-2xl font-bold">{selectedZone.part}</h3>
+          <h3 className="mt-1 text-2xl font-bold">What was given to you that you want to pass on?</h3>
           <p className="mt-2 text-sm leading-relaxed text-white/74">{selectedZone.prompt}</p>
           <p className="mt-3 rounded-lg border border-[#f2c94c]/24 bg-[#f2c94c]/10 p-3 text-xs leading-relaxed text-[#f9e7a9]">
             {selectedPoint
-              ? `Placement selected on the ${selectedZone.label.toLowerCase()} area.`
-              : "Tap the exact spot on the tree first, then add your message or voice note."}
+              ? `Your leaf will sit with the ${selectedZone.label.toLowerCase()}.`
+              : "Choose a glowing part of the tree, then write or record what you want to pass on."}
           </p>
         </div>
 
@@ -790,40 +746,29 @@ export default function TreeOfHopeScene() {
           <textarea
             value={message}
             onChange={(event) => setMessage(event.target.value)}
-            placeholder="Write a message for this part of the tree"
+            placeholder="What was given to you that you want to pass on?"
             rows={4}
             className="min-h-28 resize-none rounded-lg border border-white/12 bg-white/10 px-3 py-3 text-sm leading-relaxed text-white outline-none transition placeholder:text-white/48 focus:border-[#f2c94c]"
           />
 
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={isRecording ? stopRecording : startRecording}
-              className={`inline-flex h-11 items-center justify-center gap-2 rounded-lg px-3 text-sm font-bold transition ${
-                isRecording
-                  ? "bg-[#c84630] text-white hover:bg-[#a93423]"
-                  : "bg-white/12 text-white hover:bg-white/18"
-              }`}
-            >
-              <span className="h-4 w-4">
-                <Icon name={isRecording ? "stop" : "mic"} />
-              </span>
-              {isRecording ? "Stop" : audioDraft ? "Record again" : "Voice"}
-            </button>
-
-            <button
-              type="button"
-              onClick={saveContribution}
-              disabled={!canSave}
-              className="h-11 rounded-lg bg-[#f2c94c] px-4 text-sm font-black text-[#20170f] transition hover:bg-[#ffe071] disabled:cursor-not-allowed disabled:opacity-45"
-            >
-              {isSaving ? "Sending" : "Send for approval"}
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={isRecording ? stopRecording : startRecording}
+            className={`inline-flex h-11 items-center justify-center gap-2 rounded-lg px-3 text-sm font-bold transition ${
+              isRecording
+                ? "bg-[#c84630] text-white hover:bg-[#a93423]"
+                : "bg-white/12 text-white hover:bg-white/18"
+            }`}
+          >
+            <span className="h-4 w-4">
+              <Icon name={isRecording ? "stop" : "mic"} />
+            </span>
+            {isRecording ? "Stop recording" : audioDraft ? "Record again" : "Record a voice note"}
+          </button>
 
           {audioDraft ? (
             <div className="rounded-lg border border-[#f2c94c]/30 bg-[#f2c94c]/12 p-3 text-sm text-[#f9e7a9]">
-              Voice note ready. Send it for approval or record again.
+              Voice note ready. You can send it with or without a written message.
             </div>
           ) : null}
 
@@ -844,55 +789,35 @@ export default function TreeOfHopeScene() {
               I understand this message or voice note may become public on the Tree of Hope after admin approval.
             </span>
           </label>
+
+          <button
+            type="button"
+            onClick={saveContribution}
+            disabled={!canSave}
+            className="h-11 rounded-lg bg-[#f2c94c] px-4 text-sm font-black text-[#20170f] transition hover:bg-[#ffe071] disabled:cursor-not-allowed disabled:opacity-45"
+          >
+            {isSaving ? "Sending" : "Add my leaf"}
+          </button>
         </div>
 
         <div className="mt-6 flex items-center justify-between gap-3 border-t border-white/10 pt-5">
           <div>
-            <p className="text-sm font-bold">{contributions.length} contributions</p>
+            {showPublicCount ? <p className="text-sm font-bold">{contributions.length} voices growing</p> : null}
             <p className="text-xs text-white/56">{syncStatus}</p>
           </div>
-          <button
-            type="button"
-            onClick={downloadArchive}
-            disabled={contributions.length === 0}
-            className="grid h-10 w-10 place-items-center rounded-lg bg-white/10 text-white transition hover:bg-white/16 disabled:cursor-not-allowed disabled:opacity-40"
-            title="Download archive"
-            aria-label="Download archive"
-          >
-            <span className="h-4 w-4">
-              <Icon name="download" />
-            </span>
-          </button>
         </div>
 
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            onClick={() => setSoundscapeActive((active) => !active)}
-            disabled={voiceContributions.length === 0}
-            className="h-10 rounded-lg bg-white/10 px-3 text-xs font-bold text-white transition hover:bg-white/16 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {soundscapeActive ? "Stop voices" : "Play voices"}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              void fetch("/api/tree-of-hope", { cache: "no-store" })
-                .then((response) => response.json())
-                .then((data: { contributions?: TreeContribution[] }) => {
-                  const remoteContributions = Array.isArray(data.contributions) ? data.contributions : [];
-                  setContributions(
-                    remoteContributions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
-                  );
-                  setSyncStatus("Archive refreshed");
-                })
-                .catch(() => setSyncStatus("Refresh unavailable; try again shortly"));
-            }}
-            className="h-10 rounded-lg bg-white/10 px-3 text-xs font-bold text-white transition hover:bg-white/16"
-          >
-            Refresh tree
-          </button>
-        </div>
+        {voiceContributions.length > 0 ? (
+          <div className="mt-3">
+            <button
+              type="button"
+              onClick={() => setSoundscapeActive((active) => !active)}
+              className="h-10 w-full rounded-lg bg-white/10 px-3 text-xs font-bold text-white transition hover:bg-white/16"
+            >
+              {soundscapeActive ? "Stop voices" : "Play voices"}
+            </button>
+          </div>
+        ) : null}
 
         <div className="mt-4 min-h-0 flex-1 overflow-y-auto pr-1">
           <div className="grid gap-3">
@@ -920,8 +845,9 @@ export default function TreeOfHopeScene() {
               ))
             ) : (
               <div className="rounded-lg border border-dashed border-white/18 p-4 text-sm leading-relaxed text-white/62">
-                Nothing approved here yet. Choose this part of the tree, write a message, record a
-                voice note, and send it for approval.
+                {contributions.length > 0
+                  ? "The latest leaves are moving around the tree. Tap a leaf or cloud to open it here."
+                  : "The first approved leaves will appear here soon. Your message can be the one that starts it."}
               </div>
             )}
           </div>
