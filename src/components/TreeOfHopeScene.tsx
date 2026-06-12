@@ -579,7 +579,7 @@ export default function TreeOfHopeScene() {
         >
           <Image
             src="/media/tree-of-hope-field.jpg"
-            alt="Large tree in a green field for the Tree of Hope"
+            alt="Father with two daughters at a blue playground for the Tree of Hope"
             fill
             priority={false}
             className="object-cover"
