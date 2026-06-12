@@ -19,6 +19,7 @@ type TreeContribution = {
   moderationStatus?: TreeModerationStatus;
   moderatedAt?: string;
   moderatedBy?: string;
+  moderationFlags?: string[];
 };
 
 type TreeSubmission = {
@@ -224,6 +225,9 @@ export default function TreeAdminPage() {
                 filtered.map((item) => {
                   const contribution = item.contribution;
                   const audioSource = contribution.audioUrl || contribution.audioDataUrl;
+                  const moderationFlags = Array.isArray(contribution.moderationFlags)
+                    ? contribution.moderationFlags.filter(Boolean)
+                    : [];
 
                   return (
                     <article key={item.id} className="rounded-lg border border-[#d7c9a3] bg-white p-4 shadow-sm">
@@ -236,6 +240,11 @@ export default function TreeAdminPage() {
                             <span className="text-xs font-bold uppercase tracking-[0.12em] text-[#79522d]">
                               {zoneLabel(contribution.zoneId)}
                             </span>
+                            {moderationFlags.length > 0 ? (
+                              <span className="rounded-full border border-amber-300 bg-amber-100 px-2.5 py-1 text-xs font-black text-amber-900">
+                                ⚠️ Flagged
+                              </span>
+                            ) : null}
                           </div>
                           <h2 className="mt-3 text-xl font-black">{contribution.author || "Community voice"}</h2>
                           <p className="mt-1 text-xs text-[#6f5a42]">
@@ -269,8 +278,17 @@ export default function TreeAdminPage() {
                         </p>
                       ) : null}
 
+                      {moderationFlags.length > 0 ? (
+                        <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm font-bold text-amber-900">
+                          ⚠️ Contains flagged word — review before approving
+                        </div>
+                      ) : null}
+
                       {audioSource ? (
                         <div className="mt-4 rounded-lg border border-[#d7c9a3] p-3">
+                          <p className="mb-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm font-bold normal-case tracking-normal text-amber-900">
+                            ⚠️ Voice note — listen before approving. Check for offensive language or inappropriate content before this goes live on the tree.
+                          </p>
                           <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-[#79522d]">Voice note</p>
                           <audio controls src={audioSource} className="w-full" />
                         </div>

@@ -3,6 +3,12 @@
 import Image from "next/image";
 import type { MouseEvent, PointerEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  containsTreeProfanity,
+  treeSubmissionErrors,
+  validateTreeSubmissionText,
+  type TreeSubmissionErrorType,
+} from "@/lib/tree-of-hope-moderation";
 
 type TreeZone = {
   id: string;
@@ -32,6 +38,9 @@ type SeasonId = "spring" | "summer" | "autumn" | "winter";
 
 const storageKey = "hold-tree-of-hope-approved-contributions-v1";
 const offlineQueueKey = "hold-tree-of-hope-offline-queue-v1";
+const submissionRateLimitKey = "hid_tree_submissions";
+const submissionLimit = 3;
+const submissionWindowMs = 24 * 60 * 60 * 1000;
 
 const seasons: Array<{
   id: SeasonId;
@@ -177,6 +186,33 @@ function projectTreePoint(x: number, y: number, angle: number) {
   };
 }
 
+function recentSubmissionTimestamps() {
+  const cutoff = Date.now() - submissionWindowMs;
+  const raw = window.localStorage.getItem(submissionRateLimitKey);
+  if (!raw) return [];
+
+  try {
+    const timestamps = (JSON.parse(raw) as unknown[])
+      .filter((value): value is number => typeof value === "number" && Number.isFinite(value))
+      .filter((value) => value >= cutoff);
+    window.localStorage.setItem(submissionRateLimitKey, JSON.stringify(timestamps));
+    return timestamps;
+  } catch {
+    window.localStorage.removeItem(submissionRateLimitKey);
+    return [];
+  }
+}
+
+function hasReachedSubmissionLimit() {
+  return recentSubmissionTimestamps().length >= submissionLimit;
+}
+
+function recordSubmissionTimestamp() {
+  const timestamps = recentSubmissionTimestamps();
+  timestamps.push(Date.now());
+  window.localStorage.setItem(submissionRateLimitKey, JSON.stringify(timestamps));
+}
+
 function Icon({ name }: { name: "mic" | "stop" | "play" | "download" }) {
   if (name === "mic") {
     return (
@@ -219,6 +255,7 @@ export default function TreeOfHopeScene() {
   const [contributions, setContributions] = useState<TreeContribution[]>([]);
   const [author, setAuthor] = useState("");
   const [message, setMessage] = useState("");
+  const [submissionError, setSubmissionError] = useState<TreeSubmissionErrorType | null>(null);
   const [audioDraft, setAudioDraft] = useState<{ dataUrl: string; type: string; durationSeconds: number } | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingError, setRecordingError] = useState("");
@@ -325,7 +362,7 @@ export default function TreeOfHopeScene() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(item),
         });
-        if (!response.ok) remaining.push(item);
+        if (!response.ok && response.status >= 500) remaining.push(item);
       } catch {
         remaining.push(item);
       }
@@ -482,12 +519,32 @@ export default function TreeOfHopeScene() {
   const saveContribution = async () => {
     if (!canSave) return;
 
+    const messageInput = message.trim();
+    const nameInput = author.trim();
+    const validationError = messageInput
+      ? validateTreeSubmissionText(messageInput, nameInput)
+      : containsTreeProfanity("", nameInput)
+        ? "profanity"
+        : null;
+
+    if (validationError) {
+      setSubmissionError(validationError);
+      return;
+    }
+
+    if (hasReachedSubmissionLimit()) {
+      setSubmissionError("rate-limit");
+      return;
+    }
+
+    setSubmissionError(null);
+
     const position = selectedPoint ?? makeContributionPosition(selectedZone, selectedZoneContributions.length);
     const nextContribution: TreeContribution = {
       id: crypto.randomUUID(),
       zoneId: selectedZone.id,
-      author: author.trim() || "Community voice",
-      message: message.trim(),
+      author: nameInput || "Community voice",
+      message: messageInput,
       audioDataUrl: audioDraft?.dataUrl,
       audioType: audioDraft?.type,
       audioDurationSeconds: audioDraft?.durationSeconds,
@@ -507,8 +564,20 @@ export default function TreeOfHopeScene() {
         body: JSON.stringify(nextContribution),
       });
 
-      if (!response.ok) throw new Error("Archive save failed");
+      if (!response.ok) {
+        const data = (await response.json().catch(() => null)) as { error?: string; errorType?: TreeSubmissionErrorType } | null;
+        if (data?.errorType && data.errorType in treeSubmissionErrors) {
+          setSubmissionError(data.errorType);
+          return;
+        }
+        if (response.status < 500) {
+          setSyncStatus(data?.error || "This leaf could not be sent. Please check it and try again.");
+          return;
+        }
+        throw new Error("Archive save failed");
+      }
       await response.json();
+      recordSubmissionTimestamp();
       setSyncStatus("Sent for approval. It will appear after admin review.");
       setMessage("");
       setAudioDraft(null);
@@ -519,6 +588,7 @@ export default function TreeOfHopeScene() {
       const queued = raw ? (JSON.parse(raw) as TreeContribution[]) : [];
       queued.push(nextContribution);
       window.localStorage.setItem(offlineQueueKey, JSON.stringify(queued));
+      recordSubmissionTimestamp();
       setSyncStatus("Saved offline. It will send for approval when connection returns.");
       setMessage("");
       setAudioDraft(null);
@@ -739,17 +809,28 @@ export default function TreeOfHopeScene() {
         <div className="mt-5 grid gap-3">
           <input
             value={author}
-            onChange={(event) => setAuthor(event.target.value)}
+            onChange={(event) => {
+              setAuthor(event.target.value);
+              setSubmissionError(null);
+            }}
             placeholder="Name or initials"
             className="h-11 rounded-lg border border-white/12 bg-white/10 px-3 text-sm text-white outline-none transition placeholder:text-white/48 focus:border-[#f2c94c]"
           />
           <textarea
             value={message}
-            onChange={(event) => setMessage(event.target.value)}
+            onChange={(event) => {
+              setMessage(event.target.value);
+              setSubmissionError(null);
+            }}
             placeholder="What was given to you that you want to pass on?"
             rows={4}
             className="min-h-28 resize-none rounded-lg border border-white/12 bg-white/10 px-3 py-3 text-sm leading-relaxed text-white outline-none transition placeholder:text-white/48 focus:border-[#f2c94c]"
           />
+          {submissionError ? (
+            <p className="submission-error mt-2 text-[0.85rem] leading-relaxed text-[#E8A838]">
+              {treeSubmissionErrors[submissionError]}
+            </p>
+          ) : null}
 
           <button
             type="button"

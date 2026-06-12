@@ -1,7 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { saveFormSubmission } from "@/lib/form-submissions";
-import { cleanTreeContribution, TREE_OF_HOPE_FORM_TYPE, treeZoneLabel } from "@/lib/tree-of-hope";
+import {
+  cleanTreeContribution,
+  TREE_OF_HOPE_FORM_TYPE,
+  treeZoneLabel,
+  type TreeContributionPayload,
+} from "@/lib/tree-of-hope";
+import {
+  containsTreeProfanity,
+  findTreeFlagWords,
+  treeSubmissionErrors,
+  validateTreeSubmissionText,
+} from "@/lib/tree-of-hope-moderation";
 import { uploadTreeVoiceNote } from "@/lib/tree-of-hope-server";
 
 export const runtime = "nodejs";
@@ -286,6 +297,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const contentError = contribution.message
+      ? validateTreeSubmissionText(contribution.message, contribution.author || "")
+      : containsTreeProfanity("", contribution.author || "")
+        ? "profanity"
+        : null;
+
+    if (contentError) {
+      return NextResponse.json(
+        { error: treeSubmissionErrors[contentError], errorType: contentError },
+        { status: 400 },
+      );
+    }
+
     if (await isRateLimited(request)) {
       return NextResponse.json(
         { error: "Too many Tree of Hope submissions. Please wait a minute and try again." },
@@ -293,7 +317,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let payloadToSave = contribution;
+    let payloadToSave: TreeContributionPayload = {
+      ...contribution,
+      moderationFlags: findTreeFlagWords(contribution.message || "", contribution.author || ""),
+    };
     if (contribution.audioDataUrl) {
       const duration = contribution.audioDurationSeconds ?? 0;
       if (duration > 60) {
@@ -305,7 +332,7 @@ export async function POST(request: NextRequest) {
 
       const uploaded = await uploadTreeVoiceNote(contribution.audioDataUrl, contribution.id || crypto.randomUUID());
       payloadToSave = {
-        ...contribution,
+        ...payloadToSave,
         ...uploaded,
         audioDataUrl: undefined,
       };
