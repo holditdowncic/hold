@@ -118,6 +118,21 @@ const zones: TreeZone[] = [
   },
 ];
 
+const cloudSlots = [
+  { left: 12, top: 16, delay: 0 },
+  { left: 64, top: 13, delay: 1.4 },
+  { left: 37, top: 8, delay: 2.8 },
+  { left: 78, top: 24, delay: 4.2 },
+];
+
+function naturalSeason(date = new Date()): SeasonId {
+  const month = date.getMonth();
+  if (month >= 2 && month <= 4) return "spring";
+  if (month >= 5 && month <= 7) return "summer";
+  if (month >= 8 && month <= 10) return "autumn";
+  return "winter";
+}
+
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",
@@ -214,7 +229,7 @@ export default function TreeOfHopeScene() {
   const [soundscapeActive, setSoundscapeActive] = useState(false);
   const [viewAngle, setViewAngle] = useState(0);
   const [autoTurn, setAutoTurn] = useState(false);
-  const [seasonId, setSeasonId] = useState<SeasonId>("summer");
+  const [seasonId, setSeasonId] = useState<SeasonId>(() => naturalSeason());
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -230,6 +245,7 @@ export default function TreeOfHopeScene() {
   const voiceContributions = contributions.filter((item) => item.audioDataUrl || item.audioUrl);
   const canSave = (message.trim().length > 0 || audioDraft !== null) && selectedPoint !== null && consentAccepted && !isSaving;
   const currentSeason = seasons.find((season) => season.id === seasonId) ?? seasons[1];
+  const cloudContributions = useMemo(() => contributions.slice(0, cloudSlots.length), [contributions]);
 
   const zoneCounts = useMemo(() => {
     return zones.reduce<Record<string, number>>((counts, zone) => {
@@ -281,6 +297,13 @@ export default function TreeOfHopeScene() {
     }, 80);
     return () => window.clearInterval(interval);
   }, [autoTurn]);
+
+  useEffect(() => {
+    const updateSeason = () => setSeasonId(naturalSeason());
+    updateSeason();
+    const interval = window.setInterval(updateSeason, 3_600_000);
+    return () => window.clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if ("serviceWorker" in navigator) {
@@ -423,6 +446,7 @@ export default function TreeOfHopeScene() {
   const handleTreePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     const target = event.target as HTMLElement;
     if (target.closest("button,a,input,textarea,label")) return;
+    event.preventDefault();
     dragStartRef.current = { x: event.clientX, angle: viewAngle, moved: false };
     event.currentTarget.setPointerCapture(event.pointerId);
   };
@@ -430,6 +454,7 @@ export default function TreeOfHopeScene() {
   const handleTreePointerMove = (event: PointerEvent<HTMLDivElement>) => {
     const drag = dragStartRef.current;
     if (!drag) return;
+    event.preventDefault();
     const delta = event.clientX - drag.x;
     if (Math.abs(delta) < 6) return;
     drag.moved = true;
@@ -549,17 +574,11 @@ export default function TreeOfHopeScene() {
     URL.revokeObjectURL(url);
   };
 
-  const nextSeason = () => {
-    setSeasonId((active) => {
-      const index = seasons.findIndex((season) => season.id === active);
-      return seasons[(index + 1) % seasons.length].id;
-    });
-  };
-
   return (
     <div className="grid overflow-hidden rounded-2xl border border-border bg-[#f5f1e5] shadow-xl shadow-black/5 lg:grid-cols-[minmax(0,1fr)_23rem]">
       <div
-        className="relative min-h-[500px] cursor-crosshair overflow-hidden bg-[#bcd790] sm:min-h-[620px]"
+        className="relative min-h-[500px] cursor-grab touch-none overflow-hidden bg-[#bcd790] active:cursor-grabbing sm:min-h-[620px]"
+        style={{ touchAction: "none" }}
         onClick={handleTreeClick}
         onPointerDown={handleTreePointerDown}
         onPointerMove={handleTreePointerMove}
@@ -612,7 +631,52 @@ export default function TreeOfHopeScene() {
           </p>
         </div>
 
-        <div className="absolute bottom-4 left-4 right-4 z-30 grid grid-cols-3 gap-2 rounded-lg bg-[#20170f]/86 p-2 text-white shadow-xl shadow-black/20 backdrop-blur-md sm:left-auto sm:right-4 sm:w-[22rem]">
+        {cloudSlots.map((slot, index) => {
+          const item = cloudContributions[index];
+          const hasAudio = !!(item?.audioUrl || item?.audioDataUrl);
+          return (
+            <button
+              key={item?.id || `cloud-${index}`}
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                if (item) {
+                  setSelectedZoneId(item.zoneId);
+                  if (hasAudio) playAudio(item);
+                }
+              }}
+              disabled={!item}
+              className="absolute z-20 max-w-[14rem] rounded-[40px] border border-white/70 bg-white/82 px-5 py-3 text-left text-xs font-bold leading-snug text-[#3b2a1c] shadow-lg shadow-black/12 backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white disabled:pointer-events-none disabled:opacity-55"
+              style={{
+                left: `${slot.left}%`,
+                top: `${slot.top}%`,
+                animation: `tree-cloud-drift ${7 + index}s ease-in-out ${slot.delay}s infinite alternate`,
+              }}
+            >
+              <span className="absolute -bottom-2 left-8 h-5 w-5 rounded-full bg-white/82" aria-hidden="true" />
+              <span className="absolute -top-3 right-8 h-8 w-12 rounded-full bg-white/72" aria-hidden="true" />
+              {item ? (
+                <>
+                  <span className="block text-[0.66rem] uppercase tracking-[0.14em] text-[#79522d]">
+                    {hasAudio ? "Voice cloud" : "Message cloud"}
+                  </span>
+                  <span className="mt-1 block line-clamp-3">
+                    {item.message || `A voice note from ${item.author || "the community"}`}
+                  </span>
+                </>
+              ) : (
+                <span className="block text-[0.66rem] uppercase tracking-[0.14em] text-[#79522d]">
+                  Waiting for voices
+                </span>
+              )}
+            </button>
+          );
+        })}
+
+        <div className="absolute bottom-4 left-4 right-4 z-30 grid grid-cols-[1fr_auto] items-center gap-2 rounded-lg bg-[#20170f]/86 p-2 text-white shadow-xl shadow-black/20 backdrop-blur-md sm:left-auto sm:right-4 sm:w-[22rem]">
+          <div className="px-2 text-xs font-bold leading-tight text-white/72">
+            {currentSeason.label} is set by the calendar.
+          </div>
           <button
             type="button"
             onClick={(event) => {
@@ -622,26 +686,6 @@ export default function TreeOfHopeScene() {
             className="h-10 rounded-md bg-white/12 px-2 text-xs font-black transition hover:bg-white/18"
           >
             {autoTurn ? "Stop" : "Auto"}
-          </button>
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              setViewAngle((angle) => (angle + 45) % 360);
-            }}
-            className="h-10 rounded-md bg-white/12 px-2 text-xs font-black transition hover:bg-white/18"
-          >
-            Rotate
-          </button>
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              nextSeason();
-            }}
-            className="h-10 rounded-md bg-[#f2c94c] px-2 text-xs font-black text-[#20170f] transition hover:bg-[#ffe071]"
-          >
-            {currentSeason.label}
           </button>
         </div>
 

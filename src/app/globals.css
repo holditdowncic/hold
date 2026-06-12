@@ -442,6 +442,16 @@ footer {
   padding-bottom: max(2rem, env(safe-area-inset-bottom));
 }
 
+@keyframes tree-cloud-drift {
+  from {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  to {
+    transform: translate3d(8px, -10px, 0);
+  }
+}
+
 /* --- Tap Highlight --- */
 @media (pointer: coarse) {
 

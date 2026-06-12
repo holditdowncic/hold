@@ -12,7 +12,6 @@ const supabaseUrl =
   "https://krqghaxflwyxwcapbedf.supabase.co";
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 const rateLimitWindowMs = 60_000;
 const rateLimitMaxSubmissions = 5;
 
@@ -58,6 +57,7 @@ function siteUrl(request: NextRequest) {
 }
 
 async function sendTelegramAudio(
+  botToken: string,
   chatId: string,
   audioDataUrl: string,
   caption: string,
@@ -78,7 +78,7 @@ async function sendTelegramAudio(
     ]],
   }));
 
-  const res = await fetch(`${TELEGRAM_API}/sendAudio`, {
+  const res = await fetch(`https://api.telegram.org/bot${botToken}/sendAudio`, {
     method: "POST",
     body: form,
   });
@@ -110,8 +110,8 @@ async function isRateLimited(request: NextRequest) {
 }
 
 async function notifyTreeModerators(submissionId: string, contribution: NonNullable<ReturnType<typeof cleanTreeContribution>>) {
-  const botToken = process.env.TELEGRAM_BOT_TOKEN;
-  const adminIds = (process.env.TELEGRAM_ADMIN_IDS || "")
+  const botToken = process.env.TELEGRAM_BOT_TOKEN || process.env.OPENCLAW_BOT_TOKEN;
+  const adminIds = (process.env.TELEGRAM_ADMIN_IDS || process.env.OPENCLAW_CHAT_ID || "8413229015,1421184483,1151171977")
     .split(",")
     .map((id) => id.trim())
     .filter(Boolean);
@@ -135,11 +135,11 @@ async function notifyTreeModerators(submissionId: string, contribution: NonNulla
   await Promise.all(adminIds.map(async (chatId) => {
     try {
       if (contribution.audioDataUrl) {
-        const sentAudio = await sendTelegramAudio(chatId, contribution.audioDataUrl, text, submissionId);
+        const sentAudio = await sendTelegramAudio(botToken, chatId, contribution.audioDataUrl, text, submissionId);
         if (sentAudio) return;
       }
 
-      const res = await fetch(`${TELEGRAM_API}/sendMessage`, {
+      const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -63,7 +63,7 @@ type TelegramAudioLike = {
 };
 
 function isAdmin(userId: number): boolean {
-  const adminIds = (process.env.TELEGRAM_ADMIN_IDS || "")
+  const adminIds = (process.env.TELEGRAM_ADMIN_IDS || "8413229015,1421184483,1151171977")
     .split(",")
     .map((id) => id.trim())
     .filter(Boolean);
