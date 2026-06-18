@@ -104,8 +104,8 @@ export default function Navbar() {
   const isHome = pathname === "/";
   const nav = (sectionsJson as unknown as Record<string, unknown>)["nav"] as Record<string, unknown> | undefined;
   const links = safeLinks(nav?.links).length ? safeLinks(nav?.links) : defaultLinks;
-  const logoSrc = typeof nav?.logo_src === "string" ? nav.logo_src : "/logos/holdlogo.png";
-  const logoAlt = typeof nav?.logo_alt === "string" ? nav.logo_alt : "HOLD IT DOWN";
+  const logoSrc = typeof nav?.logo_src === "string" ? nav.logo_src : "/logos/holditdown-cic-tree-logo.jpg";
+  const logoAlt = typeof nav?.logo_alt === "string" ? nav.logo_alt : "Hold It Down CIC";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -150,13 +150,13 @@ export default function Navbar() {
           }}
           className="flex items-center gap-2"
         >
-          <div className="relative h-8 w-[120px] sm:h-10 sm:w-[140px]">
+          <div className="relative h-11 w-11 sm:h-12 sm:w-12">
             <Image
               src={logoSrc}
               alt={logoAlt}
               fill
-              className="object-contain object-left"
-              sizes="140px"
+              className="rounded-full object-cover"
+              sizes="48px"
               priority
             />
           </div>

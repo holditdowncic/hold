@@ -53,8 +53,8 @@ export default function Footer() {
   const footerLinks = safeLinks(footer?.links).length ? safeLinks(footer?.links) : defaultFooterLinks;
   const legalLinks = safeLinks(footer?.legal_links).length ? safeLinks(footer?.legal_links) : defaultLegalLinks;
   const lines = safeLines(footer?.lines);
-  const logoSrc = typeof footer?.logo_src === "string" ? footer.logo_src : "/logos/holdlogo.png";
-  const logoAlt = typeof footer?.logo_alt === "string" ? footer.logo_alt : "HOLD IT DOWN";
+  const logoSrc = typeof footer?.logo_src === "string" ? footer.logo_src : "/logos/holditdown-cic-tree-logo.jpg";
+  const logoAlt = typeof footer?.logo_alt === "string" ? footer.logo_alt : "Hold It Down CIC";
   const resolvedLines = lines.length ? lines : [
     "Community Interest Company (CIC)",
     "Registered in England & Wales",
@@ -82,13 +82,13 @@ export default function Footer() {
             }}
             className="mb-4"
           >
-            <div className="relative h-28 w-[280px] sm:h-32 sm:w-[320px]">
+            <div className="relative h-28 w-28 sm:h-32 sm:w-32">
               <Image
                 src={logoSrc}
                 alt={logoAlt}
                 fill
-                className="object-contain"
-                sizes="140px"
+                className="rounded-full object-cover"
+                sizes="128px"
               />
             </div>
           </a>

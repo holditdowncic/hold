@@ -4,8 +4,8 @@
     "description": "Community Interest Company creating culturally rooted spaces in Croydon",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#0b0a10",
-    "theme_color": "#0b0a10",
+    "background_color": "#fffaf1",
+    "theme_color": "#4f970f",
     "icons": [
         {
             "src": "/icon-192.png",

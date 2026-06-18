@@ -82,7 +82,7 @@ export default function EventsClient(props: { events: EventData[]; meta: EventsS
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="relative overflow-hidden rounded-2xl border border-yellow-400/30 bg-gradient-to-r from-blue-900 to-blue-800"
+            className="relative overflow-hidden rounded-2xl border border-accent-warm/30 bg-gradient-to-r from-[#21180d] via-[#2f3a16] to-[#0f1c0a]"
           >
             <div className="relative z-10 flex flex-col md:flex-row">
               {/* Flyer Image */}
@@ -100,13 +100,13 @@ export default function EventsClient(props: { events: EventData[]; meta: EventsS
               {/* Content */}
               <div className="flex flex-col justify-between gap-6 p-6 sm:p-8 md:p-10 flex-1">
                 <div>
-                  <span className="mb-2 inline-block rounded-full bg-yellow-400 px-3 py-1 text-xs font-bold text-blue-900">
+                  <span className="mb-2 inline-block rounded-full bg-accent-warm px-3 py-1 text-xs font-bold text-[#21180d]">
                     UPCOMING EVENT
                   </span>
                   <h2 className="mt-2 font-[family-name:var(--font-heading)] text-2xl font-bold text-white sm:text-3xl">
                     Roots & Wings Fun Day 2026
                   </h2>
-                  <p className="mt-2 text-blue-100">
+                  <p className="mt-2 text-white/80">
                     Saturday 20th June • 1–7pm<br />
                     Heavers Farm School, SE25 6LT<br />
                     Celebrating fathers & empowering families
@@ -119,7 +119,7 @@ export default function EventsClient(props: { events: EventData[]; meta: EventsS
                     href="https://www.fatsoma.com/e/7j40jf7n/roots-wings-father-s-day-family-fun"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-yellow-400 px-6 py-3 text-sm font-bold text-blue-900 transition-all hover:bg-yellow-300 hover:shadow-lg"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-accent-warm px-6 py-3 text-sm font-bold text-[#21180d] transition-all hover:bg-[#f2a43a] hover:shadow-lg"
                   >
                     <span>🎟️ Get Tickets</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -129,18 +129,18 @@ export default function EventsClient(props: { events: EventData[]; meta: EventsS
                   {/* Book a Stall */}
                   <Link
                     href="/stall-booking"
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-yellow-400/60 bg-blue-900/50 px-6 py-3 text-sm font-bold text-yellow-300 transition-all hover:bg-blue-800 hover:shadow-lg"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-accent-warm/60 bg-white/10 px-6 py-3 text-sm font-bold text-accent-warm transition-all hover:bg-white/15 hover:shadow-lg"
                   >
                     <span>Book a Stall</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M5 12h14M12 5l7 7-7 7" />
                     </svg>
                   </Link>
-                  <span className="text-xs text-yellow-300/70">Stall bookings: £60 • Deadline: 16th May</span>
+                  <span className="text-xs text-white/65">Stall bookings: £60 • Deadline: 16th May</span>
                 </div>
 
                 {/* QR Code */}
-                <div className="flex items-center gap-4 border-t border-yellow-400/20 pt-4">
+                <div className="flex items-center gap-4 border-t border-accent-warm/20 pt-4">
                   <Image
                     src="/roots-wings-qr.png"
                     alt="QR code to get tickets"
@@ -148,17 +148,17 @@ export default function EventsClient(props: { events: EventData[]; meta: EventsS
                     height={80}
                     className="rounded-lg bg-white p-1"
                   />
-                  <p className="text-sm text-blue-200">
+                  <p className="text-sm text-white/78">
                     Scan to get tickets<br />
-                    <span className="text-xs text-blue-300/70">or click the button above</span>
+                    <span className="text-xs text-white/55">or click the button above</span>
                   </p>
                 </div>
               </div>
             </div>
 
             {/* Decorative circles */}
-            <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-yellow-400/10" />
-            <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-yellow-400/5" />
+            <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-accent-warm/10" />
+            <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-accent/10" />
           </motion.div>
         </div>
       </section>

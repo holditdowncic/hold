@@ -16,11 +16,11 @@ export default function Preloader() {
       <div className="text-center">
         <div className="mx-auto mb-5 h-16 w-16 animate-[fadeIn_0.6s_ease-out] sm:mb-6 sm:h-20 sm:w-20">
           <Image
-            src="/logos/holdlogo.png"
-            alt="Hold It Down"
+            src="/logos/holditdown-cic-tree-logo.jpg"
+            alt="Hold It Down CIC"
             width={80}
             height={80}
-            className="h-full w-full object-contain drop-shadow-[0_0_15px_rgba(139,92,246,0.3)]"
+            className="h-full w-full rounded-full object-cover drop-shadow-[0_0_15px_rgba(79,151,15,0.3)]"
             priority
           />
         </div>

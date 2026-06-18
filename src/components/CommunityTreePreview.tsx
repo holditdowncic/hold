@@ -36,7 +36,7 @@ const approvedSeed: Thought[] = [
     id: "a4",
     name: "Junior",
     message: "A youth media club would be powerful.",
-    color: "#c8a2f8",
+    color: "#8bc34a",
   },
   {
     id: "a5",
@@ -61,7 +61,7 @@ const pendingSeed: Thought[] = [
   },
 ];
 
-const palette = ["#b7e07b", "#f2c94c", "#77d7c2", "#c8a2f8", "#ff9f80", "#8fd3ff"];
+const palette = ["#b7e07b", "#f2c94c", "#77d7c2", "#8bc34a", "#ff9f80", "#5b35b1"];
 
 function roundedRect(
   ctx: CanvasRenderingContext2D,
@@ -409,7 +409,7 @@ export default function CommunityTreePreview() {
     sun.shadow.camera.bottom = -7;
     scene.add(sun);
 
-    const fill = new THREE.PointLight("#c8a2f8", 2.4, 14);
+    const fill = new THREE.PointLight("#8bc34a", 2.4, 14);
     fill.position.set(-3.4, 2.6, 4.8);
     scene.add(fill);
 
@@ -737,7 +737,7 @@ export default function CommunityTreePreview() {
         <header className="absolute left-0 right-0 top-0 z-20 flex items-center justify-between px-4 py-4 sm:px-6 lg:px-9">
           <Link href="/" className="flex items-center gap-3 rounded-full bg-white/72 px-3 py-2 shadow-sm shadow-black/5 backdrop-blur-md">
             <Image
-              src="/logos/holdlogo.png"
+              src="/logos/holditdown-cic-tree-logo.jpg"
               alt="Hold It Down CIC"
               width={34}
               height={34}
@@ -812,7 +812,7 @@ export default function CommunityTreePreview() {
                 onClick={() => controlsApiRef.current?.grow()}
                 className={`h-9 rounded-full px-3 text-xs font-bold uppercase tracking-[0.14em] shadow-sm shadow-black/5 transition hover:-translate-y-0.5 ${
                   isGrowing
-                    ? "bg-[#e8b84a] text-[#2b2118]"
+                    ? "bg-[#d67808] text-[#21180d]"
                     : "bg-white text-[#2b2118] hover:bg-[#f1eadc]"
                 }`}
               >
@@ -842,7 +842,7 @@ export default function CommunityTreePreview() {
                   value={name}
                   onChange={(event) => setName(event.target.value)}
                   placeholder="Name"
-                  className="h-11 w-full rounded-2xl border border-black/10 bg-[#fbf6ec] px-4 text-sm font-medium outline-none transition focus:border-[#7c3aed]/50 focus:bg-white"
+                  className="h-11 w-full rounded-2xl border border-black/10 bg-[#fbf6ec] px-4 text-sm font-medium outline-none transition focus:border-[#4f970f]/50 focus:bg-white"
                 />
                 <textarea
                   value={message}
@@ -850,7 +850,7 @@ export default function CommunityTreePreview() {
                   placeholder="Comment, thought, or suggestion"
                   rows={3}
                   maxLength={130}
-                  className="w-full resize-none rounded-2xl border border-black/10 bg-[#fbf6ec] px-4 py-3 text-sm font-medium outline-none transition focus:border-[#7c3aed]/50 focus:bg-white"
+                  className="w-full resize-none rounded-2xl border border-black/10 bg-[#fbf6ec] px-4 py-3 text-sm font-medium outline-none transition focus:border-[#4f970f]/50 focus:bg-white"
                 />
                 <button
                   type="submit"

@@ -97,8 +97,8 @@ export const viewport = {
   maximumScale: 5,
   viewportFit: "cover" as const,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#faf9fc" },
-    { media: "(prefers-color-scheme: dark)", color: "#0b0a10" },
+    { media: "(prefers-color-scheme: light)", color: "#fffaf1" },
+    { media: "(prefers-color-scheme: dark)", color: "#100d08" },
   ],
 };
 
@@ -171,10 +171,10 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Hold It Down CIC — Youth Organisation in London, UK",
+        url: "/logos/holditdown-cic-tree-logo.jpg",
+        width: 1254,
+        height: 1254,
+        alt: "Hold It Down CIC logo",
       },
     ],
   },
@@ -183,7 +183,7 @@ export const metadata: Metadata = {
     title: "Hold It Down CIC | Youth Organisation in London, UK",
     description:
       "Leading youth organisation in London. Youth empowerment, mentorship, fatherhood programmes, and community events in Croydon, South London.",
-    images: ["/og-image.jpg"],
+    images: ["/logos/holditdown-cic-tree-logo.jpg"],
   },
   robots: {
     index: true,
@@ -198,8 +198,8 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
     apple: "/apple-icon.png",
   },
@@ -214,7 +214,7 @@ const jsonLd = {
   name: "Hold It Down CIC",
   alternateName: "Hold It Down Community Interest Company",
   url: SITE_URL,
-  logo: `${SITE_URL}/logos/holdlogo.png`,
+  logo: `${SITE_URL}/logos/holditdown-cic-tree-logo.jpg`,
   description:
     "A Croydon-based community interest company creating culturally rooted, intergenerational spaces to build emotional wellbeing, confidence and connection across families and communities.",
   foundingDate: "2022",
