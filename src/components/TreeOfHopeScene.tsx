@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import type { MutableRefObject, PointerEvent as ReactPointerEvent } from "react";
+import type { CSSProperties, MutableRefObject, PointerEvent as ReactPointerEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three/webgpu";
 import { buildTree } from "./CommunityTreePreview";
@@ -27,7 +27,10 @@ const hangingTreeComments = [
     id: "families",
     author: "Parent",
     message: "A place where families feel seen.",
-    className: "left-[13%] top-[31%] rotate-[-7deg]",
+    x: -0.86,
+    y: 31,
+    z: 0.35,
+    tilt: -7,
     stringClassName: "h-14",
     tagClassName: "bg-[linear-gradient(135deg,rgba(255,252,232,0.96),rgba(189,220,133,0.92))]",
   },
@@ -35,7 +38,10 @@ const hangingTreeComments = [
     id: "young-people",
     author: "Young voice",
     message: "Keep believing in us.",
-    className: "left-[42%] top-[22%] rotate-[4deg]",
+    x: -0.18,
+    y: 23,
+    z: 0.62,
+    tilt: 4,
     stringClassName: "h-12",
     tagClassName: "bg-[linear-gradient(135deg,rgba(255,247,222,0.96),rgba(242,198,91,0.9))]",
   },
@@ -43,17 +49,42 @@ const hangingTreeComments = [
     id: "community",
     author: "Community",
     message: "Hope grows when we pass it on.",
-    className: "right-[12%] top-[33%] rotate-[7deg]",
+    x: 0.84,
+    y: 33,
+    z: 0.42,
+    tilt: 7,
     stringClassName: "h-16",
     tagClassName: "bg-[linear-gradient(135deg,rgba(255,248,231,0.96),rgba(197,170,226,0.9))]",
   },
 ];
 
+function commentProjectionStyle(comment: (typeof hangingTreeComments)[number], rotationY = -0.18): CSSProperties {
+  const cos = Math.cos(rotationY);
+  const sin = Math.sin(rotationY);
+  const rotatedX = comment.x * cos + comment.z * sin;
+  const depth = comment.z * cos - comment.x * sin;
+  const projectedX = 50 + rotatedX * 24;
+  const projectedY = comment.y + depth * 3.4;
+  const scale = Math.max(0.74, Math.min(1.08, 0.9 + depth * 0.11));
+  const opacity = Math.max(0.38, Math.min(1, 0.72 + depth * 0.28));
+  const rotateZ = comment.tilt + rotatedX * 5;
+
+  return {
+    left: `${projectedX}%`,
+    top: `${projectedY}%`,
+    opacity,
+    zIndex: Math.round(12 + depth * 10),
+    transform: `translate(-50%, 0) scale(${scale.toFixed(3)}) rotate(${rotateZ.toFixed(2)}deg)`,
+  };
+}
+
 function TreeOfHopeWebgpuRenderer({
   controlsRef,
+  commentOverlayRef,
   setRenderError,
 }: {
   controlsRef: MutableRefObject<TreeRendererControls | null>;
+  commentOverlayRef: MutableRefObject<HTMLDivElement | null>;
   setRenderError: (value: boolean) => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -132,6 +163,37 @@ function TreeOfHopeWebgpuRenderer({
       camera.updateProjectionMatrix();
     };
 
+    const updateCommentOverlay = (rotationY: number) => {
+      const overlay = commentOverlayRef.current;
+      if (!overlay) return;
+
+      const comments = overlay.querySelectorAll<HTMLElement>("[data-tree-hanging-comment]");
+      const horizontalSpread = width < 760 ? 27 : 24;
+      const depthLift = width < 760 ? 2.6 : 3.4;
+
+      comments.forEach((comment) => {
+        const localX = Number(comment.dataset.treeCommentX ?? 0);
+        const localZ = Number(comment.dataset.treeCommentZ ?? 0);
+        const localY = Number(comment.dataset.treeCommentY ?? 30);
+        const tilt = Number(comment.dataset.treeCommentTilt ?? 0);
+        const cos = Math.cos(rotationY);
+        const sin = Math.sin(rotationY);
+        const rotatedX = localX * cos + localZ * sin;
+        const depth = localZ * cos - localX * sin;
+        const projectedX = 50 + rotatedX * horizontalSpread;
+        const projectedY = localY + depth * depthLift;
+        const scale = Math.max(0.74, Math.min(1.08, 0.9 + depth * 0.11));
+        const opacity = Math.max(0.38, Math.min(1, 0.72 + depth * 0.28));
+        const rotateZ = tilt + rotatedX * 5;
+
+        comment.style.left = `${projectedX}%`;
+        comment.style.top = `${projectedY}%`;
+        comment.style.opacity = opacity.toFixed(3);
+        comment.style.zIndex = String(Math.round(12 + depth * 10));
+        comment.style.transform = `translate(-50%, 0) scale(${scale.toFixed(3)}) rotate(${rotateZ.toFixed(2)}deg)`;
+      });
+    };
+
     const updateCamera = () => {
       currentTreeRotationY += (targetTreeRotationY - currentTreeRotationY) * 0.07;
       currentCameraTilt += (targetCameraTilt - currentCameraTilt) * 0.055;
@@ -144,6 +206,7 @@ function TreeOfHopeWebgpuRenderer({
       );
       camera.lookAt(0, 2.25, 0);
       tree.rotation.y = currentTreeRotationY;
+      updateCommentOverlay(currentTreeRotationY);
     };
 
     const controls: TreeRendererControls = {
@@ -218,7 +281,7 @@ function TreeOfHopeWebgpuRenderer({
       gpuGrass.dispose();
       renderer.dispose();
     };
-  }, [controlsRef, setRenderError]);
+  }, [commentOverlayRef, controlsRef, setRenderError]);
 
   return (
     <canvas
@@ -233,6 +296,7 @@ function TreeOfHopeWebgpuRenderer({
 export default function TreeOfHopeScene() {
   const treeControlsRef = useRef<TreeRendererControls | null>(null);
   const treeContainerRef = useRef<HTMLDivElement>(null);
+  const commentOverlayRef = useRef<HTMLDivElement>(null);
   const [renderError, setRenderError] = useState(false);
   const dragStartRef = useRef<{
     x: number;
@@ -321,7 +385,11 @@ export default function TreeOfHopeScene() {
       role="application"
       aria-label="Interactive 3D Tree of Hope"
     >
-      <TreeOfHopeWebgpuRenderer controlsRef={treeControlsRef} setRenderError={setRenderError} />
+      <TreeOfHopeWebgpuRenderer
+        controlsRef={treeControlsRef}
+        commentOverlayRef={commentOverlayRef}
+        setRenderError={setRenderError}
+      />
       {renderError ? (
         <Image
           src="/media/tree-of-hope-field.jpg"
@@ -334,12 +402,17 @@ export default function TreeOfHopeScene() {
       ) : null}
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(30,22,12,0.08)_64%,rgba(20,16,9,0.2))]" />
 
-      <div className="pointer-events-none absolute inset-0 z-10" aria-hidden="true">
+      <div ref={commentOverlayRef} className="pointer-events-none absolute inset-0 z-10" aria-hidden="true">
         {hangingTreeComments.map((comment) => (
           <div
             key={comment.id}
             data-tree-hanging-comment
-            className={`absolute w-[min(10rem,36vw)] origin-top sm:w-[min(15rem,28vw)] ${comment.className}`}
+            data-tree-comment-x={comment.x}
+            data-tree-comment-y={comment.y}
+            data-tree-comment-z={comment.z}
+            data-tree-comment-tilt={comment.tilt}
+            className="absolute left-1/2 top-[30%] w-[min(10rem,36vw)] origin-top sm:w-[min(15rem,28vw)]"
+            style={commentProjectionStyle(comment)}
           >
             <span className={`mx-auto block w-px bg-[#5f3a18]/40 ${comment.stringClassName}`} />
             <div
