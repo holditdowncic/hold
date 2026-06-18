@@ -1,14 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import type { MouseEvent, PointerEvent } from "react";
+import type { MouseEvent, MutableRefObject, PointerEvent as ReactPointerEvent, WheelEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import * as THREE from "three/webgpu";
 import {
   containsTreeProfanity,
   treeSubmissionErrors,
   validateTreeSubmissionText,
   type TreeSubmissionErrorType,
 } from "@/lib/tree-of-hope-moderation";
+import { buildTree } from "./CommunityTreePreview";
+import { createGpuGrassField } from "./gpuGrassField";
 
 type TreeZone = {
   id: string;
@@ -35,6 +38,21 @@ type TreeContribution = {
 };
 
 type SeasonId = "spring" | "summer" | "autumn" | "winter";
+
+type PointerLike = {
+  clientX: number;
+  clientY: number;
+};
+
+type TreeRendererControls = {
+  zoomIn: () => void;
+  zoomOut: () => void;
+  reset: () => void;
+  zoomBy: (deltaY: number) => void;
+  turn: (deltaX: number, deltaY: number) => void;
+  setPointerFromEvent: (event: PointerLike) => void;
+  clearPointer: () => void;
+};
 
 const storageKey = "hold-tree-of-hope-approved-contributions-v1";
 const offlineQueueKey = "hold-tree-of-hope-offline-queue-v1";
@@ -249,7 +267,189 @@ function Icon({ name }: { name: "mic" | "stop" | "play" | "download" }) {
   );
 }
 
+function TreeOfHopeWebgpuRenderer({
+  controlsRef,
+  setRenderError,
+}: {
+  controlsRef: MutableRefObject<TreeRendererControls | null>;
+  setRenderError: (value: boolean) => void;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    let disposed = false;
+    let width = 1;
+    let height = 1;
+    let targetTreeRotationY = -0.18;
+    let currentTreeRotationY = -0.18;
+    let targetCameraTilt = -0.04;
+    let currentCameraTilt = -0.04;
+    let targetZoom = 1;
+    let currentZoom = 1;
+    const clampZoom = (value: number) => Math.min(1.85, Math.max(0.72, value));
+
+    const renderer = new THREE.WebGPURenderer({
+      canvas,
+      alpha: true,
+      antialias: true,
+      powerPreference: "high-performance",
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.65));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 90);
+
+    const ambient = new THREE.HemisphereLight("#f9fff2", "#7a5a43", 2.25);
+    scene.add(ambient);
+
+    const sun = new THREE.DirectionalLight("#fff1d0", 3.5);
+    sun.position.set(4, 7, 5);
+    sun.castShadow = true;
+    sun.shadow.camera.near = 0.1;
+    sun.shadow.camera.far = 24;
+    sun.shadow.camera.left = -7;
+    sun.shadow.camera.right = 7;
+    sun.shadow.camera.top = 7;
+    sun.shadow.camera.bottom = -7;
+    scene.add(sun);
+
+    const fill = new THREE.PointLight("#b7e07b", 1.6, 14);
+    fill.position.set(-3.5, 3.4, 5);
+    scene.add(fill);
+
+    const isSmallScreen = window.matchMedia("(max-width: 760px)").matches;
+    const gpuGrass = createGpuGrassField({
+      bladeCount: isSmallScreen ? 36000 : 70000,
+      fieldSize: isSmallScreen ? 15 : 18,
+    });
+    gpuGrass.root.position.y = -1.24;
+    scene.add(gpuGrass.root);
+
+    const tree = new THREE.Group();
+    buildTree(tree);
+    scene.add(tree);
+
+    const treeBaseLocalY = -1.22;
+    const treeBaseWorldY = -1.09;
+    const treeScale = isSmallScreen ? 0.9 : 0.98;
+    tree.scale.setScalar(treeScale);
+    tree.position.y = treeBaseWorldY - treeBaseLocalY * treeScale;
+
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
+      width = Math.max(1, rect.width);
+      height = Math.max(1, rect.height);
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    };
+
+    const updateCamera = () => {
+      currentTreeRotationY += (targetTreeRotationY - currentTreeRotationY) * 0.07;
+      currentCameraTilt += (targetCameraTilt - currentCameraTilt) * 0.055;
+      currentZoom += (targetZoom - currentZoom) * 0.08;
+      const distance = (width < 760 ? 15.2 : 12.8) / currentZoom;
+      camera.position.set(
+        0,
+        (width < 760 ? 4.15 : 3.65) + Math.sin(currentCameraTilt) * 3,
+        distance * Math.cos(currentCameraTilt * 0.4),
+      );
+      camera.lookAt(0, 2.25, 0);
+      tree.rotation.y = currentTreeRotationY;
+    };
+
+    const controls: TreeRendererControls = {
+      zoomIn: () => {
+        targetZoom = clampZoom(targetZoom + 0.18);
+      },
+      zoomOut: () => {
+        targetZoom = clampZoom(targetZoom - 0.18);
+      },
+      reset: () => {
+        targetZoom = 1;
+        targetTreeRotationY = -0.18;
+        targetCameraTilt = -0.04;
+      },
+      zoomBy: (deltaY) => {
+        targetZoom = clampZoom(targetZoom - deltaY * 0.0014);
+      },
+      turn: (deltaX, deltaY) => {
+        targetTreeRotationY += deltaX * 0.01;
+        targetCameraTilt = Math.min(0.32, Math.max(-0.28, targetCameraTilt + deltaY * 0.0035));
+      },
+      setPointerFromEvent: (event) => {
+        gpuGrass.setMouseFromEvent(event, camera, canvas);
+      },
+      clearPointer: () => {
+        gpuGrass.clearMouse();
+      },
+    };
+    controlsRef.current = controls;
+
+    const observer = new ResizeObserver(resize);
+    observer.observe(canvas);
+    resize();
+
+    const animate = () => {
+      updateCamera();
+      gpuGrass.update(renderer);
+      renderer.render(scene, camera);
+    };
+
+    const start = async () => {
+      try {
+        setRenderError(false);
+        await renderer.init();
+        if (disposed) return;
+        await gpuGrass.init(renderer);
+        if (disposed) return;
+        renderer.setAnimationLoop(animate);
+      } catch (error) {
+        console.error("Tree of Hope WebGPU scene failed", error);
+        if (!disposed) setRenderError(true);
+      }
+    };
+
+    void start();
+
+    return () => {
+      disposed = true;
+      renderer.setAnimationLoop(null);
+      observer.disconnect();
+      if (controlsRef.current === controls) controlsRef.current = null;
+      scene.traverse((object) => {
+        const mesh = object as THREE.Mesh;
+        mesh.geometry?.dispose();
+        const material = mesh.material as THREE.Material | THREE.Material[] | undefined;
+        if (Array.isArray(material)) {
+          material.forEach((entry) => entry.dispose());
+        } else {
+          material?.dispose();
+        }
+      });
+      gpuGrass.dispose();
+      renderer.dispose();
+    };
+  }, [controlsRef, setRenderError]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      data-tree-scene-canvas
+      aria-hidden="true"
+      className="absolute inset-0 h-full w-full pointer-events-none"
+    />
+  );
+}
+
 export default function TreeOfHopeScene() {
+  const treeControlsRef = useRef<TreeRendererControls | null>(null);
   const [selectedZoneId, setSelectedZoneId] = useState(zones[3].id);
   const [selectedPoint, setSelectedPoint] = useState<{ x: number; y: number } | null>(null);
   const [contributions, setContributions] = useState<TreeContribution[]>([]);
@@ -266,13 +466,22 @@ export default function TreeOfHopeScene() {
   const [soundscapeActive, setSoundscapeActive] = useState(false);
   const [viewAngle, setViewAngle] = useState(0);
   const [seasonId, setSeasonId] = useState<SeasonId>(() => naturalSeason());
+  const [renderError, setRenderError] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
   const recordingStartedAtRef = useRef(0);
   const recordingTimeoutRef = useRef<number | null>(null);
-  const dragStartRef = useRef<{ x: number; angle: number; moved: boolean } | null>(null);
+  const dragStartRef = useRef<{
+    x: number;
+    y: number;
+    lastX: number;
+    lastY: number;
+    angle: number;
+    moved: boolean;
+  } | null>(null);
   const soundscapeIndexRef = useRef(0);
 
   const selectedZone = zones.find((zone) => zone.id === selectedZoneId) ?? zones[3];
@@ -290,6 +499,10 @@ export default function TreeOfHopeScene() {
       return counts;
     }, {});
   }, [contributions]);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
     window.localStorage.setItem(storageKey, JSON.stringify(contributions));
@@ -472,29 +685,55 @@ export default function TreeOfHopeScene() {
     );
   };
 
-  const handleTreePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+  const handleTreePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     const target = event.target as HTMLElement;
     if (target.closest("button,a,input,textarea,label")) return;
     event.preventDefault();
-    dragStartRef.current = { x: event.clientX, angle: viewAngle, moved: false };
+    treeControlsRef.current?.setPointerFromEvent(event);
+    dragStartRef.current = {
+      x: event.clientX,
+      y: event.clientY,
+      lastX: event.clientX,
+      lastY: event.clientY,
+      angle: viewAngle,
+      moved: false,
+    };
     event.currentTarget.setPointerCapture(event.pointerId);
   };
 
-  const handleTreePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+  const handleTreePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
     const drag = dragStartRef.current;
+    treeControlsRef.current?.setPointerFromEvent(event);
     if (!drag) return;
     event.preventDefault();
     const delta = event.clientX - drag.x;
-    if (Math.abs(delta) < 6) return;
+    const frameDeltaX = event.clientX - drag.lastX;
+    const frameDeltaY = event.clientY - drag.lastY;
+    if (Math.abs(delta) < 6 && Math.abs(event.clientY - drag.y) < 6) return;
     drag.moved = true;
+    drag.lastX = event.clientX;
+    drag.lastY = event.clientY;
+    treeControlsRef.current?.turn(frameDeltaX, frameDeltaY);
     setViewAngle((drag.angle + delta * 0.7 + 360) % 360);
   };
 
-  const handleTreePointerEnd = () => {
-    if (!dragStartRef.current?.moved) return;
+  const handleTreePointerEnd = (event: ReactPointerEvent<HTMLDivElement>) => {
+    treeControlsRef.current?.clearPointer();
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    if (!dragStartRef.current?.moved) {
+      dragStartRef.current = null;
+      return;
+    }
     window.setTimeout(() => {
       dragStartRef.current = null;
     }, 0);
+  };
+
+  const handleTreeWheel = (event: WheelEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    treeControlsRef.current?.zoomBy(event.deltaY);
   };
 
   const playSoundscape = () => {
@@ -637,16 +876,12 @@ export default function TreeOfHopeScene() {
         onPointerUp={handleTreePointerEnd}
         onPointerCancel={handleTreePointerEnd}
         onPointerLeave={handleTreePointerEnd}
+        onWheel={handleTreeWheel}
         role="application"
         aria-label="Interactive Tree of Hope placement and turning area"
       >
-        <div
-          className="absolute inset-0 transition-transform duration-300 ease-out"
-          style={{
-            transform: `perspective(1200px) rotateY(${Math.sin((viewAngle * Math.PI) / 180) * 8}deg)`,
-            transformStyle: "preserve-3d",
-          }}
-        >
+        <TreeOfHopeWebgpuRenderer controlsRef={treeControlsRef} setRenderError={setRenderError} />
+        {renderError ? (
           <Image
             src="/media/tree-of-hope-field.jpg"
             alt="Large tree in a green field for the Tree of Hope"
@@ -655,12 +890,45 @@ export default function TreeOfHopeScene() {
             className="object-cover"
             sizes="(max-width: 1024px) 100vw, 760px"
           />
+        ) : null}
+        <div className={`pointer-events-none absolute inset-0 transition-colors duration-500 ${currentSeason.tint}`} />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(30,22,12,0.08)_64%,rgba(20,16,9,0.2))]" />
+
+        <div className="absolute right-4 top-4 z-20 flex items-center gap-2 rounded-full bg-white/72 p-1.5 shadow-lg shadow-black/10 backdrop-blur-md sm:right-5 sm:top-5">
+          <button
+            type="button"
+            aria-label="Zoom out"
+            title="Zoom out"
+            onClick={() => treeControlsRef.current?.zoomOut()}
+            className="grid h-9 w-9 place-items-center rounded-full bg-white text-lg font-bold text-[#2b2118] shadow-sm shadow-black/5 transition hover:-translate-y-0.5 hover:bg-[#f1eadc]"
+          >
+            -
+          </button>
+          <button
+            type="button"
+            aria-label="Reset tree view"
+            title="Reset tree view"
+            onClick={() => {
+              treeControlsRef.current?.reset();
+              setViewAngle(0);
+            }}
+            className="h-9 rounded-full bg-[#f1eadc] px-3 text-xs font-bold uppercase tracking-[0.14em] text-[#5a3f27] transition hover:-translate-y-0.5 hover:bg-white"
+          >
+            1x
+          </button>
+          <button
+            type="button"
+            aria-label="Zoom in"
+            title="Zoom in"
+            onClick={() => treeControlsRef.current?.zoomIn()}
+            className="grid h-9 w-9 place-items-center rounded-full bg-[#20170f] text-lg font-bold text-white shadow-sm shadow-black/10 transition hover:-translate-y-0.5 hover:bg-[#3a2a1d]"
+          >
+            +
+          </button>
         </div>
-        <div className={`absolute inset-0 transition-colors duration-500 ${currentSeason.tint}`} />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(30,22,12,0.16)_64%,rgba(20,16,9,0.38))]" />
 
         <div className="pointer-events-none absolute inset-0 z-[4] overflow-hidden">
-          {Array.from({ length: currentSeason.id === "winter" ? 16 : 12 }).map((_, index) => (
+          {hasMounted ? Array.from({ length: currentSeason.id === "winter" ? 16 : 12 }).map((_, index) => (
             <span
               key={`${currentSeason.id}-${index}`}
               className={`absolute h-2 w-2 rounded-full ${currentSeason.particle} shadow-sm opacity-70 transition-colors duration-500`}
@@ -670,10 +938,10 @@ export default function TreeOfHopeScene() {
                 transform: `translateY(${Math.sin((viewAngle + index * 33) * Math.PI / 180) * 9}px)`,
               }}
             />
-          ))}
+          )) : null}
         </div>
 
-        <div className="absolute left-4 right-4 top-4 z-10 rounded-lg bg-white/86 p-4 text-[#21180f] shadow-xl shadow-black/15 backdrop-blur-md sm:left-5 sm:right-auto sm:max-w-sm">
+        <div className="absolute left-4 right-4 top-4 z-10 hidden rounded-lg bg-white/86 p-4 text-[#21180f] shadow-xl shadow-black/15 backdrop-blur-md sm:left-5 sm:right-auto sm:block sm:max-w-sm">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#79522d]">A living community tree</p>
           <h3 className="mt-1 font-[family-name:var(--font-heading)] text-2xl font-bold leading-tight">
             What was given to you that you want to pass on?
@@ -696,7 +964,7 @@ export default function TreeOfHopeScene() {
                 setSelectedZoneId(item.zoneId);
                 if (hasAudio) playAudio(item);
               }}
-              className="absolute z-20 max-w-[14rem] rounded-[40px] border border-white/70 bg-white/82 px-5 py-3 text-left text-xs font-bold leading-snug text-[#3b2a1c] shadow-lg shadow-black/12 backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white"
+              className="absolute z-20 hidden max-w-[14rem] rounded-[40px] border border-white/70 bg-white/82 px-5 py-3 text-left text-xs font-bold leading-snug text-[#3b2a1c] shadow-lg shadow-black/12 backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white sm:block"
               style={{
                 left: `${slot.left}%`,
                 top: `${slot.top}%`,
