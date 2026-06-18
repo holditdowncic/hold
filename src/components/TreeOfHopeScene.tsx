@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import type { MutableRefObject, PointerEvent as ReactPointerEvent, WheelEvent } from "react";
+import type { MutableRefObject, PointerEvent as ReactPointerEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three/webgpu";
 import { buildTree } from "./CommunityTreePreview";
@@ -26,20 +26,26 @@ const hangingTreeComments = [
   {
     id: "families",
     author: "Parent",
-    message: "Families need spaces where everyone feels seen.",
-    className: "left-[14%] top-[30%] rotate-[-5deg]",
+    message: "A place where families feel seen.",
+    className: "left-[13%] top-[31%] rotate-[-7deg]",
+    stringClassName: "h-14",
+    tagClassName: "bg-[linear-gradient(135deg,rgba(255,252,232,0.96),rgba(189,220,133,0.92))]",
   },
   {
     id: "young-people",
     author: "Young voice",
     message: "Keep believing in us.",
-    className: "left-[42%] top-[24%] rotate-[3deg]",
+    className: "left-[42%] top-[22%] rotate-[4deg]",
+    stringClassName: "h-12",
+    tagClassName: "bg-[linear-gradient(135deg,rgba(255,247,222,0.96),rgba(242,198,91,0.9))]",
   },
   {
     id: "community",
     author: "Community",
     message: "Hope grows when we pass it on.",
-    className: "right-[13%] top-[35%] rotate-[6deg]",
+    className: "right-[12%] top-[33%] rotate-[7deg]",
+    stringClassName: "h-16",
+    tagClassName: "bg-[linear-gradient(135deg,rgba(255,248,231,0.96),rgba(197,170,226,0.9))]",
   },
 ];
 
@@ -226,6 +232,7 @@ function TreeOfHopeWebgpuRenderer({
 
 export default function TreeOfHopeScene() {
   const treeControlsRef = useRef<TreeRendererControls | null>(null);
+  const treeContainerRef = useRef<HTMLDivElement>(null);
   const [renderError, setRenderError] = useState(false);
   const dragStartRef = useRef<{
     x: number;
@@ -234,6 +241,31 @@ export default function TreeOfHopeScene() {
     lastY: number;
     moved: boolean;
   } | null>(null);
+
+  useEffect(() => {
+    const container = treeContainerRef.current;
+    if (!container) return;
+
+    const stopPageScroll = (event: Event) => {
+      event.preventDefault();
+    };
+    const handleNativeWheel = (event: globalThis.WheelEvent) => {
+      event.preventDefault();
+      treeControlsRef.current?.zoomBy(event.deltaY);
+    };
+
+    container.addEventListener("wheel", handleNativeWheel, { passive: false });
+    container.addEventListener("touchmove", stopPageScroll, { passive: false });
+    container.addEventListener("gesturestart", stopPageScroll, { passive: false });
+    container.addEventListener("gesturechange", stopPageScroll, { passive: false });
+
+    return () => {
+      container.removeEventListener("wheel", handleNativeWheel);
+      container.removeEventListener("touchmove", stopPageScroll);
+      container.removeEventListener("gesturestart", stopPageScroll);
+      container.removeEventListener("gesturechange", stopPageScroll);
+    };
+  }, []);
 
   const handleTreePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     const target = event.target as HTMLElement;
@@ -276,21 +308,16 @@ export default function TreeOfHopeScene() {
     dragStartRef.current = null;
   };
 
-  const handleTreeWheel = (event: WheelEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    treeControlsRef.current?.zoomBy(event.deltaY);
-  };
-
   return (
     <div
+      ref={treeContainerRef}
       className="relative min-h-[500px] cursor-grab touch-none overflow-hidden rounded-2xl border border-border bg-[#bcd790] shadow-xl shadow-black/5 active:cursor-grabbing sm:min-h-[620px] lg:min-h-[720px]"
-      style={{ touchAction: "none" }}
+      style={{ touchAction: "none", overscrollBehavior: "contain" }}
       onPointerDown={handleTreePointerDown}
       onPointerMove={handleTreePointerMove}
       onPointerUp={handleTreePointerEnd}
       onPointerCancel={handleTreePointerEnd}
       onPointerLeave={handleTreePointerEnd}
-      onWheel={handleTreeWheel}
       role="application"
       aria-label="Interactive 3D Tree of Hope"
     >
@@ -314,9 +341,13 @@ export default function TreeOfHopeScene() {
             data-tree-hanging-comment
             className={`absolute w-[min(10rem,36vw)] origin-top sm:w-[min(15rem,28vw)] ${comment.className}`}
           >
-            <span className="mx-auto block h-12 w-px bg-[#5f3a18]/35" />
-            <div className="rounded-xl border border-[#5f3a18]/10 bg-white/86 px-3 py-2 text-left shadow-lg shadow-black/10 backdrop-blur-sm">
-              <p className="text-[0.62rem] font-black uppercase tracking-[0.16em] text-[#4f8a1d]">{comment.author}</p>
+            <span className={`mx-auto block w-px bg-[#5f3a18]/40 ${comment.stringClassName}`} />
+            <div
+              data-tree-comment-leaf
+              className={`relative rounded-[1.25rem_1.25rem_1.25rem_0.45rem] border border-[#5f3a18]/14 px-3 py-2 text-left shadow-[0_12px_30px_rgba(32,23,15,0.16)] backdrop-blur-sm ${comment.tagClassName}`}
+            >
+              <span className="absolute left-1/2 top-0 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#5f3a18]/20 bg-[#5f3a18]" />
+              <p className="text-[0.58rem] font-black uppercase tracking-[0.16em] text-[#3e7316]">{comment.author}</p>
               <p className="mt-1 text-[clamp(0.7rem,1.2vw,0.82rem)] font-bold leading-snug text-[#20170f]">
                 {comment.message}
               </p>
