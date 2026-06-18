@@ -40,6 +40,66 @@ const defaultImages: GalleryImage[] = [
     { id: "12", src: "/media/roots/roots-22.jpeg", alt: "Creative crafts and activities by young people", caption: "Creative Workshops", sort_order: 12 },
 ];
 
+type GalleryFolder = {
+    id: string;
+    title: string;
+    description: string;
+    sortOrder: number;
+    coverImage: GalleryImage;
+    images: GalleryImage[];
+};
+
+const folderMetadata: Record<string, { title: string; description: string; sortOrder: number }> = {
+    "community-gallery": {
+        title: "Community Gallery",
+        description: "Hold It Down moments from Roots & Wings, workshops, youth voice, and community events.",
+        sortOrder: 1,
+    },
+    "roots-and-wings-2024": {
+        title: "Roots & Wings 2024",
+        description: "Uploaded event photos from the Roots & Wings 2024 family day.",
+        sortOrder: 2,
+    },
+};
+
+function getGalleryFolderId(image: GalleryImage): string {
+    if (image.src.startsWith("/gallery/roots-and-wings-2024/")) {
+        return "roots-and-wings-2024";
+    }
+
+    return "community-gallery";
+}
+
+function buildGalleryFolders(images: GalleryImage[]): GalleryFolder[] {
+    const folders = new Map<string, GalleryImage[]>();
+
+    for (const image of images) {
+        const folderId = getGalleryFolderId(image);
+        folders.set(folderId, [...(folders.get(folderId) ?? []), image]);
+    }
+
+    return Array.from(folders.entries())
+        .map(([id, folderImages]) => {
+            const metadata = folderMetadata[id] ?? {
+                title: "Gallery Folder",
+                description: "Community photos and moments.",
+                sortOrder: 99,
+            };
+            const sortedImages = [...folderImages].sort(
+                (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)
+            );
+
+            return {
+                id,
+                ...metadata,
+                coverImage: sortedImages[0],
+                images: sortedImages,
+            };
+        })
+        .filter((folder): folder is GalleryFolder => Boolean(folder.coverImage))
+        .sort((a, b) => a.sortOrder - b.sortOrder);
+}
+
 interface GalleryProps {
     images: GalleryImage[];
     meta: GalleryContent | null;
@@ -48,20 +108,20 @@ interface GalleryProps {
 export default function Gallery({ images, meta }: GalleryProps) {
     const [selectedImage, setSelectedImage] = useState<number | null>(null);
     const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+    const [lightboxImages, setLightboxImages] = useState<GalleryImage[]>([]);
     const [treeShouldLoad, setTreeShouldLoad] = useState(false);
     const treeMountRef = useRef<HTMLDivElement | null>(null);
     const galleryImages = images.length > 0 ? images : defaultImages;
-    const rootsAndWings2024Images = galleryImages.filter((image) =>
-        image.src.startsWith("/gallery/roots-and-wings-2024/")
-    );
-    const looseImages = galleryImages.filter((image) =>
-        !image.src.startsWith("/gallery/roots-and-wings-2024/")
-    );
-    const displayImages = rootsAndWings2024Images.length > 0 ? looseImages : galleryImages;
-    const openImage = (image: GalleryImage) => {
-        const imageIndex = galleryImages.findIndex((item) => item.id === image.id);
-        if (imageIndex >= 0) setSelectedImage(imageIndex);
-        setSelectedFolder(null);
+    const galleryFolders = buildGalleryFolders(galleryImages);
+    const selectedFolderData = selectedFolder
+        ? galleryFolders.find((folder) => folder.id === selectedFolder) ?? null
+        : null;
+    const activeLightboxImages = lightboxImages.length > 0 ? lightboxImages : galleryImages;
+    const openImage = (image: GalleryImage, sourceImages: GalleryImage[] = galleryImages) => {
+        const imageIndex = sourceImages.findIndex((item) => item.id === image.id);
+        if (imageIndex < 0) return;
+        setLightboxImages(sourceImages);
+        setSelectedImage(imageIndex);
     };
 
     const sectionLabel = meta?.section_label ?? "Gallery";
@@ -126,62 +186,42 @@ export default function Gallery({ images, meta }: GalleryProps) {
                     viewport={{ once: true }}
                     variants={staggerContainer}
                 >
-                    {rootsAndWings2024Images.length > 0 && (
-                        <motion.figure
-                            variants={fadeUp}
-                            className="group col-span-2 cursor-pointer overflow-hidden rounded-xl border border-border bg-bg-card transition-all duration-300 hover:border-accent/30 hover:shadow-xl"
-                            onClick={() => setSelectedFolder("roots-and-wings-2024")}
-                        >
-                            <div className="relative aspect-[16/10] overflow-hidden">
-                                <Image
-                                    src={rootsAndWings2024Images[0].src}
-                                    alt="Roots and Wings 2024 gallery folder"
-                                    fill
-                                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 66vw, 50vw"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-bg/70 via-bg/10 to-transparent" />
-                                <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4">
-                                    <span className="mb-2 inline-flex rounded-full bg-accent px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-white">
-                                        Folder
-                                    </span>
-                                    <h3 className="font-[family-name:var(--font-heading)] text-xl font-bold leading-tight text-white sm:text-2xl">
-                                        Roots & Wings 2024
-                                    </h3>
-                                    <p className="mt-1 text-sm font-medium text-white/85">
-                                        {rootsAndWings2024Images.length} photos
-                                    </p>
-                                </div>
-                            </div>
-                            <figcaption className="flex min-h-[4.25rem] items-center px-3 py-3 text-sm font-semibold leading-snug text-text-primary sm:px-4">
-                                Roots & Wings 2024
-                            </figcaption>
-                        </motion.figure>
-                    )}
-                    {displayImages.map((image, index) => {
-                        const isWide = index === 0 || index === 5 || index === 9;
+                    {galleryFolders.map((folder, index) => {
+                        const isWide = index === 0 || folder.images.length > 8;
                         return (
-                            <motion.figure
-                                key={image.id}
+                            <motion.button
+                                key={folder.id}
+                                type="button"
                                 variants={fadeUp}
-                                className={`group cursor-pointer overflow-hidden rounded-xl border border-border bg-bg-card transition-all duration-300 hover:border-accent/30 hover:shadow-xl ${isWide ? "col-span-2" : ""
-                                    }`}
-                                onClick={() => openImage(image)}
+                                className={`group cursor-pointer overflow-hidden rounded-xl border border-border bg-bg-card text-left transition-all duration-300 hover:border-accent/30 hover:shadow-xl ${isWide ? "col-span-2" : ""}`}
+                                onClick={() => setSelectedFolder(folder.id)}
+                                aria-label={`Open ${folder.title} folder`}
                             >
-                                <div className={`relative overflow-hidden ${isWide ? "aspect-[16/10]" : "aspect-square"}`}>
+                                <div className="relative aspect-[16/10] overflow-hidden">
                                     <Image
-                                        src={image.src}
-                                        alt={image.alt}
+                                        src={folder.coverImage.src}
+                                        alt={`${folder.title} gallery folder`}
                                         fill
                                         className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                        sizes={isWide ? "(max-width: 640px) 100vw, (max-width: 768px) 66vw, 50vw" : "(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"}
+                                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 66vw, 50vw"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-bg/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-bg/70 via-bg/10 to-transparent" />
+                                    <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4">
+                                        <span className="mb-2 inline-flex rounded-full bg-accent px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-white">
+                                            Folder
+                                        </span>
+                                        <h3 className="font-[family-name:var(--font-heading)] text-xl font-bold leading-tight text-white sm:text-2xl">
+                                            {folder.title}
+                                        </h3>
+                                        <p className="mt-1 text-sm font-medium text-white/85">
+                                            {folder.images.length} photos
+                                        </p>
+                                    </div>
                                 </div>
-                                <figcaption className="flex min-h-[4.25rem] items-center px-3 py-3 text-sm font-semibold leading-snug text-text-primary sm:px-4">
-                                    {image.caption}
-                                </figcaption>
-                            </motion.figure>
+                                <span className="flex min-h-[4.25rem] items-center px-3 py-3 text-sm font-semibold leading-snug text-text-primary sm:px-4">
+                                    {folder.description}
+                                </span>
+                            </motion.button>
                         );
                     })}
                 </motion.div>
@@ -204,7 +244,7 @@ export default function Gallery({ images, meta }: GalleryProps) {
 
             {/* Lightbox Modal */}
             <AnimatePresence>
-                {selectedFolder === "roots-and-wings-2024" && (
+                {selectedFolderData && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -225,16 +265,16 @@ export default function Gallery({ images, meta }: GalleryProps) {
                                         Gallery Folder
                                     </span>
                                     <h3 className="font-[family-name:var(--font-heading)] text-2xl font-bold text-text-primary sm:text-3xl">
-                                        Roots & Wings 2024
+                                        {selectedFolderData.title}
                                     </h3>
                                     <p className="mt-1 text-sm text-text-secondary">
-                                        {rootsAndWings2024Images.length} photos
+                                        {selectedFolderData.images.length} photos
                                     </p>
                                 </div>
                                 <button
                                     onClick={() => setSelectedFolder(null)}
                                     className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-bg/80 text-text-primary transition-colors hover:bg-accent hover:text-white"
-                                    aria-label="Close Roots and Wings 2024 gallery folder"
+                                    aria-label={`Close ${selectedFolderData.title} gallery folder`}
                                 >
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <path d="M18 6L6 18M6 6l12 12" />
@@ -242,12 +282,12 @@ export default function Gallery({ images, meta }: GalleryProps) {
                                 </button>
                             </div>
                             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-                                {rootsAndWings2024Images.map((image) => (
+                                {selectedFolderData.images.map((image) => (
                                     <button
                                         key={image.id}
                                         type="button"
                                         className="group overflow-hidden rounded-xl border border-border bg-bg-alt text-left transition-all duration-300 hover:border-accent/30 hover:shadow-lg"
-                                        onClick={() => openImage(image)}
+                                        onClick={() => openImage(image, selectedFolderData.images)}
                                     >
                                         <span className="relative block aspect-square overflow-hidden">
                                             <Image
@@ -270,7 +310,7 @@ export default function Gallery({ images, meta }: GalleryProps) {
             </AnimatePresence>
 
             <AnimatePresence>
-                {selectedImage !== null && (
+                {selectedImage !== null && activeLightboxImages[selectedImage] && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -287,17 +327,17 @@ export default function Gallery({ images, meta }: GalleryProps) {
                             dragElastic={0.2}
                             onDragEnd={(_, info) => {
                                 if (info.offset.x > 80) {
-                                    setSelectedImage(selectedImage === 0 ? galleryImages.length - 1 : selectedImage - 1);
+                                    setSelectedImage(selectedImage === 0 ? activeLightboxImages.length - 1 : selectedImage - 1);
                                 } else if (info.offset.x < -80) {
-                                    setSelectedImage(selectedImage === galleryImages.length - 1 ? 0 : selectedImage + 1);
+                                    setSelectedImage(selectedImage === activeLightboxImages.length - 1 ? 0 : selectedImage + 1);
                                 }
                             }}
                             className="relative max-h-[80vh] max-w-[92vw] overflow-hidden rounded-2xl border border-border sm:max-h-[85vh] sm:max-w-[90vw]"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <Image
-                                src={galleryImages[selectedImage].src}
-                                alt={galleryImages[selectedImage].alt}
+                                src={activeLightboxImages[selectedImage].src}
+                                alt={activeLightboxImages[selectedImage].alt}
                                 width={1200}
                                 height={900}
                                 className="object-contain"
@@ -312,14 +352,14 @@ export default function Gallery({ images, meta }: GalleryProps) {
                             </button>
                             <div className="absolute bottom-14 left-0 right-0 text-center sm:bottom-16">
                                 <p className="inline-block rounded-full bg-bg/80 px-4 py-1.5 text-xs font-medium text-text-primary backdrop-blur-sm sm:text-sm">
-                                    {galleryImages[selectedImage].caption}
+                                    {activeLightboxImages[selectedImage].caption}
                                 </p>
                             </div>
                             <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-3 sm:bottom-4 sm:gap-2">
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        setSelectedImage(selectedImage === 0 ? galleryImages.length - 1 : selectedImage - 1);
+                                        setSelectedImage(selectedImage === 0 ? activeLightboxImages.length - 1 : selectedImage - 1);
                                     }}
                                     className="flex h-11 w-11 items-center justify-center rounded-full bg-bg/80 text-text-primary backdrop-blur-sm transition-colors hover:bg-accent hover:text-white"
                                 >
@@ -328,12 +368,12 @@ export default function Gallery({ images, meta }: GalleryProps) {
                                     </svg>
                                 </button>
                                 <span className="flex items-center px-3 text-sm text-text-secondary">
-                                    {selectedImage + 1} / {galleryImages.length}
+                                    {selectedImage + 1} / {activeLightboxImages.length}
                                 </span>
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        setSelectedImage(selectedImage === galleryImages.length - 1 ? 0 : selectedImage + 1);
+                                        setSelectedImage(selectedImage === activeLightboxImages.length - 1 ? 0 : selectedImage + 1);
                                     }}
                                     className="flex h-11 w-11 items-center justify-center rounded-full bg-bg/80 text-text-primary backdrop-blur-sm transition-colors hover:bg-accent hover:text-white"
                                 >
