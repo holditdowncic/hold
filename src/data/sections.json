@@ -195,12 +195,6 @@
         "isPage": true
       },
       {
-        "label": "Tree of Hope",
-        "shortLabel": "Tree",
-        "href": "/tree-of-hope",
-        "isPage": true
-      },
-      {
         "label": "Events",
         "href": "/events",
         "isPage": true

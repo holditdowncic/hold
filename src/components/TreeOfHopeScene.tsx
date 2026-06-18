@@ -22,6 +22,27 @@ type TreeRendererControls = {
   clearPointer: () => void;
 };
 
+const hangingTreeComments = [
+  {
+    id: "families",
+    author: "Parent",
+    message: "Families need spaces where everyone feels seen.",
+    className: "left-[14%] top-[30%] rotate-[-5deg]",
+  },
+  {
+    id: "young-people",
+    author: "Young voice",
+    message: "Keep believing in us.",
+    className: "left-[42%] top-[24%] rotate-[3deg]",
+  },
+  {
+    id: "community",
+    author: "Community",
+    message: "Hope grows when we pass it on.",
+    className: "right-[13%] top-[35%] rotate-[6deg]",
+  },
+];
+
 function TreeOfHopeWebgpuRenderer({
   controlsRef,
   setRenderError,
@@ -285,6 +306,24 @@ export default function TreeOfHopeScene() {
         />
       ) : null}
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(30,22,12,0.08)_64%,rgba(20,16,9,0.2))]" />
+
+      <div className="pointer-events-none absolute inset-0 z-10" aria-hidden="true">
+        {hangingTreeComments.map((comment) => (
+          <div
+            key={comment.id}
+            data-tree-hanging-comment
+            className={`absolute w-[min(10rem,36vw)] origin-top sm:w-[min(15rem,28vw)] ${comment.className}`}
+          >
+            <span className="mx-auto block h-12 w-px bg-[#5f3a18]/35" />
+            <div className="rounded-xl border border-[#5f3a18]/10 bg-white/86 px-3 py-2 text-left shadow-lg shadow-black/10 backdrop-blur-sm">
+              <p className="text-[0.62rem] font-black uppercase tracking-[0.16em] text-[#4f8a1d]">{comment.author}</p>
+              <p className="mt-1 text-[clamp(0.7rem,1.2vw,0.82rem)] font-bold leading-snug text-[#20170f]">
+                {comment.message}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
 
       <div className="absolute right-4 top-4 z-20 flex items-center gap-2 rounded-full bg-white/72 p-1.5 shadow-lg shadow-black/10 backdrop-blur-md sm:right-5 sm:top-5">
         <button
