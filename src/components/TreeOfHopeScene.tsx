@@ -878,7 +878,7 @@ export default function TreeOfHopeScene() {
         onPointerLeave={handleTreePointerEnd}
         onWheel={handleTreeWheel}
         role="application"
-        aria-label="Interactive Tree of Hope placement and turning area"
+        aria-label="Interactive Tree of Hope turning and placement area"
       >
         <TreeOfHopeWebgpuRenderer controlsRef={treeControlsRef} setRenderError={setRenderError} />
         {renderError ? (
@@ -927,139 +927,6 @@ export default function TreeOfHopeScene() {
           </button>
         </div>
 
-        <div className="pointer-events-none absolute inset-0 z-[4] overflow-hidden">
-          {hasMounted ? Array.from({ length: currentSeason.id === "winter" ? 16 : 12 }).map((_, index) => (
-            <span
-              key={`${currentSeason.id}-${index}`}
-              className={`absolute h-2 w-2 rounded-full ${currentSeason.particle} shadow-sm opacity-70 transition-colors duration-500`}
-              style={{
-                left: `${8 + ((index * 17 + viewAngle / 4) % 84)}%`,
-                top: `${10 + ((index * 23 + viewAngle / 8) % 74)}%`,
-                transform: `translateY(${Math.sin((viewAngle + index * 33) * Math.PI / 180) * 9}px)`,
-              }}
-            />
-          )) : null}
-        </div>
-
-        <div className="absolute left-4 right-4 top-4 z-10 hidden rounded-lg bg-white/86 p-4 text-[#21180f] shadow-xl shadow-black/15 backdrop-blur-md sm:left-5 sm:right-auto sm:block sm:max-w-sm">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#79522d]">A living community tree</p>
-          <h3 className="mt-1 font-[family-name:var(--font-heading)] text-2xl font-bold leading-tight">
-            What was given to you that you want to pass on?
-          </h3>
-          <p className="mt-2 text-sm leading-relaxed text-[#4b3827]">
-            Tap a glowing part of the tree, or swipe the branches to see it move.
-          </p>
-        </div>
-
-        {cloudContributions.length > 0 && cloudSlots.map((slot, index) => {
-          const item = cloudContributions[index];
-          const hasAudio = !!(item?.audioUrl || item?.audioDataUrl);
-          if (!item) return null;
-          return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                setSelectedZoneId(item.zoneId);
-                if (hasAudio) playAudio(item);
-              }}
-              className="absolute z-20 hidden max-w-[14rem] rounded-[40px] border border-white/70 bg-white/82 px-5 py-3 text-left text-xs font-bold leading-snug text-[#3b2a1c] shadow-lg shadow-black/12 backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white sm:block"
-              style={{
-                left: `${slot.left}%`,
-                top: `${slot.top}%`,
-                animation: `tree-cloud-drift ${7 + index}s ease-in-out ${slot.delay}s infinite alternate`,
-              }}
-            >
-              <span className="absolute -bottom-2 left-8 h-5 w-5 rounded-full bg-white/82" aria-hidden="true" />
-              <span className="absolute -top-3 right-8 h-8 w-12 rounded-full bg-white/72" aria-hidden="true" />
-              <span className="block text-[0.66rem] uppercase tracking-[0.14em] text-[#79522d]">
-                {hasAudio ? "Voice cloud" : "Message cloud"}
-              </span>
-              <span className="mt-1 block line-clamp-3">
-                {item.message || `A voice note from ${item.author || "the community"}`}
-              </span>
-            </button>
-          );
-        })}
-
-        {zones.map((zone) => (
-          (() => {
-            const point = projectTreePoint(zone.x, zone.y, viewAngle);
-            return (
-              <button
-                key={zone.id}
-                type="button"
-                aria-pressed={selectedZone.id === zone.id}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  selectTreePoint(zone.x, zone.y);
-                }}
-                className={`absolute grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 shadow-xl shadow-black/20 transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#f2c94c] focus:ring-offset-2 ${
-                  selectedZone.id === zone.id
-                    ? `border-white ${currentSeason.marker} text-[#20170f]`
-                    : "border-white/80 bg-[#214d27] text-white"
-                }`}
-                style={{
-                  left: `${point.x}%`,
-                  top: `${point.y}%`,
-                  opacity: point.opacity,
-                  zIndex: point.zIndex,
-                  transform: `translate(-50%, -50%) scale(${point.scale})`,
-                }}
-                title={`${zone.label}: ${zone.part}`}
-              >
-                <span className="text-sm font-black">{zoneCounts[zone.id] > 0 ? "Leaf" : "+"}</span>
-              </button>
-            );
-          })()
-        ))}
-
-        {selectedPoint ? (
-          (() => {
-            const point = projectTreePoint(selectedPoint.x, selectedPoint.y, viewAngle);
-            return (
-          <div
-            className="pointer-events-none absolute z-30 h-12 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[#f2c94c]/30 shadow-[0_0_0_12px_rgba(242,201,76,0.16)]"
-            style={{
-              left: `${point.x}%`,
-              top: `${point.y}%`,
-              transform: `translate(-50%, -50%) scale(${point.scale})`,
-            }}
-            aria-hidden="true"
-          >
-            <span className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f2c94c]" />
-          </div>
-            );
-          })()
-        ) : null}
-
-        {contributions.map((item) => (
-          (() => {
-            const point = projectTreePoint(item.x, item.y, viewAngle);
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setSelectedZoneId(item.zoneId);
-                }}
-                className={`absolute min-h-8 min-w-8 rounded-full border border-white/80 px-2 text-xs font-black text-white shadow-lg shadow-black/20 transition hover:scale-110 ${currentSeason.leaf}`}
-                style={{
-                  left: `${point.x}%`,
-                  top: `${point.y}%`,
-                  opacity: point.opacity,
-                  zIndex: point.zIndex - 2,
-                  transform: `translate(-50%, -50%) scale(${point.scale})`,
-                }}
-                title={item.message || "Voice note"}
-              >
-                {item.audioUrl || item.audioDataUrl ? "A" : "M"}
-              </button>
-            );
-          })()
-        ))}
       </div>
 
       <aside className="flex min-h-[500px] flex-col bg-[#20170f] p-5 text-white sm:p-6">
@@ -1070,7 +937,7 @@ export default function TreeOfHopeScene() {
           <p className="mt-3 rounded-lg border border-[#f2c94c]/24 bg-[#f2c94c]/10 p-3 text-xs leading-relaxed text-[#f9e7a9]">
             {selectedPoint
               ? `Your leaf will sit with the ${selectedZone.label.toLowerCase()}.`
-              : "Choose a glowing part of the tree, then write or record what you want to pass on."}
+              : "Tap the tree to choose a place, then write or record what you want to pass on."}
           </p>
         </div>
 
