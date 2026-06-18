@@ -1,11 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Reveal, staggerContainer, fadeUp } from "@/lib/motion";
 import type { GalleryImage, GalleryContent } from "@/lib/types";
-import TreeOfHopeScene from "./TreeOfHopeScene";
+
+function TreeOfHopePlaceholder() {
+    return (
+        <div
+            data-tree-placeholder
+            className="relative min-h-[460px] overflow-hidden rounded-[1.5rem] border border-[#87a33f]/30 bg-[#cfe7a0] shadow-xl shadow-black/5 sm:min-h-[560px] md:min-h-[640px]"
+            aria-hidden="true"
+        >
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,#d7eab1_0%,#eef4d9_52%,#97c94d_100%)]" />
+            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-[radial-gradient(circle_at_50%_20%,rgba(140,196,65,0.65),rgba(74,128,22,0.18)_52%,transparent_72%)]" />
+        </div>
+    );
+}
+
+const TreeOfHopeScene = dynamic(() => import("./TreeOfHopeScene"), {
+    ssr: false,
+    loading: () => <TreeOfHopePlaceholder />,
+});
 
 const defaultImages: GalleryImage[] = [
     { id: "1", src: "/media/roots/roots-1.jpeg", alt: "Roots & Wings volunteers group photo", caption: "Our Team", sort_order: 1 },
@@ -30,6 +48,8 @@ interface GalleryProps {
 export default function Gallery({ images, meta }: GalleryProps) {
     const [selectedImage, setSelectedImage] = useState<number | null>(null);
     const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+    const [treeShouldLoad, setTreeShouldLoad] = useState(false);
+    const treeMountRef = useRef<HTMLDivElement | null>(null);
     const galleryImages = images.length > 0 ? images : defaultImages;
     const rootsAndWings2024Images = galleryImages.filter((image) =>
         image.src.startsWith("/gallery/roots-and-wings-2024/")
@@ -51,6 +71,29 @@ export default function Gallery({ images, meta }: GalleryProps) {
     const headingParts = heading.split(" ");
     const lastWord = headingParts.pop();
     const headingPrefix = headingParts.join(" ");
+
+    useEffect(() => {
+        if (treeShouldLoad) return;
+        const node = treeMountRef.current;
+        if (!node) return;
+
+        if (!("IntersectionObserver" in window)) {
+            const fallbackTimer = setTimeout(() => setTreeShouldLoad(true), 0);
+            return () => clearTimeout(fallbackTimer);
+        }
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (!entry.isIntersecting) return;
+                setTreeShouldLoad(true);
+                observer.disconnect();
+            },
+            { rootMargin: "900px 0px" }
+        );
+
+        observer.observe(node);
+        return () => observer.disconnect();
+    }, [treeShouldLoad]);
 
     return (
         <section id="gallery" className="py-12 sm:py-16 md:py-20 bg-bg-alt">
@@ -153,7 +196,9 @@ export default function Gallery({ images, meta }: GalleryProps) {
                             Tree of Hope
                         </h2>
                     </div>
-                    <TreeOfHopeScene />
+                    <div ref={treeMountRef}>
+                        {treeShouldLoad ? <TreeOfHopeScene /> : <TreeOfHopePlaceholder />}
+                    </div>
                 </div>
             </Reveal>
 

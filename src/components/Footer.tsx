@@ -102,7 +102,7 @@ export default function Footer() {
           </p>
           <a
             href={`mailto:${supportEmail}`}
-            className="mt-3 text-xs text-accent transition-colors hover:text-accent-warm"
+            className="mt-2 inline-flex min-h-[44px] items-center justify-center rounded-full px-3 text-sm text-accent transition-colors hover:text-accent-warm"
           >
             {supportEmail}
           </a>
@@ -120,13 +120,13 @@ export default function Footer() {
             <p className="mb-2 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-text-tertiary">
               Explore
             </p>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-0 sm:flex sm:flex-wrap sm:justify-center sm:gap-x-6 sm:gap-y-1">
+            <div className="grid grid-cols-2 gap-x-2 gap-y-1 sm:flex sm:flex-wrap sm:justify-center sm:gap-x-6 sm:gap-y-1">
               {footerLinks.map((link) =>
                 link.isPage ? (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="inline-flex min-h-[44px] items-center justify-center text-[0.8125rem] text-text-secondary transition-colors sm:px-1 sm:text-sm hover:text-accent"
+                    className="inline-flex min-h-[44px] items-center justify-center rounded-lg px-2 text-center text-[0.8125rem] leading-snug text-text-secondary transition-colors hover:text-accent sm:px-1 sm:text-sm"
                   >
                     {link.label}
                   </Link>
@@ -134,7 +134,7 @@ export default function Footer() {
                   <a
                     key={link.href}
                     href={link.href}
-                    className="inline-flex min-h-[44px] items-center justify-center text-[0.8125rem] text-text-secondary transition-colors sm:px-1 sm:text-sm hover:text-accent"
+                    className="inline-flex min-h-[44px] items-center justify-center rounded-lg px-2 text-center text-[0.8125rem] leading-snug text-text-secondary transition-colors hover:text-accent sm:px-1 sm:text-sm"
                   >
                     {link.label}
                   </a>
@@ -147,12 +147,12 @@ export default function Footer() {
             <p className="mb-2 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-text-tertiary">
               Legal
             </p>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-0 sm:flex sm:flex-wrap sm:justify-center sm:gap-x-6 sm:gap-y-1">
+            <div className="grid grid-cols-1 gap-y-1 min-[430px]:grid-cols-2 min-[430px]:gap-x-3 sm:flex sm:flex-wrap sm:justify-center sm:gap-x-6 sm:gap-y-1">
               {legalLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="inline-flex min-h-[44px] items-center justify-center text-[0.8125rem] text-text-secondary transition-colors sm:px-1 sm:text-sm hover:text-accent"
+                  className="inline-flex min-h-[44px] items-center justify-center rounded-lg px-2 text-center text-[0.8125rem] leading-snug text-text-secondary transition-colors hover:text-accent sm:px-1 sm:text-sm"
                 >
                   {link.label}
                 </Link>
