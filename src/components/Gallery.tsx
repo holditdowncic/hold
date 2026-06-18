@@ -249,7 +249,7 @@ export default function Gallery({ images, meta }: GalleryProps) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 overflow-y-auto bg-bg/95 p-4 backdrop-blur-sm"
+                        className="fixed inset-0 z-[1200] overflow-y-auto bg-bg/95 p-4 backdrop-blur-sm"
                         onClick={() => setSelectedFolder(null)}
                     >
                         <motion.div
@@ -273,8 +273,9 @@ export default function Gallery({ images, meta }: GalleryProps) {
                                 </div>
                                 <button
                                     onClick={() => setSelectedFolder(null)}
-                                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-bg/80 text-text-primary transition-colors hover:bg-accent hover:text-white"
+                                    className="sticky top-4 z-20 ml-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-[#21170d] shadow-xl ring-1 ring-black/10 transition-colors hover:bg-accent hover:text-white"
                                     aria-label={`Close ${selectedFolderData.title} gallery folder`}
+                                    title="Close"
                                 >
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <path d="M18 6L6 18M6 6l12 12" />
@@ -315,7 +316,7 @@ export default function Gallery({ images, meta }: GalleryProps) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-bg/95 backdrop-blur-sm p-4"
+                        className="fixed inset-0 z-[1200] flex items-center justify-center bg-bg/95 p-4 backdrop-blur-sm"
                         onClick={() => setSelectedImage(null)}
                     >
                         <motion.div
