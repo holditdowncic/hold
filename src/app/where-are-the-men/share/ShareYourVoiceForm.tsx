@@ -44,8 +44,11 @@ export default function ShareYourVoiceForm() {
     "w-full rounded-2xl border border-[#d7c8b6] bg-white px-4 py-3 text-base text-[#21180f] outline-none transition focus:border-[#5f9b16] focus:ring-4 focus:ring-[#5f9b16]/15";
 
   return (
-    <main className="min-h-screen bg-[#f7f1e5] px-5 py-8 text-[#21180f]">
-      <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-[560px] flex-col justify-center">
+    <main className="min-h-screen bg-[#f7f1e5] px-4 py-6 text-[#21180f] sm:px-8 sm:py-10">
+      <section
+        className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-xl flex-col justify-center sm:min-h-[calc(100vh-5rem)]"
+        style={{ maxWidth: "36rem" }}
+      >
         <div className="rounded-[1.5rem] border border-[#dfd0bb] bg-[#fffaf1] p-5 shadow-[0_20px_70px_rgba(42,31,20,0.14)] sm:p-7">
           <div className="mb-6 flex items-center gap-4">
             <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full border border-[#d8c5aa] bg-white">
@@ -109,10 +112,10 @@ export default function ShareYourVoiceForm() {
                     name="message"
                     required
                     maxLength={700}
-                    rows={7}
+                    rows={5}
                     value={message}
                     onChange={(event) => setMessage(event.target.value)}
-                    className={`${inputClasses} resize-none`}
+                    className={`${inputClasses} min-h-[220px] resize-none sm:min-h-[160px]`}
                     placeholder="Write your thought, suggestion, or reflection..."
                   />
                   <p className="mt-2 text-right text-xs text-[#7a6d5d]">{message.length}/700</p>
