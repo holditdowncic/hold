@@ -183,9 +183,9 @@ export default function RootsAndWingsClient({ images }: { images: GalleryImage[]
 
       {/* Upcoming Event CTA */}
       <section className="px-5 py-16 sm:px-6 md:py-24">
-        <div className="mx-auto max-w-[1000px] overflow-hidden rounded-3xl border border-accent-warm/25 bg-gradient-to-br from-[#21180d] via-[#2f3a16] to-[#0f1c0a] p-8 text-center md:p-16">
+        <div className="mx-auto max-w-[1000px] overflow-hidden rounded-3xl border border-yellow-400/20 bg-gradient-to-br from-blue-900 to-blue-950 p-8 text-center md:p-16">
           <Reveal>
-            <span className="mb-6 inline-block rounded-full bg-accent-warm px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-[#21180d]">
+            <span className="mb-6 inline-block rounded-full bg-yellow-400 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-blue-950">
               Coming Soon
             </span>
           </Reveal>
@@ -195,7 +195,7 @@ export default function RootsAndWingsClient({ images }: { images: GalleryImage[]
             </h2>
           </Reveal>
           <Reveal>
-            <p className="mx-auto mb-10 max-w-[600px] text-white/80 md:text-lg">
+            <p className="mx-auto mb-10 max-w-[600px] text-blue-100 md:text-lg">
               Save the date! Join us on Saturday 20th June for our next major community celebration.
             </p>
           </Reveal>
@@ -203,7 +203,7 @@ export default function RootsAndWingsClient({ images }: { images: GalleryImage[]
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
                 href="/events"
-                className="rounded-full bg-accent-warm px-8 py-4 text-sm font-bold text-[#21180d] transition-all hover:bg-[#f2a43a] hover:shadow-xl"
+                className="rounded-full bg-yellow-400 px-8 py-4 text-sm font-bold text-blue-950 transition-all hover:bg-yellow-300 hover:shadow-xl"
               >
                 View Event Details
               </Link>

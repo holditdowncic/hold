@@ -91,43 +91,43 @@ export default function StallBookingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#fffaf1] to-[#f4ead8] py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-b from-blue-900 to-blue-950 py-12 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-accent mb-2">
+          <h1 className="text-4xl md:text-5xl font-bold text-yellow-400 mb-2">
             Book a Stall
           </h1>
-          <h2 className="text-2xl text-text-primary mb-4">
+          <h2 className="text-2xl text-white mb-4">
             Roots & Wings Fun Day 2026
           </h2>
-          <div className="bg-accent-warm text-[#21180d] inline-block px-6 py-2 rounded-full font-bold">
+          <div className="bg-yellow-400 text-blue-900 inline-block px-6 py-2 rounded-full font-bold">
             Saturday 20th June 2026
           </div>
         </div>
 
         {/* Info Box */}
-        <div className="bg-white/75 border border-border backdrop-blur-sm rounded-lg p-6 mb-8 text-text-primary shadow-lg shadow-black/5">
-          <h3 className="text-xl font-bold text-accent mb-4">Stall Pricing</h3>
+        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 mb-8 text-white">
+          <h3 className="text-xl font-bold text-yellow-400 mb-4">Stall Pricing</h3>
           <ul className="space-y-3">
             <li className="flex items-start gap-2">
-              <span className="text-accent mt-0.5">✓</span>
-              <span><strong className="text-accent">£25</strong> — Community stall</span>
+              <span className="text-yellow-400 mt-0.5">✓</span>
+              <span><strong className="text-yellow-300">£25</strong> — Community stall</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-accent mt-0.5">✓</span>
-              <span><strong className="text-accent">£40</strong> — Standard stall (you bring your own table)</span>
+              <span className="text-yellow-400 mt-0.5">✓</span>
+              <span><strong className="text-yellow-300">£40</strong> — Standard stall (you bring your own table)</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-accent mt-0.5">✓</span>
-              <span><strong className="text-accent">£60</strong> — Standard stall (table provided by us)</span>
+              <span className="text-yellow-400 mt-0.5">✓</span>
+              <span><strong className="text-yellow-300">£60</strong> — Standard stall (table provided by us)</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-accent mt-0.5">✓</span>
+              <span className="text-yellow-400 mt-0.5">✓</span>
               <span>Booking Deadline: <strong>16th May 2026</strong></span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-accent mt-0.5">✓</span>
+              <span className="text-yellow-400 mt-0.5">✓</span>
               <span>Location: Heavers Farm School, SE25 6LT</span>
             </li>
             <li className="flex items-start gap-2 text-red-300">
@@ -358,8 +358,8 @@ export default function StallBookingPage() {
               const preview = getPaymentLink(formData.stallType, formData.table);
               return preview ? (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h4 className="font-semibold text-[#21180d] mb-1">Your stall fee</h4>
-                  <p className="text-2xl font-bold text-[#21180d]">{preview.price}</p>
+                  <h4 className="font-semibold text-blue-900 mb-1">Your stall fee</h4>
+                  <p className="text-2xl font-bold text-blue-900">{preview.price}</p>
                   <p className="text-sm text-blue-700 mt-1">{preview.label} — payment link provided after submission</p>
                 </div>
               ) : null;
@@ -379,15 +379,15 @@ export default function StallBookingPage() {
                   <p>{message}</p>
                 </div>
                 {paymentLink && (
-                  <div className="bg-accent-warm/10 border border-accent-warm/40 rounded-lg p-5">
+                  <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-5">
                     <p className="text-sm text-gray-600 mb-1">Amount due</p>
-                    <p className="text-3xl font-bold text-[#21180d] mb-1">{paymentLink.price}</p>
+                    <p className="text-3xl font-bold text-blue-900 mb-1">{paymentLink.price}</p>
                     <p className="text-sm text-gray-500 mb-4">{paymentLink.label}</p>
                     <a
                       href={paymentLink.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-block w-full bg-accent-warm hover:bg-[#f2a43a] text-[#21180d] font-bold py-3 px-6 rounded-lg transition-colors text-center"
+                      className="inline-block w-full bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold py-3 px-6 rounded-lg transition-colors text-center"
                     >
                       💳 Pay Now with SumUp
                     </a>
@@ -399,7 +399,7 @@ export default function StallBookingPage() {
               <button
                 type="submit"
                 disabled={status === "submitting"}
-                className="w-full bg-accent-warm hover:bg-[#f2a43a] text-[#21180d] font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {status === "submitting" ? "Submitting..." : "Submit Booking Request"}
               </button>
@@ -408,9 +408,9 @@ export default function StallBookingPage() {
         </form>
 
         {/* QR Code - Share This Page */}
-        <div className="mt-8 bg-white/75 border border-border backdrop-blur-sm rounded-lg p-6 text-center shadow-lg shadow-black/5">
-          <h3 className="text-lg font-bold text-accent mb-2">Share This Booking Page</h3>
-          <p className="text-text-secondary text-sm mb-4">Know someone who might want a stall? Scan to share</p>
+        <div className="mt-8 bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center">
+          <h3 className="text-lg font-bold text-yellow-400 mb-2">Share This Booking Page</h3>
+          <p className="text-white/80 text-sm mb-4">Know someone who might want a stall? Scan to share</p>
           <div className="inline-block bg-white p-4 rounded-lg">
             <img
               src="/stall-booking-qr.png"
@@ -418,11 +418,11 @@ export default function StallBookingPage() {
               className="w-40 h-40"
             />
           </div>
-          <p className="text-text-tertiary text-xs mt-3">Scan to open: www.holditdown.uk/stall-booking</p>
+          <p className="text-white/60 text-xs mt-3">Scan to open: www.holditdown.uk/stall-booking</p>
         </div>
 
         {/* Contact */}
-        <div className="text-center mt-8 text-text-secondary">
+        <div className="text-center mt-8 text-white">
           <p className="mb-2">Questions? Contact us:</p>
           <p className="font-semibold">Marcus: 07403 314972</p>
           <p className="font-semibold">Laverne: 07943 126859</p>

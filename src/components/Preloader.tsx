@@ -20,7 +20,7 @@ export default function Preloader() {
             alt="Hold It Down CIC"
             width={80}
             height={80}
-            className="h-full w-full rounded-full object-cover drop-shadow-[0_0_15px_rgba(79,151,15,0.3)]"
+            className="h-full w-full rounded-full object-cover drop-shadow-[0_0_15px_rgba(139,92,246,0.3)]"
             priority
           />
         </div>

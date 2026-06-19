@@ -60,7 +60,7 @@ export default function StitchCraftNKnitPage() {
         <section className="relative overflow-hidden pt-28 sm:pt-32">
           <div className="mx-auto grid max-w-[1200px] gap-8 px-5 pb-12 sm:px-6 md:grid-cols-[0.95fr_1.05fr] md:items-center md:pb-16">
             <div className="relative z-10">
-              <p className="mb-4 inline-flex rounded-full border border-accent/25 bg-accent-glow px-4 py-2 text-sm font-semibold text-text-primary">
+              <p className="mb-4 inline-flex rounded-full border border-[#2C7A7B]/25 bg-[#2C7A7B]/10 px-4 py-2 text-sm font-semibold text-text-primary">
                 Weekly creative community group
               </p>
               <h1 className="font-[family-name:var(--font-heading)] text-[clamp(2.6rem,7vw,5.75rem)] font-bold leading-[0.95] text-text-primary">
@@ -73,13 +73,13 @@ export default function StitchCraftNKnitPage() {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <a
                   href="#weekly-sessions"
-                  className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-gradient-to-r from-accent to-accent-warm px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-lg"
+                  className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-[#4A224C] px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#5D2C60]"
                 >
                   View weekly sessions
                 </a>
                 <Link
                   href="/contact"
-                  className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-border bg-bg-card px-6 py-3 text-sm font-semibold text-text-primary transition hover:-translate-y-0.5 hover:border-accent/40"
+                  className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-border bg-bg-card px-6 py-3 text-sm font-semibold text-text-primary transition hover:-translate-y-0.5 hover:border-[#2C7A7B]/40"
                 >
                   Ask about joining
                 </Link>
@@ -168,7 +168,7 @@ export default function StitchCraftNKnitPage() {
 
         <section
           id="weekly-sessions"
-          className="bg-[#21180d] px-5 py-14 text-white sm:px-6 md:py-20"
+          className="bg-[#102D30] px-5 py-14 text-white sm:px-6 md:py-20"
         >
           <div className="mx-auto grid max-w-[1200px] gap-8 md:grid-cols-[0.85fr_1.15fr] md:items-start">
             <div>

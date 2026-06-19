@@ -65,22 +65,22 @@ export default function AboutPage() {
               Why Your Voice Is Needed
             </h2>
             <div className="space-y-4">
-              <div className="bg-accent/10 border-l-4 border-accent p-6 rounded">
-                <h3 className="text-xl font-bold text-accent mb-2">👨‍👧‍👦 Fathers & Mentors</h3>
+              <div className="bg-blue-50 border-l-4 border-blue-900 p-6 rounded">
+                <h3 className="text-xl font-bold text-blue-900 mb-2">👨‍👧‍👦 Fathers & Mentors</h3>
                 <p className="text-text-secondary">
                   Many fathers mentor young people without recognition. Your vote ensures their dedication is celebrated.
                 </p>
               </div>
 
-              <div className="bg-accent/10 border-l-4 border-accent p-6 rounded">
-                <h3 className="text-xl font-bold text-accent mb-2">💪 Everyday Heroes</h3>
+              <div className="bg-blue-50 border-l-4 border-blue-900 p-6 rounded">
+                <h3 className="text-xl font-bold text-blue-900 mb-2">💪 Everyday Heroes</h3>
                 <p className="text-text-secondary">
                   The men who show up every day, provide support, and demonstrate leadership deserve to be seen.
                 </p>
               </div>
 
-              <div className="bg-accent/10 border-l-4 border-accent p-6 rounded">
-                <h3 className="text-xl font-bold text-accent mb-2">🌱 Role Models</h3>
+              <div className="bg-blue-50 border-l-4 border-blue-900 p-6 rounded">
+                <h3 className="text-xl font-bold text-blue-900 mb-2">🌱 Role Models</h3>
                 <p className="text-text-secondary">
                   Young men who lead with integrity inspire the next generation. Your vote recognises their influence.
                 </p>
@@ -116,7 +116,7 @@ export default function AboutPage() {
             </h2>
             <div className="space-y-4">
               <div className="flex gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-accent-warm text-[#21180d] rounded-full flex items-center justify-center font-bold text-lg">
+                <div className="flex-shrink-0 w-12 h-12 bg-yellow-400 text-blue-900 rounded-full flex items-center justify-center font-bold text-lg">
                   1
                 </div>
                 <div>
@@ -126,7 +126,7 @@ export default function AboutPage() {
               </div>
 
               <div className="flex gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-accent-warm text-[#21180d] rounded-full flex items-center justify-center font-bold text-lg">
+                <div className="flex-shrink-0 w-12 h-12 bg-yellow-400 text-blue-900 rounded-full flex items-center justify-center font-bold text-lg">
                   2
                 </div>
                 <div>
@@ -136,7 +136,7 @@ export default function AboutPage() {
               </div>
 
               <div className="flex gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-accent-warm text-[#21180d] rounded-full flex items-center justify-center font-bold text-lg">
+                <div className="flex-shrink-0 w-12 h-12 bg-yellow-400 text-blue-900 rounded-full flex items-center justify-center font-bold text-lg">
                   3
                 </div>
                 <div>
@@ -152,7 +152,7 @@ export default function AboutPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-gradient-to-r from-[#21180d] via-[#2f3a16] to-[#0f1c0a] text-white rounded-lg p-8 text-center"
+            className="bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-lg p-8 text-center"
           >
             <h2 className="text-2xl md:text-3xl font-bold mb-4">
               Ready to Make a Difference?
@@ -161,7 +161,7 @@ export default function AboutPage() {
               Take 30 seconds to nominate the men who deserve recognition in our community.
             </p>
             <Link href="/vote">
-              <button className="bg-accent-warm hover:bg-[#f2a43a] text-[#21180d] font-bold py-4 px-8 rounded-lg transition-all hover:-translate-y-0.5 hover:shadow-lg">
+              <button className="bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold py-4 px-8 rounded-lg transition-all hover:-translate-y-0.5 hover:shadow-lg">
                 Cast Your Vote Now
               </button>
             </Link>
@@ -172,7 +172,7 @@ export default function AboutPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.35 }}
-            className="bg-white rounded-lg p-8 border-2 border-accent text-center"
+            className="bg-white rounded-lg p-8 border-2 border-blue-900 text-center"
           >
             <p className="text-lg md:text-xl font-semibold text-text-primary leading-relaxed">
               Every vote is a chance to recognise a man who is making a difference.
