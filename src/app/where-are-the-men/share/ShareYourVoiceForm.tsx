@@ -111,14 +111,18 @@ export default function ShareYourVoiceForm() {
                     id="share-message"
                     name="message"
                     required
-                    maxLength={700}
+                    maxLength={2000}
                     rows={5}
                     value={message}
                     onChange={(event) => setMessage(event.target.value)}
                     className={`${inputClasses} min-h-[220px] resize-none sm:min-h-[160px]`}
                     placeholder="Write your thought, suggestion, or reflection..."
                   />
-                  <p className="mt-2 text-right text-xs text-[#7a6d5d]">{message.length}/700</p>
+                  {message.length >= 1800 && (
+                    <p className="mt-2 text-right text-xs text-[#7a6d5d]">
+                      {message.length}/2000
+                    </p>
+                  )}
                 </div>
 
                 {status === "error" && (

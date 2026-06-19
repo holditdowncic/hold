@@ -64,13 +64,38 @@ test("rejects oversized direct API submissions instead of truncating them", asyn
   };
 
   const response = await handleWhereAreTheMenShareSubmission(
-    requestWithBody({ name: "Marcus", message: "a".repeat(701) }),
+    requestWithBody({ name: "Marcus", message: "a".repeat(2001) }),
     deps,
   );
   const body = await response.json();
 
   assert.equal(response.status, 400);
-  assert.equal(body.error, "Please keep your message to 700 characters or less.");
+  assert.equal(body.error, "Please keep your message to 2000 characters or less.");
+});
+
+test("accepts direct API submissions up to two thousand characters", async () => {
+  const savedPayloads: unknown[] = [];
+  const deps: WhereAreTheMenShareDependencies = {
+    telegramBotToken: "bot-token",
+    telegramAdminIds: ["111"],
+    saveSubmission: async (input) => {
+      savedPayloads.push(input);
+      return { saved: true, backend: "table", id: "submission-1" };
+    },
+    fetchImpl: async () => new Response(JSON.stringify({ ok: true }), { status: 200 }),
+  };
+
+  const response = await handleWhereAreTheMenShareSubmission(
+    requestWithBody({ name: "Marcus", message: "a".repeat(2000) }),
+    deps,
+  );
+  const body = await response.json();
+  const savedInput = savedPayloads[0] as Record<string, unknown>;
+  const payload = savedInput.payload as Record<string, unknown>;
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(body, { success: true, redirectTo: "/" });
+  assert.equal(payload.message, "a".repeat(2000));
 });
 
 test("rate limited submissions are rejected before save and Telegram notification", async () => {

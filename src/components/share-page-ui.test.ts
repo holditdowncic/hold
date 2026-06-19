@@ -32,3 +32,14 @@ test("Where Are The Men share form uses a compact desktop layout", async () => {
   assert.equal(source.includes("max-w-[560px]"), false);
   assert.equal(source.includes("sm:min-h-[160px]"), true);
 });
+
+test("Where Are The Men share form allows longer thoughts without showing the counter early", async () => {
+  const source = await readFile(
+    new URL("../app/where-are-the-men/share/ShareYourVoiceForm.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.equal(source.includes("maxLength={2000}"), true);
+  assert.equal(source.includes("message.length >= 1800"), true);
+  assert.equal(source.includes("/700"), false);
+});

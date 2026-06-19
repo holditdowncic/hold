@@ -152,9 +152,9 @@ export async function handleWhereAreTheMenShareSubmission(
       { status: 400 },
     );
   }
-  if (message.length > 700) {
+  if (message.length > 2000) {
     return NextResponse.json(
-      { error: "Please keep your message to 700 characters or less." },
+      { error: "Please keep your message to 2000 characters or less." },
       { status: 400 },
     );
   }
