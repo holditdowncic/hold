@@ -39,7 +39,7 @@ const welcomeList = [
   "Anyone committed to building stronger families and communities",
 ];
 
-const shareYourVoiceUrl = "https://form.jotform.com/261591082336053";
+const shareYourVoicePath = "/where-are-the-men/share";
 const nextEventSlug = "where-are-the-men-croydon-26-june-2026";
 
 export default function WhereAreTheMenPage() {
@@ -65,9 +65,7 @@ export default function WhereAreTheMenPage() {
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <a
-                  href={shareYourVoiceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={shareYourVoicePath}
                   className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-gradient-to-r from-accent to-accent-warm px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-lg"
                 >
                   Join the conversation
@@ -229,9 +227,7 @@ export default function WhereAreTheMenPage() {
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <a
-                  href={shareYourVoiceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={shareYourVoicePath}
                   className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-accent-warm px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5"
                 >
                   Share your voice
@@ -242,6 +238,19 @@ export default function WhereAreTheMenPage() {
                 >
                   View event details
                 </Link>
+              </div>
+              <div className="mt-6 flex items-center gap-4 rounded-2xl border border-white/12 bg-white/8 p-4">
+                <Image
+                  src="/media/where-are-the-men/share-your-voice-qr.png"
+                  alt="QR code to share your voice for Where Are The Men"
+                  width={104}
+                  height={104}
+                  unoptimized
+                  className="rounded-xl bg-white p-2"
+                />
+                <p className="text-sm leading-relaxed text-white/75">
+                  Scan to open the simple form, share your voice, and return to the Hold It Down website.
+                </p>
               </div>
             </div>
           </div>
@@ -281,9 +290,7 @@ export default function WhereAreTheMenPage() {
                 voices help shape the future of this campaign.
               </p>
               <a
-                href={shareYourVoiceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={shareYourVoicePath}
                 className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5"
               >
                 Share your voice
@@ -309,9 +316,7 @@ export default function WhereAreTheMenPage() {
             </div>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <a
-                href={shareYourVoiceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={shareYourVoicePath}
                 className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5"
               >
                 Share your voice
