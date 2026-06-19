@@ -13,7 +13,10 @@ interface BannerContent {
 }
 
 const STORAGE_KEY = "hold-cookie-consent";
-const COOKIE_BANNER_SUPPRESSED_PATHS = new Set(["/where-are-the-men/share"]);
+const COOKIE_BANNER_SUPPRESSED_PATHS = new Set([
+    "/where-are-the-men/share",
+    "/roots-and-wings-feedback",
+]);
 
 export function isCookieBannerSuppressedPath(pathname: string | null): boolean {
     if (!pathname) return false;
