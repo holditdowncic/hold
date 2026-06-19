@@ -124,11 +124,6 @@ export default function ShareYourVoiceForm() {
                   </div>
                 )}
 
-                <p className="rounded-xl border border-[#d8c5aa] bg-white/70 px-4 py-3 text-xs leading-relaxed text-[#6b5e4d]">
-                  By sending, you agree that Hold It Down CIC can store your response securely and
-                  send it to the team by Telegram so they can follow up on community feedback.
-                </p>
-
                 <button
                   type="submit"
                   disabled={status === "sending"}

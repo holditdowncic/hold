@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface BannerContent {
@@ -12,12 +13,26 @@ interface BannerContent {
 }
 
 const STORAGE_KEY = "hold-cookie-consent";
+const COOKIE_BANNER_SUPPRESSED_PATHS = new Set(["/where-are-the-men/share"]);
+
+export function isCookieBannerSuppressedPath(pathname: string | null): boolean {
+    if (!pathname) return false;
+    const normalizedPath = pathname.replace(/\/+$/, "") || "/";
+    return COOKIE_BANNER_SUPPRESSED_PATHS.has(normalizedPath);
+}
 
 export default function CookieBanner() {
+    const pathname = usePathname();
     const [visible, setVisible] = useState(false);
     const [content, setContent] = useState<BannerContent | null>(null);
+    const suppressBanner = isCookieBannerSuppressedPath(pathname);
 
     useEffect(() => {
+        if (suppressBanner) {
+            setVisible(false);
+            return;
+        }
+
         // Already consented? Don't load anything
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) return;
@@ -43,7 +58,7 @@ export default function CookieBanner() {
                 });
                 setTimeout(() => setVisible(true), 1500);
             });
-    }, []);
+    }, [suppressBanner]);
 
     function handleAccept() {
         localStorage.setItem(STORAGE_KEY, "accepted");
@@ -67,7 +82,7 @@ export default function CookieBanner() {
         }).catch(() => { });
     }
 
-    if (!content) return null;
+    if (suppressBanner || !content) return null;
 
     return (
         <AnimatePresence>
