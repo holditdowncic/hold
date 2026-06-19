@@ -40,6 +40,7 @@ const welcomeList = [
 ];
 
 const shareYourVoiceUrl = "https://form.jotform.com/261591082336053";
+const nextEventSlug = "where-are-the-men-croydon-26-june-2026";
 
 export default function WhereAreTheMenPage() {
   return (
@@ -209,10 +210,10 @@ export default function WhereAreTheMenPage() {
                 Next community conversation
               </p>
               <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.25rem)] font-bold leading-tight">
-                Friday 12 June, outside Marks & Spencer Croydon.
+                Friday 26 June, 159 London Road, Croydon.
               </h2>
               <p className="mt-5 max-w-[620px] text-lg leading-relaxed text-white/75">
-                Join us from 4pm to 7pm at 116 N End, Croydon CR9 1SH as we
+                Join us from 6pm to 9pm at 159 London Road, Croydon CR0 2RJ as we
                 continue the Where Are The Men? conversation in the community.
               </p>
             </div>
@@ -236,7 +237,7 @@ export default function WhereAreTheMenPage() {
                   Share your voice
                 </a>
                 <Link
-                  href="/events#where-are-the-men-croydon-12-june-2026"
+                  href={`/events#${nextEventSlug}`}
                   className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-white/18 bg-white/8 px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/12"
                 >
                   View event details
@@ -316,7 +317,7 @@ export default function WhereAreTheMenPage() {
                 Share your voice
               </a>
               <Link
-                href="/events#where-are-the-men-croydon-12-june-2026"
+                href={`/events#${nextEventSlug}`}
                 className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-border bg-bg-elevated px-6 py-3 text-sm font-semibold text-text-primary transition hover:-translate-y-0.5 hover:border-border-hover"
               >
                 View upcoming event

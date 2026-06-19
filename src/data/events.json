@@ -1,8 +1,8 @@
 [
   {
-    "badge": "Upcoming: 12 June",
-    "date": "Friday 12 June 2026, 4-7pm",
-    "description": "A public Where Are The Men? community conversation outside Marks & Spencer Croydon. Hold It Down CIC will be inviting people to reflect on what the question means to them and share their voice through the campaign form.",
+    "badge": "Upcoming: 26 June",
+    "date": "Friday 26 June 2026, 6-9pm",
+    "description": "A Where Are The Men? community conversation inviting people to reflect on men, boys, family, and community. Visitors can scan the Share Your Voice QR code, add their thoughts, and help shape the next stage of the campaign.",
     "gallery": [
       {
         "alt": "Hold It Down team speaking with a community member during the Where Are The Men campaign in Croydon",
@@ -11,21 +11,21 @@
     ],
     "highlights": [
       "Public community conversation",
-      "Share Your Voice QR code",
+      "Share Your Voice QR code and campaign form",
       "Reflections on men, boys, family, and community",
-      "Open invitation for local residents"
+      "Open invitation for local residents and families"
     ],
-    "id": "where-are-the-men-croydon-12-june-2026",
+    "id": "where-are-the-men-croydon-26-june-2026",
     "image": "/media/where-are-the-men/croydon-community-conversation.jpg",
     "image_alt": "Hold It Down team speaking with a community member during the Where Are The Men campaign in Croydon",
     "impact": [
-      "Community voice",
+      "Community voice gathering",
       "Men and boys engagement",
       "Public reflection",
-      "Local connection"
+      "Campaign insight for future work"
     ],
-    "location": "Outside Marks & Spencer, 116 N End, Croydon CR9 1SH",
-    "slug": "where-are-the-men-croydon-12-june-2026",
+    "location": "159 London Road, Croydon CR0 2RJ",
+    "slug": "where-are-the-men-croydon-26-june-2026",
     "sort_order": -1,
     "title": "Where Are The Men? Croydon Community Conversation"
   },
