@@ -88,6 +88,52 @@ export default function RootsAndWingsClient({ images }: { images: GalleryImage[]
         </div>
       </section>
 
+      {/* Feedback Form */}
+      <section className="px-5 py-10 sm:px-6 md:py-14">
+        <div className="mx-auto grid max-w-[1000px] gap-8 rounded-3xl border border-border bg-bg-card p-6 shadow-xl shadow-black/5 md:grid-cols-[1fr_auto] md:items-center md:p-8">
+          <div>
+            <Reveal>
+              <span className="mb-4 inline-block rounded-full border border-accent/15 bg-accent-glow px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-accent">
+                Feedback form
+              </span>
+            </Reveal>
+            <Reveal>
+              <h2 className="font-[family-name:var(--font-heading)] text-2xl font-bold md:text-3xl">
+                Feedback form for Roots & Wings event
+              </h2>
+            </Reveal>
+            <Reveal>
+              <p className="mt-4 max-w-[620px] text-text-secondary">
+                Scan the code or open the form to tell us how the day went. Your feedback helps shape future Roots & Wings events for children, young people, families, and the wider community.
+              </p>
+            </Reveal>
+            <Reveal>
+              <Link
+                href="/roots-and-wings-feedback"
+                className="mt-6 inline-flex rounded-full bg-accent px-6 py-3 text-sm font-bold text-white transition-all hover:bg-accent-warm hover:shadow-xl"
+              >
+                Open feedback form
+              </Link>
+            </Reveal>
+          </div>
+          <Reveal>
+            <Link
+              href="/roots-and-wings-feedback"
+              className="mx-auto block rounded-3xl border border-border bg-white p-4 transition-transform hover:scale-[1.02]"
+              aria-label="Open Roots and Wings feedback form"
+            >
+              <Image
+                src="/media/roots-and-wings/feedback-qr.png"
+                alt="Feedback form for Roots & Wings event"
+                width={180}
+                height={180}
+                className="h-40 w-40 sm:h-44 sm:w-44"
+              />
+            </Link>
+          </Reveal>
+        </div>
+      </section>
+
       {/* History Section */}
       <section className="bg-bg px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-[1200px]">

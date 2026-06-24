@@ -59,3 +59,25 @@ test("Roots and Wings feedback form includes the requested questions", async () 
   assert.equal(source.includes("Would you recommend Roots & Wings to a friend or family member?"), true);
   assert.equal(source.includes("Email Address (Optional)"), true);
 });
+
+test("Roots and Wings feedback is surfaced from the scrolling banner", async () => {
+  const source = await readFile(
+    new URL("./VotePopup.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.equal(source.includes('href="/roots-and-wings-feedback"'), true);
+  assert.equal(source.includes("Roots & Wings 2026"), true);
+  assert.equal(source.includes("tell us how we did"), true);
+});
+
+test("Roots and Wings project page includes the feedback form and QR code", async () => {
+  const source = await readFile(
+    new URL("../app/roots-and-wings/RootsAndWingsClient.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.equal(source.includes('href="/roots-and-wings-feedback"'), true);
+  assert.equal(source.includes("/media/roots-and-wings/feedback-qr.png"), true);
+  assert.equal(source.includes("Feedback form for Roots & Wings event"), true);
+});
