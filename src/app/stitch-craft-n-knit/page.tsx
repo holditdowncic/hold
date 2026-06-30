@@ -170,10 +170,10 @@ export default function StitchCraftNKnitPage() {
           <div className="mx-auto grid max-w-[1200px] gap-10 md:grid-cols-[1.05fr_0.95fr] md:items-center">
             <div>
               <p className="mb-3 text-sm font-semibold uppercase text-text-primary">
-                Finished project
+                Latest make
               </p>
               <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.25rem)] font-bold leading-tight">
-                Completed blanket using different double knitting yarn
+                Finished project
               </h2>
               <p className="mt-6 max-w-[680px] text-base leading-relaxed text-text-secondary sm:text-lg">
                 A colourful finished blanket created with different double
