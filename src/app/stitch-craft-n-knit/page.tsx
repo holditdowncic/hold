@@ -166,6 +166,37 @@ export default function StitchCraftNKnitPage() {
           </div>
         </section>
 
+        <section className="border-y border-border bg-bg-elevated px-5 py-14 sm:px-6 md:py-20">
+          <div className="mx-auto grid max-w-[1200px] gap-10 md:grid-cols-[1.05fr_0.95fr] md:items-center">
+            <div>
+              <p className="mb-3 text-sm font-semibold uppercase text-text-primary">
+                Finished project
+              </p>
+              <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.25rem)] font-bold leading-tight">
+                Completed blanket using different double knitting yarn
+              </h2>
+              <p className="mt-6 max-w-[680px] text-base leading-relaxed text-text-secondary sm:text-lg">
+                A colourful finished blanket created with different double
+                knitting yarns, showing the creativity, patience, and care that
+                grows through Stitch Craft N Knit.
+              </p>
+            </div>
+
+            <div className="overflow-hidden rounded-[1.25rem] border border-border bg-bg-card shadow-[0_18px_50px_rgba(30,20,45,0.12)]">
+              <div className="relative aspect-square">
+                <Image
+                  src="/media/stitch-craft-n-knit/double-knitting-yarn-blanket.jpg"
+                  alt="Colourful completed knitted blanket made with different double knitting yarn"
+                  fill
+                  unoptimized
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 520px"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section
           id="weekly-sessions"
           className="bg-[#102D30] px-5 py-14 text-white sm:px-6 md:py-20"
