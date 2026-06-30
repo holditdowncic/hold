@@ -18,10 +18,10 @@ export const metadata: Metadata = {
     url: "/stitch-craft-n-knit",
     images: [
       {
-        url: "/media/stitch-craft-n-knit/community-knitting-hero.jpg",
-        width: 1600,
-        height: 992,
-        alt: "Diverse intergenerational knitting group gathered around a library table with yarn and needles",
+        url: "/media/stitch-craft-n-knit/holding-picture.jpg",
+        width: 960,
+        height: 1280,
+        alt: "Stitch Craft N Knit community group gathered around a table knitting and crocheting together",
       },
     ],
   },
@@ -87,10 +87,10 @@ export default function StitchCraftNKnitPage() {
             </div>
 
             <div className="relative overflow-hidden rounded-[1.25rem] border border-border bg-bg-card shadow-[0_20px_70px_rgba(30,20,45,0.16)]">
-              <div className="relative aspect-[16/10]">
+              <div className="relative aspect-[3/4]">
                 <Image
-                  src="/media/stitch-craft-n-knit/community-knitting-hero.jpg"
-                  alt="Diverse intergenerational knitting group gathered around a library table with yarn and needles"
+                  src="/media/stitch-craft-n-knit/holding-picture.jpg"
+                  alt="Stitch Craft N Knit community group gathered around a table knitting and crocheting together"
                   fill
                   priority
                   unoptimized
