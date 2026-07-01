@@ -121,24 +121,23 @@ export default function StitchCraftNKnitPage() {
         </section>
 
         <section className="px-5 py-14 sm:px-6 md:py-20">
-          <div className="mx-auto grid max-w-[1200px] gap-10 md:grid-cols-[0.9fr_1.1fr] md:items-start">
-            <div className="overflow-hidden rounded-[1.25rem] border border-border bg-bg-card">
-              <div className="relative aspect-[16/11]">
-                <Image
-                  src="/media/stitch-craft-n-knit/community-knitting-session.jpg"
-                  alt="Diverse community craft group knitting and crocheting together around a table"
-                  fill
-                  unoptimized
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 500px"
-                />
-              </div>
-            </div>
-
-            <div>
+          <div className="mx-auto max-w-[980px]">
+            <div className="max-w-[760px]">
               <p className="mb-3 text-sm font-semibold uppercase text-text-primary">
                 Founded by Marie Brown
               </p>
+              <div className="mb-8 overflow-hidden rounded-[1.25rem] border border-border bg-bg-card">
+                <div className="relative aspect-[16/11]">
+                  <Image
+                    src="/media/stitch-craft-n-knit/community-knitting-session.jpg"
+                    alt="Diverse community craft group knitting and crocheting together around a table"
+                    fill
+                    unoptimized
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 760px"
+                  />
+                </div>
+              </div>
               <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.35rem)] font-bold leading-tight">
                 A safe place to learn, make, and belong
               </h2>
