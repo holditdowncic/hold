@@ -121,20 +121,33 @@ export default function StitchCraftNKnitPage() {
         </section>
 
         <section className="px-5 py-14 sm:px-6 md:py-20">
-          <div className="mx-auto max-w-[980px]">
-            <div className="max-w-[760px]">
+          <div className="mx-auto grid max-w-[1200px] gap-10 md:grid-cols-[0.9fr_1.1fr] md:items-start">
+            <div className="overflow-hidden rounded-[1.25rem] border border-border bg-bg-card">
+              <div className="relative aspect-[16/11]">
+                <Image
+                  src="/media/stitch-craft-n-knit/community-knitting-session.jpg"
+                  alt="Diverse community craft group knitting and crocheting together around a table"
+                  fill
+                  unoptimized
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 500px"
+                />
+              </div>
+            </div>
+
+            <div>
               <p className="mb-3 text-sm font-semibold uppercase text-text-primary">
                 Founded by Marie Brown
               </p>
-              <div className="mb-8 overflow-hidden rounded-[1.25rem] border border-border bg-bg-card">
-                <div className="relative aspect-[16/11]">
+              <div className="mb-8 max-w-[420px] overflow-hidden rounded-[1.25rem] border border-border bg-[#F4EDE4]">
+                <div className="relative aspect-[4/5]">
                   <Image
-                    src="/media/stitch-craft-n-knit/community-knitting-session.jpg"
-                    alt="Diverse community craft group knitting and crocheting together around a table"
+                    src="/media/stitch-craft-n-knit/marie-brown-founder.png"
+                    alt="Marie Brown, founder of Stitch Craft N Knit"
                     fill
                     unoptimized
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 760px"
+                    className="object-contain object-bottom"
+                    sizes="(max-width: 768px) 100vw, 420px"
                   />
                 </div>
               </div>
