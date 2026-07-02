@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { saveFormSubmission, type FormSubmissionInput, type FormSubmissionSaveResult } from "./form-submissions";
+import { getWhereAreTheMenEventCopy } from "./where-are-the-men-event-date";
 
 export type WhereAreTheMenShareDependencies = {
   saveSubmission?: (input: FormSubmissionInput) => Promise<FormSubmissionSaveResult>;
@@ -166,11 +167,12 @@ export async function handleWhereAreTheMenShareSubmission(
     );
   }
 
+  const eventCopy = getWhereAreTheMenEventCopy();
   const payload = {
     name,
     message,
     campaign: "Where Are The Men",
-    event: "Friday 3 July 2026",
+    event: eventCopy.fullDate,
   };
 
   const saveSubmission = deps.saveSubmission ?? saveFormSubmission;

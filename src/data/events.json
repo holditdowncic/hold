@@ -1,7 +1,7 @@
 [
   {
-    "badge": "Upcoming: 3 July",
-    "date": "Friday 3 July 2026, 6-9pm",
+    "badge": "Upcoming: every Friday",
+    "date": "Every Friday, 6-9pm",
     "description": "A Where Are The Men? community conversation inviting people to reflect on men, boys, family, and community. Visitors can scan the Share Your Voice QR code, add their thoughts, and help shape the next stage of the campaign.",
     "gallery": [
       {
@@ -15,7 +15,7 @@
       "Reflections on men, boys, family, and community",
       "Open invitation for local residents and families"
     ],
-    "id": "where-are-the-men-croydon-3-july-2026",
+    "id": "where-are-the-men-croydon-community-conversation",
     "image": "/media/where-are-the-men/croydon-community-conversation.jpg",
     "image_alt": "Hold It Down team speaking with a community member during the Where Are The Men campaign in Croydon",
     "impact": [
@@ -25,7 +25,7 @@
       "Campaign insight for future work"
     ],
     "location": "159 London Road, Croydon CR0 2RJ",
-    "slug": "where-are-the-men-croydon-3-july-2026",
+    "slug": "where-are-the-men-croydon-community-conversation",
     "sort_order": -1,
     "title": "Where Are The Men? Croydon Community Conversation"
   },

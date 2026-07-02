@@ -8,6 +8,7 @@ import { Reveal, fadeUp, staggerContainer } from "@/lib/motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import type { EventData, EventsSectionContent } from "@/lib/types";
+import { getWhereAreTheMenEventCopy, WHERE_ARE_THE_MEN_EVENT_SLUG } from "@/lib/where-are-the-men-event-date";
 
 const fallbackMeta: EventsSectionContent = {
   pill: "Our Events",
@@ -26,6 +27,7 @@ export default function EventsClient(props: { events: EventData[]; meta: EventsS
 
   const m = meta || fallbackMeta;
   const activeEvent = events.find((e) => e.slug === selectedEvent);
+  const whereAreTheMenEventCopy = getWhereAreTheMenEventCopy();
 
   useEffect(() => {
     const openFromHash = () => {
@@ -188,22 +190,25 @@ export default function EventsClient(props: { events: EventData[]; meta: EventsS
                         sizes="(max-width: 768px) 100vw, 50vw"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-bg-card/60 via-transparent to-transparent md:bg-none" />
-                      <div className="absolute top-4 left-4 rounded-full border border-accent/20 bg-bg/80 px-4 py-1.5 text-xs font-semibold text-accent backdrop-blur-sm">
-                        {event.badge}
+                      <div
+                        suppressHydrationWarning
+                        className="absolute top-4 left-4 rounded-full border border-accent/20 bg-bg/80 px-4 py-1.5 text-xs font-semibold text-accent backdrop-blur-sm"
+                      >
+                        {event.slug === WHERE_ARE_THE_MEN_EVENT_SLUG ? whereAreTheMenEventCopy.badge : event.badge}
                       </div>
                     </div>
 
                     {/* Content */}
                     <div className="p-6 sm:p-8 md:p-10">
                       <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-text-secondary">
-                        <span className="flex items-center gap-1.5">
+                        <span className="flex items-center gap-1.5" suppressHydrationWarning>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
                             <line x1="16" y1="2" x2="16" y2="6" />
                             <line x1="8" y1="2" x2="8" y2="6" />
                             <line x1="3" y1="10" x2="21" y2="10" />
                           </svg>
-                          {event.date}
+                          {event.slug === WHERE_ARE_THE_MEN_EVENT_SLUG ? whereAreTheMenEventCopy.dateWithTime : event.date}
                         </span>
                         <span className="flex items-center gap-1.5">
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

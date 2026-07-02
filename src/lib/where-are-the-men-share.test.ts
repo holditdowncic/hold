@@ -1,11 +1,27 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { NextRequest } from "next/server";
+import { getWhereAreTheMenEventCopy } from "./where-are-the-men-event-date";
 
 import {
   handleWhereAreTheMenShareSubmission,
   type WhereAreTheMenShareDependencies,
 } from "./where-are-the-men-share";
+
+test("calculates the next Where Are The Men Friday date in London time", () => {
+  assert.deepEqual(getWhereAreTheMenEventCopy(new Date("2026-07-02T12:00:00Z")), {
+    badge: "Upcoming: 3 July",
+    dateWithTime: "Friday 3 July 2026, 6-9pm",
+    fullDate: "Friday 3 July 2026",
+    pageHeading: "Friday 3 July, 159 London Road, Croydon.",
+  });
+  assert.deepEqual(getWhereAreTheMenEventCopy(new Date("2026-07-04T12:00:00Z")), {
+    badge: "Upcoming: 10 July",
+    dateWithTime: "Friday 10 July 2026, 6-9pm",
+    fullDate: "Friday 10 July 2026",
+    pageHeading: "Friday 10 July, 159 London Road, Croydon.",
+  });
+});
 
 function requestWithBody(body: unknown) {
   return new NextRequest("https://www.holditdown.uk/where-are-the-men/share", {
@@ -161,7 +177,7 @@ test("saves the share submission and notifies Telegram admins", async () => {
       name: "Marcus",
       message: "I want more safe places where boys can speak honestly.",
       campaign: "Where Are The Men",
-      event: "Friday 3 July 2026",
+      event: getWhereAreTheMenEventCopy().fullDate,
     },
     contactName: "Marcus",
     subject: "Where Are The Men - Share Your Voice",
