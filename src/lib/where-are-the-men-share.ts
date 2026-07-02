@@ -170,7 +170,7 @@ export async function handleWhereAreTheMenShareSubmission(
     name,
     message,
     campaign: "Where Are The Men",
-    event: "Friday 26 June 2026",
+    event: "Friday 3 July 2026",
   };
 
   const saveSubmission = deps.saveSubmission ?? saveFormSubmission;

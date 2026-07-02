@@ -161,7 +161,7 @@ test("saves the share submission and notifies Telegram admins", async () => {
       name: "Marcus",
       message: "I want more safe places where boys can speak honestly.",
       campaign: "Where Are The Men",
-      event: "Friday 26 June 2026",
+      event: "Friday 3 July 2026",
     },
     contactName: "Marcus",
     subject: "Where Are The Men - Share Your Voice",

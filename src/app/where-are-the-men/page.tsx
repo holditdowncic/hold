@@ -40,7 +40,7 @@ const welcomeList = [
 ];
 
 const shareYourVoicePath = "/where-are-the-men/share";
-const nextEventSlug = "where-are-the-men-croydon-26-june-2026";
+const nextEventSlug = "where-are-the-men-croydon-3-july-2026";
 
 export default function WhereAreTheMenPage() {
   return (
@@ -208,7 +208,7 @@ export default function WhereAreTheMenPage() {
                 Next community conversation
               </p>
               <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.25rem)] font-bold leading-tight">
-                Friday 26 June, 159 London Road, Croydon.
+                Friday 3 July, 159 London Road, Croydon.
               </h2>
               <p className="mt-5 max-w-[620px] text-lg leading-relaxed text-white/75">
                 Join us from 6pm to 9pm at 159 London Road, Croydon CR0 2RJ as we
