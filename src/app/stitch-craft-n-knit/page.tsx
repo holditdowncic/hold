@@ -51,6 +51,21 @@ const expectations = [
   "More than knitting: a space to connect, create, and belong",
 ];
 
+const finishedProjects = [
+  {
+    title: "Crochet lacy cardigan",
+    text: "This beautiful crochet lacy cardigan was completed by one of our group members today, showing the care, skill, and confidence growing within the group.",
+    image: "/media/stitch-craft-n-knit/crochet-lacy-cardigan.jpg",
+    alt: "Beautiful crochet lacy cardigan completed by a Stitch Craft N Knit group member",
+  },
+  {
+    title: "Double knitting yarn blanket",
+    text: "A colourful finished blanket created with different double knitting yarns, showing the creativity, patience, and care that grows through Stitch Craft N Knit.",
+    image: "/media/stitch-craft-n-knit/double-knitting-yarn-blanket.jpg",
+    alt: "Colourful completed knitted blanket made with different double knitting yarn",
+  },
+];
+
 export default function StitchCraftNKnitPage() {
   return (
     <div className="min-h-screen bg-bg text-text-primary">
@@ -179,32 +194,46 @@ export default function StitchCraftNKnitPage() {
         </section>
 
         <section className="border-y border-border bg-bg-elevated px-5 py-14 sm:px-6 md:py-20">
-          <div className="mx-auto grid max-w-[1200px] gap-10 md:grid-cols-[1.05fr_0.95fr] md:items-center">
+          <div className="mx-auto max-w-[1200px]">
             <div>
               <p className="mb-3 text-sm font-semibold uppercase text-text-primary">
-                Latest make
+                Latest makes
               </p>
               <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.25rem)] font-bold leading-tight">
-                Finished project
+                Finished projects
               </h2>
               <p className="mt-6 max-w-[680px] text-base leading-relaxed text-text-secondary sm:text-lg">
-                A colourful finished blanket created with different double
-                knitting yarns, showing the creativity, patience, and care that
-                grows through Stitch Craft N Knit.
+                Every completed piece tells a story of learning, patience, and
+                pride in what our members are able to create together.
               </p>
             </div>
 
-            <div className="overflow-hidden rounded-[1.25rem] border border-border bg-bg-card shadow-[0_18px_50px_rgba(30,20,45,0.12)]">
-              <div className="relative aspect-square">
-                <Image
-                  src="/media/stitch-craft-n-knit/double-knitting-yarn-blanket.jpg"
-                  alt="Colourful completed knitted blanket made with different double knitting yarn"
-                  fill
-                  unoptimized
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 520px"
-                />
-              </div>
+            <div className="mt-10 grid gap-6 md:grid-cols-2">
+              {finishedProjects.map((project) => (
+                <article
+                  key={project.title}
+                  className="overflow-hidden rounded-[1.25rem] border border-border bg-bg-card shadow-[0_18px_50px_rgba(30,20,45,0.12)]"
+                >
+                  <div className="relative aspect-[4/3]">
+                    <Image
+                      src={project.image}
+                      alt={project.alt}
+                      fill
+                      unoptimized
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 560px"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="font-[family-name:var(--font-heading)] text-2xl font-semibold text-text-primary">
+                      {project.title}
+                    </h3>
+                    <p className="mt-3 leading-relaxed text-text-secondary">
+                      {project.text}
+                    </p>
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
         </section>
