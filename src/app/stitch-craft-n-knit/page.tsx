@@ -54,7 +54,7 @@ const expectations = [
 const finishedProjects = [
   {
     title: "Soft pink knitted hat",
-    text: "A soft pink knitted hat finished by one of our group members, celebrating the care, patience, and growing confidence shared through every project.",
+    text: "A soft pink knitted hat finished by one of our group members, showing very good work in knitting cable stitches for the first time.",
     image: "/media/stitch-craft-n-knit/soft-pink-knitted-hat.jpg",
     alt: "Soft pink knitted hat finished by a Stitch Craft N Knit group member",
   },
