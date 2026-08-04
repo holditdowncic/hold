@@ -78,6 +78,13 @@ const finishedProjects = [
   },
 ];
 
+const placeVisits = [
+  {
+    title: "Southwark Cathedral",
+    text: "Some of the group members visited Southwark Cathedral for the Big Knit Day, sharing time together, seeing creativity in a wider community setting, and enjoying a special day out.",
+  },
+];
+
 export default function StitchCraftNKnitPage() {
   return (
     <div className="min-h-screen bg-bg text-text-primary">
@@ -244,6 +251,40 @@ export default function StitchCraftNKnitPage() {
                       {project.text}
                     </p>
                   </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="px-5 py-14 sm:px-6 md:py-20">
+          <div className="mx-auto grid max-w-[1200px] gap-8 md:grid-cols-[0.9fr_1.1fr] md:items-start">
+            <div>
+              <p className="mb-3 text-sm font-semibold uppercase text-text-primary">
+                Group outings
+              </p>
+              <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.25rem)] font-bold leading-tight">
+                Place of Visits
+              </h2>
+              <p className="mt-6 max-w-[620px] text-base leading-relaxed text-text-secondary sm:text-lg">
+                Stitch Craft N Knit is also about enjoying shared experiences
+                beyond the weekly sessions, giving members opportunities to
+                connect, explore, and be inspired together.
+              </p>
+            </div>
+
+            <div className="grid gap-4">
+              {placeVisits.map((visit) => (
+                <article
+                  key={visit.title}
+                  className="rounded-[1.25rem] border border-border bg-bg-card p-6 shadow-[0_18px_50px_rgba(30,20,45,0.1)]"
+                >
+                  <h3 className="font-[family-name:var(--font-heading)] text-2xl font-semibold text-text-primary">
+                    {visit.title}
+                  </h3>
+                  <p className="mt-3 leading-relaxed text-text-secondary">
+                    {visit.text}
+                  </p>
                 </article>
               ))}
             </div>
