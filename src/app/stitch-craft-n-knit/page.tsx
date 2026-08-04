@@ -82,6 +82,16 @@ const placeVisits = [
   {
     title: "Southwark Cathedral",
     text: "Some of the group members visited Southwark Cathedral for the Big Knit Day, sharing time together, seeing creativity in a wider community setting, and enjoying a special day out.",
+    images: [
+      {
+        src: "/media/stitch-craft-n-knit/southwark-cathedral-big-knit-day-1.jpg",
+        alt: "Stitch Craft N Knit members knitting together inside Southwark Cathedral for Big Knit Day",
+      },
+      {
+        src: "/media/stitch-craft-n-knit/southwark-cathedral-big-knit-day-2.jpg",
+        alt: "Group members knitting during the Big Knit Day visit at Southwark Cathedral",
+      },
+    ],
   },
 ];
 
@@ -277,14 +287,30 @@ export default function StitchCraftNKnitPage() {
               {placeVisits.map((visit) => (
                 <article
                   key={visit.title}
-                  className="rounded-[1.25rem] border border-border bg-bg-card p-6 shadow-[0_18px_50px_rgba(30,20,45,0.1)]"
+                  className="overflow-hidden rounded-[1.25rem] border border-border bg-bg-card shadow-[0_18px_50px_rgba(30,20,45,0.1)]"
                 >
-                  <h3 className="font-[family-name:var(--font-heading)] text-2xl font-semibold text-text-primary">
-                    {visit.title}
-                  </h3>
-                  <p className="mt-3 leading-relaxed text-text-secondary">
-                    {visit.text}
-                  </p>
+                  <div className="grid gap-1 sm:grid-cols-2">
+                    {visit.images.map((image) => (
+                      <div key={image.src} className="relative aspect-[4/3]">
+                        <Image
+                          src={image.src}
+                          alt={image.alt}
+                          fill
+                          unoptimized
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, 330px"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="p-6">
+                    <h3 className="font-[family-name:var(--font-heading)] text-2xl font-semibold text-text-primary">
+                      {visit.title}
+                    </h3>
+                    <p className="mt-3 leading-relaxed text-text-secondary">
+                      {visit.text}
+                    </p>
+                  </div>
                 </article>
               ))}
             </div>
