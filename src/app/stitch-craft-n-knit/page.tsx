@@ -53,6 +53,12 @@ const expectations = [
 
 const finishedProjects = [
   {
+    title: "Handmade yarn baskets",
+    text: "Colourful handmade yarn baskets created by Stitch Craft N Knit members, showing practical skills, creativity, and care in every stitch.",
+    image: "/media/stitch-craft-n-knit/handmade-yarn-baskets.jpg",
+    alt: "Colourful handmade yarn baskets created by Stitch Craft N Knit members",
+  },
+  {
     title: "Soft pink knitted hat",
     text: "A soft pink knitted hat finished by one of our group members, showing very good work in knitting cable stitches for the first time.",
     image: "/media/stitch-craft-n-knit/soft-pink-knitted-hat.jpg",
