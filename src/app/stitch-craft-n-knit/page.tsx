@@ -106,8 +106,8 @@ const placeVisits = [
     ],
   },
   {
-    title: "Textile and cultural history display",
-    text: "A place of visit for the group to explore textile artwork, cultural history, and creative storytelling together, bringing new inspiration back into the weekly sessions.",
+    title: "Bernie Grant Centre",
+    text: "The group visited the Bernie Grant Centre to see an exhibition of tapestry in Black art, exploring cultural history, textile artwork, and creative storytelling together.",
     images: [
       {
         src: "/media/stitch-craft-n-knit/place-of-visit-textile-display-1.jpg",
