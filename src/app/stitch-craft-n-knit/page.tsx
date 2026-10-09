@@ -81,6 +81,7 @@ const finishedProjects = [
     text: "A finished multicoloured crochet basket bag with green handles, made with a strong shape that is ready to use.",
     image: "/media/stitch-craft-n-knit/crochet-basket-bag-green-handles.jpg",
     alt: "Multicoloured crochet basket bag with green handles being held by a Stitch Craft N Knit group member",
+    plainDisplay: true,
   },
   {
     title: "Soft pink knitted hat",
@@ -291,7 +292,11 @@ export default function StitchCraftNKnitPage() {
               {finishedProjects.map((project) => (
                 <article
                   key={project.title}
-                  className="overflow-hidden rounded-[1.25rem] border border-border bg-bg-card shadow-[0_18px_50px_rgba(30,20,45,0.12)]"
+                  className={
+                    project.plainDisplay
+                      ? "overflow-hidden bg-transparent"
+                      : "overflow-hidden rounded-[1.25rem] border border-border bg-bg-card shadow-[0_18px_50px_rgba(30,20,45,0.12)]"
+                  }
                 >
                   <div className="relative aspect-[4/3]">
                     <Image
