@@ -59,6 +59,18 @@ const finishedProjects = [
     alt: "Colourful crochet baskets created with seven strands of DK yarn by Stitch Craft N Knit members",
   },
   {
+    title: "Green crochet basket bag",
+    text: "A finished crochet basket bag with green and blue yarns, completed with handles and a sturdy shape for everyday use.",
+    image: "/media/stitch-craft-n-knit/crochet-basket-bag-green.jpg",
+    alt: "Green and blue crochet basket bag with dark handles made by a Stitch Craft N Knit group member",
+  },
+  {
+    title: "Lined crochet basket bag",
+    text: "A colourful crochet basket bag finished with handles, a bright blue lining, and a drawstring closure.",
+    image: "/media/stitch-craft-n-knit/crochet-basket-bag-lined.jpg",
+    alt: "Colourful crochet basket bag with burgundy handles, blue lining, and white drawstring closure",
+  },
+  {
     title: "Soft pink knitted hat",
     text: "A soft pink knitted hat finished by one of our group members, showing very good work in knitting cable stitches for the first time.",
     image: "/media/stitch-craft-n-knit/soft-pink-knitted-hat.jpg",
