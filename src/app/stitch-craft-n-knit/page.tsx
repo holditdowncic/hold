@@ -144,6 +144,20 @@ const placeVisits = [
       },
     ],
   },
+  {
+    title: "The Knight Garden Centre",
+    text: "The group visited The Knight Garden Centre and then enjoyed afternoon tea together to celebrate finishing their crochet baskets.",
+    images: [
+      {
+        src: "/media/stitch-craft-n-knit/knight-garden-centre-afternoon-tea-1.jpg",
+        alt: "Stitch Craft N Knit group members enjoying afternoon tea after visiting The Knight Garden Centre",
+      },
+      {
+        src: "/media/stitch-craft-n-knit/knight-garden-centre-afternoon-tea-2.jpg",
+        alt: "Group afternoon tea celebration for Stitch Craft N Knit members after finishing their baskets",
+      },
+    ],
+  },
 ];
 
 export default function StitchCraftNKnitPage() {
