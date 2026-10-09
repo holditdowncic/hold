@@ -294,11 +294,17 @@ export default function StitchCraftNKnitPage() {
                   key={project.title}
                   className={
                     project.plainDisplay
-                      ? "overflow-hidden bg-transparent"
+                      ? "overflow-hidden bg-transparent shadow-none"
                       : "overflow-hidden rounded-[1.25rem] border border-border bg-bg-card shadow-[0_18px_50px_rgba(30,20,45,0.12)]"
                   }
                 >
-                  <div className="relative aspect-[4/3]">
+                  <div
+                    className={
+                      project.plainDisplay
+                        ? "relative aspect-[4/3] shadow-none"
+                        : "relative aspect-[4/3]"
+                    }
+                  >
                     <Image
                       src={project.image}
                       alt={project.alt}
