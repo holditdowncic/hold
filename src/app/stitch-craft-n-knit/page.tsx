@@ -105,6 +105,32 @@ const placeVisits = [
       },
     ],
   },
+  {
+    title: "Textile and cultural history display",
+    text: "A place of visit for the group to explore textile artwork, cultural history, and creative storytelling together, bringing new inspiration back into the weekly sessions.",
+    images: [
+      {
+        src: "/media/stitch-craft-n-knit/place-of-visit-textile-display-1.jpg",
+        alt: "Textile artwork showing cultural storytelling displayed during a Stitch Craft N Knit place of visit",
+      },
+      {
+        src: "/media/stitch-craft-n-knit/place-of-visit-textile-display-2.jpg",
+        alt: "Textile display featuring historical figures viewed during a Stitch Craft N Knit group visit",
+      },
+      {
+        src: "/media/stitch-craft-n-knit/place-of-visit-textile-display-3.jpg",
+        alt: "Close view of a cultural textile display photographed during a Stitch Craft N Knit visit",
+      },
+      {
+        src: "/media/stitch-craft-n-knit/place-of-visit-textile-display-4.jpg",
+        alt: "Textile display with portraits and floral details seen during a Stitch Craft N Knit outing",
+      },
+      {
+        src: "/media/stitch-craft-n-knit/place-of-visit-textile-display-5.jpg",
+        alt: "Detailed textile artwork photographed as part of a Stitch Craft N Knit place of visit",
+      },
+    ],
+  },
 ];
 
 export default function StitchCraftNKnitPage() {
@@ -286,7 +312,7 @@ export default function StitchCraftNKnitPage() {
                 Group outings
               </p>
               <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.25rem)] font-bold leading-tight">
-                Place of Visits
+                Place of visit
               </h2>
               <p className="mt-6 max-w-[620px] text-base leading-relaxed text-text-secondary sm:text-lg">
                 Stitch Craft N Knit is also about enjoying shared experiences
