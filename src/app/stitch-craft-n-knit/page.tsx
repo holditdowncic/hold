@@ -71,6 +71,12 @@ const finishedProjects = [
     alt: "Colourful crochet basket bag with burgundy handles, blue lining, and white drawstring closure",
   },
   {
+    title: "Crochet basket bag with red handles",
+    text: "A finished crochet basket bag made with rich autumn colours and bright red handles, showing another practical handmade project from the group.",
+    image: "/media/stitch-craft-n-knit/crochet-basket-bag-red-handles.jpg",
+    alt: "Crochet basket bag in autumn coloured yarn with bright red handles",
+  },
+  {
     title: "Soft pink knitted hat",
     text: "A soft pink knitted hat finished by one of our group members, showing very good work in knitting cable stitches for the first time.",
     image: "/media/stitch-craft-n-knit/soft-pink-knitted-hat.jpg",
