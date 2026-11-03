@@ -392,6 +392,47 @@ export default function StitchCraftNKnitPage() {
           </div>
         </section>
 
+        <section className="border-y border-border bg-bg-elevated px-5 py-14 sm:px-6 md:py-20">
+          <div className="mx-auto max-w-[1200px]">
+            <div className="grid gap-8 md:grid-cols-[1.1fr_0.9fr] md:items-center">
+              <div>
+                <p className="mb-3 text-sm font-semibold uppercase text-text-primary">
+                  Grant Project
+                </p>
+                <h2 className="font-[family-name:var(--font-heading)] text-[clamp(2rem,4vw,3.25rem)] font-bold leading-tight">
+                  Get Crafty
+                </h2>
+                <div className="mt-6 space-y-4 text-base leading-relaxed text-text-secondary sm:text-lg">
+                  <p>
+                    Join us for <strong>Get Crafty</strong> — a friendly space to get creative, make friends, learn new skills, and feel part of your community.
+                  </p>
+                  <ul className="space-y-2">
+                    <li><span className="font-semibold text-text-primary">Venue:</span> Thornton Heath Library</li>
+                    <li><span className="font-semibold text-text-primary">Time:</span> 10:30am – 12:30pm</li>
+                    <li><span className="font-semibold text-text-primary">Dates:</span> 13 Oct – 15 Dec 2026</li>
+                    <li><span className="font-semibold text-text-primary">Contact:</span> 07548 452270</li>
+                  </ul>
+                  <p className="text-sm text-text-secondary">
+                    Activities include: Knitting • Floristry • Art • Crochet • Up Cycle &amp; More
+                  </p>
+                </div>
+              </div>
+              <div className="overflow-hidden rounded-[1.25rem] border border-border bg-bg-card shadow-[0_18px_50px_rgba(30,20,45,0.12)]">
+                <div className="relative aspect-[3/4]">
+                  <Image
+                    src="/media/stitch-craft-n-knit/grant-project.jpg"
+                    alt="Get Crafty flyer — Grant Project sessions at Thornton Heath Library, 13 October to 15 December 2026, Tuesdays 10:30am to 12:30pm"
+                    fill
+                    unoptimized
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 500px"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section
           id="weekly-sessions"
           className="bg-[#102D30] px-5 py-14 text-white sm:px-6 md:py-20"
