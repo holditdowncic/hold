@@ -101,6 +101,12 @@ const finishedProjects = [
     image: "/media/stitch-craft-n-knit/double-knitting-yarn-blanket.jpg",
     alt: "Colourful completed knitted blanket made with different double knitting yarn",
   },
+  {
+    title: "Barbados flag jumper",
+    text: "A stunning finished jumper worked in the colours of the Barbados flag — ultramarine blue, gold, and black — a beautiful celebration of Caribbean heritage and skilled craftsmanship.",
+    image: "/media/stitch-craft-n-knit/barbados-flag-jumper.jpg",
+    alt: "Finished knitted jumper worked in the colours of the Barbados flag — blue, gold, and black — made by a Stitch Craft N Knit group member",
+  },
 ];
 
 const placeVisits = [
