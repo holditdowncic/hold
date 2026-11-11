@@ -108,6 +108,12 @@ const finishedProjects = [
     alt: "Finished knitted jumper worked in the colours of the Barbados flag — blue, gold, and black — made by a Stitch Craft N Knit group member",
   },
   {
+    title: "Crochet bag",
+    text: "A vibrant handmade crochet bag in a slouchy bucket style, worked in multicoloured yarn with shades of red, blue, yellow, and green. Finished with a clean white fabric lining and an adjustable black leather strap — a beautiful blend of artisanal craft and everyday practicality.",
+    image: "/media/stitch-craft-n-knit/crochet-bag-multicoloured-lined.jpg",
+    alt: "Multicoloured crochet bucket bag with white lining and black leather strap made by a Stitch Craft N Knit group member",
+  },
+  {
     title: "Chunky tweed",
     text: "A beautiful chunky knit sweater worked in blue tweed yarn, with a rich ribbed texture throughout the body and sleeves. A wonderful finished piece showing skill and patience from one of our group members.",
     image: "/media/stitch-craft-n-knit/chunky-tweed-sweater.jpg",
