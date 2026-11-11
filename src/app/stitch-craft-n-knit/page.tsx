@@ -107,6 +107,12 @@ const finishedProjects = [
     image: "/media/stitch-craft-n-knit/barbados-flag-jumper.jpg",
     alt: "Finished knitted jumper worked in the colours of the Barbados flag — blue, gold, and black — made by a Stitch Craft N Knit group member",
   },
+  {
+    title: "Chunky tweed",
+    text: "A beautiful chunky knit sweater worked in blue tweed yarn, with a rich ribbed texture throughout the body and sleeves. A wonderful finished piece showing skill and patience from one of our group members.",
+    image: "/media/stitch-craft-n-knit/chunky-tweed-sweater.jpg",
+    alt: "Chunky knitted blue tweed sweater with ribbed texture draped over a chair, made by a Stitch Craft N Knit group member",
+  },
 ];
 
 const placeVisits = [
